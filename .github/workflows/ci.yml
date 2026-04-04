@@ -1,0 +1,68 @@
+name: ci
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: node
+            language: node
+          - name: python
+            language: python
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up ${{ matrix.language }}
+        if: matrix.language == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Set up Python
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies (Node)
+        if: matrix.language == 'node'
+        run: |
+          cd apps/web && npm ci
+          cd ../../apps/admin && npm ci
+      - name: Lint (ESLint)
+        if: matrix.language == 'node'
+        run: |
+          cd apps/web && npx eslint .
+          cd ../../apps/admin && npx eslint .
+      - name: TypeScript check
+        if: matrix.language == 'node'
+        run: |
+          cd apps/web && npx tsc --noEmit
+          cd ../../apps/admin && npx tsc --noEmit
+      - name: Build (Node)
+        if: matrix.language == 'node'
+        run: |
+          cd apps/web && npm run build
+          cd ../../apps/admin && npm run build
+      - name: Install Python dependencies
+        if: matrix.language == 'python'
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .[dev]
+      - name: Ruff lint
+        if: matrix.language == 'python'
+        run: |
+          python -m ruff check .
+      - name: Ruff format check
+        if: matrix.language == 'python'
+        run: |
+          python -m ruff format --check .
+      - name: Pytest
+        if: matrix.language == 'python'
+        run: |
+          python -m pytest -q
+      - name: Docker build
+        run: |
+          docker compose build

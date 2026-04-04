@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: robco
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: robco_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  gateway:
+    build:
+      context: .
+      dockerfile: services/gateway/Dockerfile
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+
+  bim-ingestion:
+    build:
+      context: .
+      dockerfile: services/bim_ingestion/Dockerfile
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8001:8001"
+
+  orchestration:
+    build:
+      context: .
+      dockerfile: services/orchestration/Dockerfile
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8002:8002"
+
+  web:
+    build: ./apps/web
+    ports:
+      - "5173:80"
+    depends_on:
+      - gateway
+
+  admin:
+    build: ./apps/admin
+    ports:
+      - "5174:80"
+    depends_on:
+      - gateway
+
+volumes:
+  pgdata:
