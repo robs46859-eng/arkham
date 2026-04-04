@@ -1,24 +1,32 @@
 """
-BIM Ingestion service — initial implementation (contract-aligned stub).
+BIM Ingestion service — initial implementation (contract-aligned skeleton).
 Implements: Service Specification §2 — BIM Ingestion Service.
-Full v1 endpoints (/v1/files/register, /v1/files/{id}/ingest, etc.) added in next layer.
+Mounts: /healthz, /readyz, /v1/files/register, /v1/files/{id}/ingest,
+        /v1/ingestion/jobs/{id}, /v1/projects/{id}/files
+STUB paths: DB session, object storage validation, worker queue dispatch.
 """
 
 from fastapi import FastAPI
 
 from packages.schemas import HealthResponse
 from .settings import settings
+from .routers.files import router as files_router
 
-app = FastAPI(title="Robco BIM Ingestion")
+app = FastAPI(
+    title="Robco BIM Ingestion",
+    version="0.1.0",
+    description="File intake, validation, normalization, and parse job coordination.",
+)
+
+app.include_router(files_router)
 
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check() -> HealthResponse:
-    config = settings
     return HealthResponse(
         status="ok",
-        service=config.service_name,
-        environment=config.app_env,
+        service=settings.service_name,
+        environment=settings.app_env,
     )
 
 
@@ -33,5 +41,5 @@ async def healthz() -> HealthResponse:
 
 @app.get("/readyz")
 async def readyz() -> dict:
-    # STUB: add real dependency checks (db, redis, storage) before marking ready
+    # STUB: add DB ping, Redis ping, object storage reachability check
     return {"status": "ready", "service": settings.service_name}

@@ -1,6 +1,10 @@
 services:
+  # ── Infrastructure ──────────────────────────────────────────────────────────
+
   postgres:
-    image: postgres:15-alpine
+    # pgvector extension is available in pgvector/pgvector image
+    # Used for: structured domain records (primary DB) + vector store for semantic cache / memory
+    image: pgvector/pgvector:pg15
     environment:
       POSTGRES_USER: robco
       POSTGRES_PASSWORD: password
@@ -9,22 +13,56 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./infra/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U robco -d robco_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  minio:
+    # Object storage for BIM files (IFC, PDFs, schedules, markups) and deliverable artifacts
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: robco
+      MINIO_ROOT_PASSWORD: password123
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # MinIO console
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Services ─────────────────────────────────────────────────────────────────
 
   gateway:
     build:
       context: .
       dockerfile: services/gateway/Dockerfile
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
       REDIS_URL: redis://redis:6379/0
+      APP_ENV: development
     ports:
       - "8000:8000"
 
@@ -33,11 +71,20 @@ services:
       context: .
       dockerfile: services/bim_ingestion/Dockerfile
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
       REDIS_URL: redis://redis:6379/0
+      STORAGE_ENDPOINT: http://minio:9000
+      STORAGE_ACCESS_KEY: robco
+      STORAGE_SECRET_KEY: password123
+      STORAGE_BUCKET: bim-files
+      APP_ENV: development
     ports:
       - "8001:8001"
 
@@ -46,13 +93,18 @@ services:
       context: .
       dockerfile: services/orchestration/Dockerfile
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
       REDIS_URL: redis://redis:6379/0
+      APP_ENV: development
     ports:
       - "8002:8002"
+
+  # ── Frontend Apps ────────────────────────────────────────────────────────────
 
   web:
     build: ./apps/web
@@ -70,3 +122,4 @@ services:
 
 volumes:
   pgdata:
+  minio_data:
