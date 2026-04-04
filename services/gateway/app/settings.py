@@ -1,14 +1,21 @@
-import os
-from pydantic_settings import BaseSettings
+"""
+Gateway service settings.
+Implements: Build Rules §4 — No untyped environment access.
+All config via typed pydantic-settings, sourced from environment / .env file.
+"""
 
-class Settings(BaseSettings):
-    service_name: str = os.getenv("SERVICE_NAME", "robco-gateway")
-    app_env: str = os.getenv("APP_ENV", "development")
-    database_url: str = os.getenv("DATABASE_URL", "postgresql://robco:password@postgres:5432/robco_db")
-    redis_url: str = os.getenv("REDIS_URL", "redis://redis:6379/0")
+from packages.config.base import BaseServiceSettings, build_settings
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
 
-settings = Settings()
+class Settings(BaseServiceSettings):
+    service_name: str = "gateway"
+
+    # Signing key for tenant auth tokens (stub — replace with real secret in production)
+    signing_key: str = "changeme"
+
+    # Feature flags
+    enable_premium_escalation: bool = False
+    enable_semantic_cache: bool = False
+
+
+settings: Settings = build_settings(Settings)  # type: ignore[assignment]
