@@ -10,9 +10,9 @@ from __future__ import annotations
 import time
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 
-from packages.schemas import InferenceRequest, InferenceResponse
+from packages.schemas import ErrorResponse, InferenceRequest, InferenceResponse
 from packages.schemas.gateway import ModelTier, ValidationResult
 from ..clients import privacy as privacy_client
 from ..middleware.auth import require_tenant
@@ -85,7 +85,25 @@ async def _maybe_restore(request: InferenceRequest, request_id: str, text: str) 
         return text
 
 
-@router.post("/infer", response_model=InferenceResponse)
+@router.post(
+    "/infer",
+    response_model=InferenceResponse,
+    summary="Run normalized inference",
+    description=(
+        "Runs a tenant-scoped inference request through routing, optional privacy "
+        "sanitization, semantic cache lookup, provider execution, and response validation."
+    ),
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "model": ErrorResponse,
+            "description": "Missing or invalid bearer token.",
+        },
+        status.HTTP_502_BAD_GATEWAY: {
+            "model": ErrorResponse,
+            "description": "Privacy service dependency failed in fail-closed mode.",
+        },
+    },
+)
 async def infer(
     request: InferenceRequest,
     response: Response,

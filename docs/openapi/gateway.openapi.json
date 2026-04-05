@@ -1,0 +1,1661 @@
+{
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "example": {
+          "detail": "Authentication required. Provide Authorization: Bearer <token>."
+        },
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "properties": {
+          "environment": {
+            "title": "Environment",
+            "type": "string"
+          },
+          "service": {
+            "title": "Service",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "service",
+          "environment"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "InferenceInput": {
+        "example": {
+          "context": {
+            "privacy_tier": "enterprise",
+            "project_name": "Denver Tower"
+          },
+          "references": [
+            "gs://robco-staging-bucket/coordination/week-14.pdf"
+          ],
+          "text": "Summarize the BIM coordination notes and highlight blocking issues."
+        },
+        "properties": {
+          "context": {
+            "additionalProperties": true,
+            "title": "Context",
+            "type": "object"
+          },
+          "references": {
+            "items": {
+              "type": "string"
+            },
+            "title": "References",
+            "type": "array"
+          },
+          "text": {
+            "default": "",
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "title": "InferenceInput",
+        "type": "object"
+      },
+      "InferenceOptions": {
+        "example": {
+          "allow_premium": true,
+          "require_schema": true
+        },
+        "properties": {
+          "allow_premium": {
+            "default": false,
+            "title": "Allow Premium",
+            "type": "boolean"
+          },
+          "require_schema": {
+            "default": true,
+            "title": "Require Schema",
+            "type": "boolean"
+          }
+        },
+        "title": "InferenceOptions",
+        "type": "object"
+      },
+      "InferenceRequest": {
+        "description": "Normalized inference request. All gateway calls must use this shape.",
+        "example": {
+          "input": {
+            "context": {
+              "privacy_tier": "enterprise",
+              "project_name": "Denver Tower"
+            },
+            "references": [
+              "gs://robco-staging-bucket/coordination/week-14.pdf"
+            ],
+            "text": "Summarize the BIM coordination notes and highlight blocking issues."
+          },
+          "options": {
+            "allow_premium": true,
+            "require_schema": true
+          },
+          "project_id": "proj_01hv6n8h0q9x2r4s6t8u1v3w5y",
+          "task_type": "summary",
+          "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t"
+        },
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/InferenceInput"
+          },
+          "options": {
+            "$ref": "#/components/schemas/InferenceOptions"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "task_type": {
+            "$ref": "#/components/schemas/TaskType"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "project_id",
+          "task_type"
+        ],
+        "title": "InferenceRequest",
+        "type": "object"
+      },
+      "InferenceResponse": {
+        "description": "Normalized inference response returned by the gateway.",
+        "example": {
+          "cache_hit": false,
+          "cost_estimate": 0.014,
+          "latency_ms": 842,
+          "model_used": "mid",
+          "output": {
+            "model_tier": "mid",
+            "result": "Two blocking issues were identified: unresolved duct clashes and a missing fireproofing submittal."
+          },
+          "request_id": "req_01hv6nm2q6q9k7n8p1r2s3t4u5",
+          "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t",
+          "validation": {
+            "errors": [],
+            "passed": true
+          }
+        },
+        "properties": {
+          "cache_hit": {
+            "title": "Cache Hit",
+            "type": "boolean"
+          },
+          "cost_estimate": {
+            "title": "Cost Estimate",
+            "type": "number"
+          },
+          "latency_ms": {
+            "title": "Latency Ms",
+            "type": "integer"
+          },
+          "model_used": {
+            "$ref": "#/components/schemas/ModelTier"
+          },
+          "output": {
+            "additionalProperties": true,
+            "title": "Output",
+            "type": "object"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/ValidationResult"
+          }
+        },
+        "required": [
+          "request_id",
+          "tenant_id",
+          "model_used",
+          "cache_hit",
+          "latency_ms",
+          "cost_estimate"
+        ],
+        "title": "InferenceResponse",
+        "type": "object"
+      },
+      "ModelTier": {
+        "enum": [
+          "local",
+          "mid",
+          "premium"
+        ],
+        "title": "ModelTier",
+        "type": "string"
+      },
+      "TaskType": {
+        "enum": [
+          "classification",
+          "extraction",
+          "summary",
+          "workflow"
+        ],
+        "title": "TaskType",
+        "type": "string"
+      },
+      "TenantAPIKeyCreateResponse": {
+        "example": {
+          "api_key": "rk_live_01hv_example_plaintext_key",
+          "api_key_id": "key_01hv6q2t6j8x7m4r9k2p1q3s4t",
+          "created_at": "2026-04-05T12:35:00Z",
+          "key_prefix": "rk_live_01hv",
+          "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t"
+        },
+        "properties": {
+          "api_key": {
+            "title": "Api Key",
+            "type": "string"
+          },
+          "api_key_id": {
+            "title": "Api Key Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "key_prefix": {
+            "title": "Key Prefix",
+            "type": "string"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "api_key_id",
+          "tenant_id",
+          "key_prefix",
+          "api_key",
+          "created_at"
+        ],
+        "title": "TenantAPIKeyCreateResponse",
+        "type": "object"
+      },
+      "TenantAPIKeyResponse": {
+        "example": {
+          "api_key_id": "key_01hv6q2t6j8x7m4r9k2p1q3s4t",
+          "created_at": "2026-04-05T12:35:00Z",
+          "is_active": true,
+          "key_prefix": "rk_live_01hv",
+          "last_used_at": "2026-04-05T13:10:00Z",
+          "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t",
+          "updated_at": "2026-04-05T12:35:00Z"
+        },
+        "properties": {
+          "api_key_id": {
+            "title": "Api Key Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "key_prefix": {
+            "title": "Key Prefix",
+            "type": "string"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used At"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "api_key_id",
+          "tenant_id",
+          "key_prefix",
+          "is_active",
+          "created_at",
+          "updated_at",
+          "last_used_at"
+        ],
+        "title": "TenantAPIKeyResponse",
+        "type": "object"
+      },
+      "TenantCreate": {
+        "example": {
+          "enable_premium_escalation": true,
+          "enable_semantic_cache": true,
+          "is_active": true,
+          "name": "Robco Staging",
+          "plan": "enterprise"
+        },
+        "properties": {
+          "enable_premium_escalation": {
+            "default": false,
+            "title": "Enable Premium Escalation",
+            "type": "boolean"
+          },
+          "enable_semantic_cache": {
+            "default": false,
+            "title": "Enable Semantic Cache",
+            "type": "boolean"
+          },
+          "is_active": {
+            "default": true,
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "plan": {
+            "default": "free",
+            "title": "Plan",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "TenantCreate",
+        "type": "object"
+      },
+      "TenantResponse": {
+        "example": {
+          "cache_similarity_threshold": 0.92,
+          "created_at": "2026-04-05T12:00:00Z",
+          "enable_premium_escalation": true,
+          "enable_semantic_cache": true,
+          "is_active": true,
+          "max_requests_per_day": 5000,
+          "name": "Robco Staging",
+          "plan": "enterprise",
+          "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t",
+          "updated_at": "2026-04-05T12:30:00Z"
+        },
+        "properties": {
+          "cache_similarity_threshold": {
+            "default": 0.92,
+            "title": "Cache Similarity Threshold",
+            "type": "number"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "enable_premium_escalation": {
+            "default": false,
+            "title": "Enable Premium Escalation",
+            "type": "boolean"
+          },
+          "enable_semantic_cache": {
+            "default": false,
+            "title": "Enable Semantic Cache",
+            "type": "boolean"
+          },
+          "is_active": {
+            "title": "Is Active",
+            "type": "boolean"
+          },
+          "max_requests_per_day": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Requests Per Day"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "plan": {
+            "default": "free",
+            "title": "Plan",
+            "type": "string"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "name",
+          "is_active",
+          "max_requests_per_day",
+          "created_at"
+        ],
+        "title": "TenantResponse",
+        "type": "object"
+      },
+      "TenantUpdate": {
+        "example": {
+          "cache_similarity_threshold": 0.94,
+          "enable_premium_escalation": true,
+          "enable_semantic_cache": true,
+          "max_requests_per_day": 5000,
+          "plan": "enterprise"
+        },
+        "properties": {
+          "cache_similarity_threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cache Similarity Threshold"
+          },
+          "enable_premium_escalation": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enable Premium Escalation"
+          },
+          "enable_semantic_cache": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enable Semantic Cache"
+          },
+          "is_active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Is Active"
+          },
+          "max_requests_per_day": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Requests Per Day"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "plan": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan"
+          }
+        },
+        "title": "TenantUpdate",
+        "type": "object"
+      },
+      "TokenRequest": {
+        "example": {
+          "api_key": "rk_live_01hv_example_plaintext_key",
+          "project_id": "proj_01hv6n8h0q9x2r4s6t8u1v3w5y",
+          "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t"
+        },
+        "properties": {
+          "api_key": {
+            "title": "Api Key",
+            "type": "string"
+          },
+          "project_id": {
+            "default": "",
+            "title": "Project Id",
+            "type": "string"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "api_key"
+        ],
+        "title": "TokenRequest",
+        "type": "object"
+      },
+      "TokenResponse": {
+        "example": {
+          "access_token": "eyJhbGciOi...",
+          "expires_in": 86400,
+          "token_type": "bearer"
+        },
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "expires_in": {
+            "title": "Expires In",
+            "type": "integer"
+          },
+          "token_type": {
+            "default": "bearer",
+            "title": "Token Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "expires_in"
+        ],
+        "title": "TokenResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "ValidationResult": {
+        "example": {
+          "errors": [],
+          "passed": true
+        },
+        "properties": {
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Errors",
+            "type": "array"
+          },
+          "passed": {
+            "title": "Passed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "passed"
+        ],
+        "title": "ValidationResult",
+        "type": "object"
+      },
+      "WorkflowRun": {
+        "description": "Full workflow run record. Must be persisted and resumable from checkpoint.",
+        "example": {
+          "checkpoint": {
+            "uploaded_files": 3
+          },
+          "created_at": "2026-04-05T12:35:00Z",
+          "current_step": "extract_rfis",
+          "project_id": "proj_01hv6n8h0q9x2r4s6t8u1v3w5y",
+          "status": "running",
+          "steps": [
+            {
+              "checkpoint": {
+                "uploaded_files": 3
+              },
+              "completed_at": "2026-04-05T12:38:00Z",
+              "started_at": "2026-04-05T12:35:00Z",
+              "status": "complete",
+              "step_name": "ingest_documents"
+            }
+          ],
+          "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t",
+          "type": "project_intake",
+          "updated_at": "2026-04-05T12:40:00Z",
+          "workflow_id": "wf_01hv6r7v6j8x7m4r9k2p1q3s4t"
+        },
+        "properties": {
+          "checkpoint": {
+            "additionalProperties": true,
+            "title": "Checkpoint",
+            "type": "object"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "current_step": {
+            "title": "Current Step",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/WorkflowStep"
+            },
+            "title": "Steps",
+            "type": "array"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "workflow_id": {
+            "title": "Workflow Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workflow_id",
+          "type",
+          "tenant_id",
+          "project_id",
+          "status",
+          "current_step",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "WorkflowRun",
+        "type": "object"
+      },
+      "WorkflowStartRequest": {
+        "example": {
+          "inputs": {
+            "source_files": [
+              "gs://robco-staging-bucket/intake/project-brief.pdf",
+              "gs://robco-staging-bucket/intake/rfis.xlsx"
+            ]
+          },
+          "project_id": "proj_01hv6n8h0q9x2r4s6t8u1v3w5y",
+          "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t",
+          "workflow_type": "project_intake"
+        },
+        "properties": {
+          "inputs": {
+            "additionalProperties": true,
+            "title": "Inputs",
+            "type": "object"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "workflow_type": {
+            "title": "Workflow Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant_id",
+          "project_id",
+          "workflow_type"
+        ],
+        "title": "WorkflowStartRequest",
+        "type": "object"
+      },
+      "WorkflowStatus": {
+        "enum": [
+          "running",
+          "complete",
+          "failed",
+          "paused"
+        ],
+        "title": "WorkflowStatus",
+        "type": "string"
+      },
+      "WorkflowStep": {
+        "description": "Individual step record within a workflow run.",
+        "example": {
+          "checkpoint": {
+            "processed_pages": 12
+          },
+          "started_at": "2026-04-05T12:40:00Z",
+          "status": "running",
+          "step_name": "extract_rfis"
+        },
+        "properties": {
+          "checkpoint": {
+            "additionalProperties": true,
+            "title": "Checkpoint",
+            "type": "object"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/WorkflowStatus"
+          },
+          "step_name": {
+            "title": "Step Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "step_name",
+          "status"
+        ],
+        "title": "WorkflowStep",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "bearerFormat": "JWT",
+        "description": "Bearer token returned by POST /v1/auth/token.",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "email": "robcofamily@gmail.com",
+      "name": "Robco Platform"
+    },
+    "description": "Centralized inference control plane and policy engine for tenant-scoped authentication, normalized inference, workflow entry, and control-plane tenant administration.",
+    "title": "Robco Gateway",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Liveness check",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/healthz": {
+      "get": {
+        "operationId": "healthz_healthz_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health check",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/metrics": {
+      "get": {
+        "operationId": "metrics_metrics_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Metrics Metrics Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Metrics scaffold status",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/readyz": {
+      "get": {
+        "operationId": "readyz_readyz_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Readyz Readyz Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Readiness check",
+        "tags": [
+          "system"
+        ]
+      }
+    },
+    "/v1/auth/token": {
+      "post": {
+        "description": "Validates a tenant-scoped API key and returns a JWT bearer token for subsequent protected gateway requests.",
+        "operationId": "issue_access_token_v1_auth_token_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Invalid tenant, project, or API key payload."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Tenant API key validation failed."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Issue bearer token",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/infer": {
+      "post": {
+        "description": "Runs a tenant-scoped inference request through routing, optional privacy sanitization, semantic cache lookup, provider execution, and response validation.",
+        "operationId": "infer_v1_infer_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Tenant-Id"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InferenceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InferenceResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Missing or invalid bearer token."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Privacy service dependency failed in fail-closed mode."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Run normalized inference",
+        "tags": [
+          "inference"
+        ]
+      }
+    },
+    "/v1/tenants": {
+      "get": {
+        "description": "Returns tenant records, optionally filtered to active tenants only.",
+        "operationId": "list_tenants_v1_tenants_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "active_only",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Active Only",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TenantResponse"
+                  },
+                  "title": "Response List Tenants V1 Tenants Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List tenants",
+        "tags": [
+          "tenants"
+        ]
+      },
+      "post": {
+        "description": "Creates a tenant record that can later issue tenant-scoped API keys.",
+        "operationId": "create_tenant_v1_tenants_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Tenant payload is invalid."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create tenant",
+        "tags": [
+          "tenants"
+        ]
+      }
+    },
+    "/v1/tenants/{tenant_id}": {
+      "get": {
+        "operationId": "get_tenant_v1_tenants__tenant_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Tenant was not found."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get tenant",
+        "tags": [
+          "tenants"
+        ]
+      },
+      "patch": {
+        "operationId": "update_tenant_v1_tenants__tenant_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TenantUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Tenant was not found."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update tenant",
+        "tags": [
+          "tenants"
+        ]
+      }
+    },
+    "/v1/tenants/{tenant_id}/api-keys": {
+      "get": {
+        "operationId": "list_api_keys_v1_tenants__tenant_id__api_keys_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TenantAPIKeyResponse"
+                  },
+                  "title": "Response List Api Keys V1 Tenants  Tenant Id  Api Keys Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Tenant was not found."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List tenant API keys",
+        "tags": [
+          "tenants"
+        ]
+      },
+      "post": {
+        "description": "Issues a new plaintext API key and returns it once at creation time.",
+        "operationId": "create_api_key_v1_tenants__tenant_id__api_keys_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tenant_id",
+            "required": true,
+            "schema": {
+              "title": "Tenant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantAPIKeyCreateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Tenant was not found."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create tenant API key",
+        "tags": [
+          "tenants"
+        ]
+      }
+    },
+    "/v1/workflows/start": {
+      "post": {
+        "description": "Creates an initial workflow run and hands off execution to orchestration.",
+        "operationId": "start_workflow_v1_workflows_start_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-Tenant-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Tenant-Id"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkflowStartRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Missing or invalid bearer token."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Start workflow",
+        "tags": [
+          "workflows"
+        ]
+      }
+    },
+    "/v1/workflows/{workflow_id}": {
+      "get": {
+        "description": "Looks up workflow status by workflow ID.",
+        "operationId": "get_workflow_v1_workflows__workflow_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workflow_id",
+            "required": true,
+            "schema": {
+              "title": "Workflow Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Tenant-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Tenant-Id"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkflowRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Workflow ID format is invalid."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Missing or invalid bearer token."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Workflow was not found."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get workflow status",
+        "tags": [
+          "workflows"
+        ]
+      }
+    }
+  }
+}

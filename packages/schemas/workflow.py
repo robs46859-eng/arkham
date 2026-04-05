@@ -10,7 +10,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class WorkflowStatus(str, Enum):
@@ -30,6 +30,19 @@ class WorkflowStep(BaseModel):
     error: str | None = None
     checkpoint: dict[str, Any] = Field(default_factory=dict)
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "step_name": "extract_rfis",
+                "status": "running",
+                "started_at": "2026-04-05T12:40:00Z",
+                "completed_at": None,
+                "error": None,
+                "checkpoint": {"processed_pages": 12},
+            }
+        }
+    )
+
 
 class WorkflowRun(BaseModel):
     """Full workflow run record. Must be persisted and resumable from checkpoint."""
@@ -44,3 +57,29 @@ class WorkflowRun(BaseModel):
     steps: list[WorkflowStep] = Field(default_factory=list)
     created_at: datetime
     updated_at: datetime
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "workflow_id": "wf_01hv6r7v6j8x7m4r9k2p1q3s4t",
+                "type": "project_intake",
+                "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t",
+                "project_id": "proj_01hv6n8h0q9x2r4s6t8u1v3w5y",
+                "status": "running",
+                "current_step": "extract_rfis",
+                "checkpoint": {"uploaded_files": 3},
+                "steps": [
+                    {
+                        "step_name": "ingest_documents",
+                        "status": "complete",
+                        "started_at": "2026-04-05T12:35:00Z",
+                        "completed_at": "2026-04-05T12:38:00Z",
+                        "error": None,
+                        "checkpoint": {"uploaded_files": 3},
+                    }
+                ],
+                "created_at": "2026-04-05T12:35:00Z",
+                "updated_at": "2026-04-05T12:40:00Z",
+            }
+        }
+    )

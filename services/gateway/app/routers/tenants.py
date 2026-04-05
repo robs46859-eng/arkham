@@ -6,11 +6,12 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from packages.db import get_db
 from packages.models import Tenant, TenantAPIKey
 from packages.schemas import (
+    ErrorResponse,
     TenantAPIKeyCreateResponse,
     TenantAPIKeyResponse,
     TenantCreate,
@@ -84,7 +85,12 @@ def _api_key_to_response(record: TenantAPIKey) -> TenantAPIKeyResponse:
     )
 
 
-@router.get("", response_model=list[TenantResponse])
+@router.get(
+    "",
+    response_model=list[TenantResponse],
+    summary="List tenants",
+    description="Returns tenant records, optionally filtered to active tenants only.",
+)
 def list_tenants(
     active_only: bool = Query(default=False),
     db: object = Depends(get_db),
@@ -98,7 +104,18 @@ def list_tenants(
     return [_tenant_to_response(tenant) for tenant in tenants]
 
 
-@router.post("", response_model=TenantResponse)
+@router.post(
+    "",
+    response_model=TenantResponse,
+    summary="Create tenant",
+    description="Creates a tenant record that can later issue tenant-scoped API keys.",
+    responses={
+        status.HTTP_400_BAD_REQUEST: {
+            "model": ErrorResponse,
+            "description": "Tenant payload is invalid.",
+        }
+    },
+)
 def create_tenant(
     request: TenantCreate,
     db: object = Depends(get_db),
@@ -106,7 +123,17 @@ def create_tenant(
     return create_tenant_record(request, db)
 
 
-@router.get("/{tenant_id}", response_model=TenantResponse)
+@router.get(
+    "/{tenant_id}",
+    response_model=TenantResponse,
+    summary="Get tenant",
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Tenant was not found.",
+        }
+    },
+)
 def get_tenant(tenant_id: str, db: object = Depends(get_db)) -> TenantResponse:
     tenant = _get_record(db, Tenant, tenant_id)
     if tenant is None or not isinstance(tenant, Tenant):
@@ -114,7 +141,17 @@ def get_tenant(tenant_id: str, db: object = Depends(get_db)) -> TenantResponse:
     return _tenant_to_response(tenant)
 
 
-@router.patch("/{tenant_id}", response_model=TenantResponse)
+@router.patch(
+    "/{tenant_id}",
+    response_model=TenantResponse,
+    summary="Update tenant",
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Tenant was not found.",
+        }
+    },
+)
 def update_tenant(
     tenant_id: str,
     request: TenantUpdate,
@@ -136,7 +173,17 @@ def update_tenant(
     return _tenant_to_response(tenant)
 
 
-@router.get("/{tenant_id}/api-keys", response_model=list[TenantAPIKeyResponse])
+@router.get(
+    "/{tenant_id}/api-keys",
+    response_model=list[TenantAPIKeyResponse],
+    summary="List tenant API keys",
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Tenant was not found.",
+        }
+    },
+)
 def list_api_keys(tenant_id: str, db: object = Depends(get_db)) -> list[TenantAPIKeyResponse]:
     tenant = _get_record(db, Tenant, tenant_id)
     if tenant is None or not isinstance(tenant, Tenant):
@@ -144,7 +191,18 @@ def list_api_keys(tenant_id: str, db: object = Depends(get_db)) -> list[TenantAP
     return [_api_key_to_response(record) for record in list_tenant_api_keys(db, tenant_id)]
 
 
-@router.post("/{tenant_id}/api-keys", response_model=TenantAPIKeyCreateResponse)
+@router.post(
+    "/{tenant_id}/api-keys",
+    response_model=TenantAPIKeyCreateResponse,
+    summary="Create tenant API key",
+    description="Issues a new plaintext API key and returns it once at creation time.",
+    responses={
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Tenant was not found.",
+        }
+    },
+)
 def create_api_key(tenant_id: str, db: object = Depends(get_db)) -> TenantAPIKeyCreateResponse:
     tenant = _get_record(db, Tenant, tenant_id)
     if tenant is None or not isinstance(tenant, Tenant):

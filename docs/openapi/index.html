@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Robco Gateway API Docs</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f1e8;
+        --panel: #fffdf8;
+        --text: #1d1a16;
+        --muted: #6a6257;
+        --accent: #b04a2f;
+        --border: #d9cfbf;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", "Avenir Next", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(176, 74, 47, 0.12), transparent 32%),
+          linear-gradient(180deg, #fbf7f0 0%, var(--bg) 100%);
+      }
+
+      .shell {
+        border-bottom: 1px solid var(--border);
+        background: rgba(255, 253, 248, 0.88);
+        backdrop-filter: blur(10px);
+        padding: 24px 28px 18px;
+      }
+
+      .eyebrow {
+        margin: 0 0 6px;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.05;
+      }
+
+      .sub {
+        margin: 10px 0 0;
+        max-width: 840px;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .actions a {
+        color: var(--text);
+        text-decoration: none;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 600;
+      }
+
+      .actions a.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: white;
+      }
+
+      redoc {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <p class="eyebrow">Robco Platform</p>
+      <h1>Gateway API Docs</h1>
+      <p class="sub">
+        Interactive reference for the generated gateway OpenAPI specification. Use the bearer
+        token from <code>POST /v1/auth/token</code> for protected endpoints.
+      </p>
+      <div class="actions">
+        <a class="primary" href="./gateway.openapi.json">Download OpenAPI JSON</a>
+        <a href="./README.md">Open Docs README</a>
+      </div>
+    </div>
+
+    <redoc spec-url="./gateway.openapi.json" hide-download-button></redoc>
+    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+  </body>
+</html>

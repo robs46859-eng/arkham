@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TenantCreate(BaseModel):
@@ -13,6 +13,18 @@ class TenantCreate(BaseModel):
     plan: str = "free"
     enable_premium_escalation: bool = False
     enable_semantic_cache: bool = False
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "name": "Robco Staging",
+                "is_active": True,
+                "plan": "enterprise",
+                "enable_premium_escalation": True,
+                "enable_semantic_cache": True,
+            }
+        }
+    )
 
 
 class TenantUpdate(BaseModel):
@@ -23,6 +35,18 @@ class TenantUpdate(BaseModel):
     enable_semantic_cache: bool | None = None
     cache_similarity_threshold: float | None = None
     max_requests_per_day: int | None = None
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "plan": "enterprise",
+                "enable_premium_escalation": True,
+                "enable_semantic_cache": True,
+                "cache_similarity_threshold": 0.94,
+                "max_requests_per_day": 5000,
+            }
+        }
+    )
 
 
 class TenantResponse(BaseModel):
@@ -37,6 +61,23 @@ class TenantResponse(BaseModel):
     created_at: datetime
     updated_at: datetime | None = None
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t",
+                "name": "Robco Staging",
+                "plan": "enterprise",
+                "is_active": True,
+                "enable_premium_escalation": True,
+                "enable_semantic_cache": True,
+                "cache_similarity_threshold": 0.92,
+                "max_requests_per_day": 5000,
+                "created_at": "2026-04-05T12:00:00Z",
+                "updated_at": "2026-04-05T12:30:00Z",
+            }
+        }
+    )
+
 
 class TenantAPIKeyCreateResponse(BaseModel):
     api_key_id: str
@@ -44,6 +85,18 @@ class TenantAPIKeyCreateResponse(BaseModel):
     key_prefix: str
     api_key: str
     created_at: datetime
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "api_key_id": "key_01hv6q2t6j8x7m4r9k2p1q3s4t",
+                "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t",
+                "key_prefix": "rk_live_01hv",
+                "api_key": "rk_live_01hv_example_plaintext_key",
+                "created_at": "2026-04-05T12:35:00Z",
+            }
+        }
+    )
 
 
 class TenantAPIKeyResponse(BaseModel):
@@ -54,6 +107,20 @@ class TenantAPIKeyResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     last_used_at: datetime | None
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "api_key_id": "key_01hv6q2t6j8x7m4r9k2p1q3s4t",
+                "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t",
+                "key_prefix": "rk_live_01hv",
+                "is_active": True,
+                "created_at": "2026-04-05T12:35:00Z",
+                "updated_at": "2026-04-05T12:35:00Z",
+                "last_used_at": "2026-04-05T13:10:00Z",
+            }
+        }
+    )
 
 
 class DailyUsage(BaseModel):

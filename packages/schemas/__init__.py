@@ -5,6 +5,7 @@ Implements: System Contracts Document (all entity contracts)
 """
 
 from .health import HealthResponse
+from .errors import ErrorResponse
 from .gateway import InferenceRequest, InferenceResponse
 from .ingestion import IngestionRequest, IngestionResponse
 from .domain import (
@@ -40,6 +41,7 @@ from .admin import (
 
 __all__ = [
     "HealthResponse",
+    "ErrorResponse",
     "InferenceRequest",
     "InferenceResponse",
     "IngestionRequest",

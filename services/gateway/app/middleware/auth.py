@@ -22,10 +22,18 @@ from __future__ import annotations
 import os
 from typing import Optional
 
-from fastapi import Header, HTTPException, Request
+from fastapi import Depends, Header, HTTPException, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from ..auth.tokens import TokenError, verify_token
 from ..settings import settings
+
+
+bearer_scheme = HTTPBearer(
+    bearerFormat="JWT",
+    description="Bearer token returned by POST /v1/auth/token.",
+    auto_error=False,
+)
 
 
 def _is_test_env() -> bool:
@@ -34,7 +42,7 @@ def _is_test_env() -> bool:
 
 async def require_tenant(
     request: Request,
-    authorization: Optional[str] = Header(default=None, alias="Authorization"),
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-Id"),
     x_project_id: Optional[str] = Header(default=None, alias="X-Project-Id"),
 ) -> tuple[str, str]:
@@ -48,8 +56,8 @@ async def require_tenant(
     Raises HTTPException 401 on any auth failure.
     """
     # ── Primary path: JWT Bearer ──────────────────────────────────────────────
-    if authorization and authorization.lower().startswith("bearer "):
-        raw_token = authorization[7:].strip()
+    if credentials and credentials.scheme.lower() == "bearer":
+        raw_token = credentials.credentials.strip()
         try:
             payload = verify_token(raw_token, signing_key=settings.signing_key)
         except TokenError as exc:

@@ -11,10 +11,10 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, ConfigDict, Field
 
-from packages.schemas import WorkflowRun, WorkflowStatus
+from packages.schemas import ErrorResponse, WorkflowRun, WorkflowStatus
 from ..middleware.auth import require_tenant
 
 router = APIRouter(prefix="/v1/workflows", tags=["workflows"])
@@ -24,10 +24,37 @@ class WorkflowStartRequest(BaseModel):
     tenant_id: str  # format: tenant_<ulid>
     project_id: str  # format: proj_<ulid>
     workflow_type: str  # e.g. "project_intake"
-    inputs: dict[str, Any] = {}
+    inputs: dict[str, Any] = Field(default_factory=dict)
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t",
+                "project_id": "proj_01hv6n8h0q9x2r4s6t8u1v3w5y",
+                "workflow_type": "project_intake",
+                "inputs": {
+                    "source_files": [
+                        "gs://robco-staging-bucket/intake/project-brief.pdf",
+                        "gs://robco-staging-bucket/intake/rfis.xlsx",
+                    ]
+                },
+            }
+        }
+    )
 
 
-@router.post("/start", response_model=WorkflowRun)
+@router.post(
+    "/start",
+    response_model=WorkflowRun,
+    summary="Start workflow",
+    description="Creates an initial workflow run and hands off execution to orchestration.",
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            "model": ErrorResponse,
+            "description": "Missing or invalid bearer token.",
+        }
+    },
+)
 async def start_workflow(
     request: WorkflowStartRequest,
     _auth: tuple[str, str] = Depends(require_tenant),
@@ -55,7 +82,26 @@ async def start_workflow(
     )
 
 
-@router.get("/{workflow_id}", response_model=WorkflowRun)
+@router.get(
+    "/{workflow_id}",
+    response_model=WorkflowRun,
+    summary="Get workflow status",
+    description="Looks up workflow status by workflow ID.",
+    responses={
+        status.HTTP_400_BAD_REQUEST: {
+            "model": ErrorResponse,
+            "description": "Workflow ID format is invalid.",
+        },
+        status.HTTP_401_UNAUTHORIZED: {
+            "model": ErrorResponse,
+            "description": "Missing or invalid bearer token.",
+        },
+        status.HTTP_404_NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Workflow was not found.",
+        },
+    },
+)
 async def get_workflow(
     workflow_id: str,
     _auth: tuple[str, str] = Depends(require_tenant),

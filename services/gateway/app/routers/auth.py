@@ -17,10 +17,11 @@ Uses tenant-scoped stored API keys.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, ConfigDict
 
 from packages.db import get_db
+from packages.schemas import ErrorResponse
 from ..auth.api_keys import verify_api_key
 from ..auth.tokens import DEFAULT_TTL_HOURS, issue_token
 from ..settings import settings
@@ -35,14 +36,52 @@ class TokenRequest(BaseModel):
     api_key: str
     project_id: str = ""  # optional project scope
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "tenant_id": "tenant_01hv6n6j6h8x7m4r9k2p1q3s4t",
+                "api_key": "rk_live_01hv_example_plaintext_key",
+                "project_id": "proj_01hv6n8h0q9x2r4s6t8u1v3w5y",
+            }
+        }
+    )
+
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in: int     # seconds
 
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "access_token": "eyJhbGciOi...",
+                "token_type": "bearer",
+                "expires_in": 86400,
+            }
+        }
+    )
 
-@router.post("/auth/token", response_model=TokenResponse)
+
+@router.post(
+    "/auth/token",
+    response_model=TokenResponse,
+    summary="Issue bearer token",
+    description=(
+        "Validates a tenant-scoped API key and returns a JWT bearer token for "
+        "subsequent protected gateway requests."
+    ),
+    responses={
+        status.HTTP_400_BAD_REQUEST: {
+            "model": ErrorResponse,
+            "description": "Invalid tenant, project, or API key payload.",
+        },
+        status.HTTP_401_UNAUTHORIZED: {
+            "model": ErrorResponse,
+            "description": "Tenant API key validation failed.",
+        },
+    },
+)
 def issue_access_token(request: TokenRequest, db: object = Depends(get_db)) -> TokenResponse:
     """
     Issue a JWT access token for a tenant.
