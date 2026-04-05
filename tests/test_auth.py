@@ -6,8 +6,8 @@ Implements: Build Rules §8 — auth contract tests.
 Coverage:
   Token library (packages/auth/tokens.py)
     — issue and verify round-trip
-    — expired token raises TokenError
-    — tampered signature raises TokenError
+    — expired token raises token_error
+    — tampered signature raises token_error
     — wrong algorithm rejected
     — payload fields present (sub, proj, exp, iat, jti)
 
@@ -37,7 +37,6 @@ from __future__ import annotations
 
 import importlib
 import sys
-import time
 from datetime import datetime
 from pathlib import Path
 
@@ -45,8 +44,6 @@ import jwt
 import pytest
 from fastapi.testclient import TestClient
 
-from packages.models import Tenant
-from packages.models.usage import UsageEventRecord
 from tests.conftest import MockSession
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -55,6 +52,7 @@ INGEST_DIR = ROOT / "services" / "bim_ingestion"
 
 
 # ── Gateway app fixture ───────────────────────────────────────────────────────
+
 
 def _make_gw_app(monkeypatch, signing_key="test-secret-key"):
     monkeypatch.setenv("APP_ENV", "test")
@@ -92,6 +90,7 @@ def gw(monkeypatch):
 
 # ── Ingest app fixture ────────────────────────────────────────────────────────
 
+
 def _make_ingest_app(monkeypatch):
     monkeypatch.setenv("APP_ENV", "test")
     monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
@@ -110,7 +109,6 @@ def _make_ingest_app(monkeypatch):
 @pytest.fixture
 def ingest(monkeypatch):
     from packages.db import get_db
-    from packages.models.ingestion import IngestionJob
 
     app = _make_ingest_app(monkeypatch)
     shared_db = MockSession()
@@ -128,13 +126,18 @@ def ingest(monkeypatch):
 
 # ── Token library unit tests ──────────────────────────────────────────────────
 
-class TestTokenLibrary:
 
+class TestTokenLibrary:
     def _tokens_mod(self):
         """Import the tokens module fresh (APP_ENV=test already set by fixture)."""
-        import os; os.environ.setdefault("APP_ENV", "test")
-        import os; os.environ.setdefault("SIGNING_KEY", "unit-test-key")
+        import os
+
+        os.environ.setdefault("APP_ENV", "test")
+        import os
+
+        os.environ.setdefault("SIGNING_KEY", "unit-test-key")
         from services.gateway.app.auth.tokens import TokenError, issue_token, verify_token
+
         return issue_token, verify_token, TokenError
 
     def test_issue_and_verify_roundtrip(self, monkeypatch):
@@ -159,10 +162,10 @@ class TestTokenLibrary:
         for mod in list(sys.modules):
             if "services.gateway.app" in mod:
                 sys.modules.pop(mod)
-        issue, verify, TokenError = self._tokens_mod()
+        issue, verify, token_error = self._tokens_mod()
         # ttl_hours=-1 → exp is in the past (definitely expired)
         token = issue(tenant_id="tenant_abc", ttl_hours=-1, signing_key="expiry-key")
-        with pytest.raises(TokenError, match="expired"):
+        with pytest.raises(token_error, match="expired"):
             verify(token, signing_key="expiry-key")
 
     def test_tampered_signature_raises(self, monkeypatch):
@@ -171,14 +174,14 @@ class TestTokenLibrary:
         for mod in list(sys.modules):
             if "services.gateway.app" in mod:
                 sys.modules.pop(mod)
-        issue, verify, TokenError = self._tokens_mod()
+        issue, verify, token_error = self._tokens_mod()
         token = issue(tenant_id="tenant_abc", signing_key="tamper-key")
         # Flip a middle character of the signature (avoid last char — base64 padding bits)
         parts = token.split(".")
         mid = len(parts[2]) // 2
-        parts[2] = parts[2][:mid] + ("A" if parts[2][mid] != "A" else "B") + parts[2][mid + 1:]
+        parts[2] = parts[2][:mid] + ("A" if parts[2][mid] != "A" else "B") + parts[2][mid + 1 :]
         bad_token = ".".join(parts)
-        with pytest.raises(TokenError):
+        with pytest.raises(token_error):
             verify(bad_token, signing_key="tamper-key")
 
     def test_wrong_algorithm_rejected(self, monkeypatch):
@@ -187,7 +190,7 @@ class TestTokenLibrary:
         for mod in list(sys.modules):
             if "services.gateway.app" in mod:
                 sys.modules.pop(mod)
-        _, verify, TokenError = self._tokens_mod()
+        _, verify, token_error = self._tokens_mod()
         # Craft a token signed with RS256 header but wrong key — should fail
         crafted = jwt.encode(
             {"sub": "tenant_bad", "proj": "", "exp": 9999999999, "iat": 1, "jti": "x"},
@@ -195,20 +198,23 @@ class TestTokenLibrary:
             algorithm="HS256",
         )
         # Swap the key so verify fails
-        with pytest.raises(TokenError):
+        with pytest.raises(token_error):
             verify(crafted + "tampered", signing_key="alg-key")
 
 
 # ── POST /v1/auth/token ───────────────────────────────────────────────────────
 
-class TestAuthTokenEndpoint:
 
+class TestAuthTokenEndpoint:
     def test_valid_request_returns_token(self, gw):
         client, _ = gw
-        r = client.post("/v1/auth/token", json={
-            "tenant_id": "tenant_abc",
-            "api_key": "any-key",
-        })
+        r = client.post(
+            "/v1/auth/token",
+            json={
+                "tenant_id": "tenant_abc",
+                "api_key": "any-key",
+            },
+        )
         assert r.status_code == 200
         body = r.json()
         assert "access_token" in body
@@ -217,54 +223,70 @@ class TestAuthTokenEndpoint:
 
     def test_returned_token_is_valid_jwt(self, gw):
         client, _ = gw
-        r = client.post("/v1/auth/token", json={
-            "tenant_id": "tenant_abc",
-            "api_key": "any-key",
-            "project_id": "proj_xyz",
-        })
+        r = client.post(
+            "/v1/auth/token",
+            json={
+                "tenant_id": "tenant_abc",
+                "api_key": "any-key",
+                "project_id": "proj_xyz",
+            },
+        )
         token = r.json()["access_token"]
         # Use the gateway's own verify with the test signing key
         from services.gateway.app.auth.tokens import verify_token
+
         payload = verify_token(token, signing_key="test-secret-key")
         assert payload["sub"] == "tenant_abc"
         assert payload["proj"] == "proj_xyz"
 
     def test_bad_tenant_id_format_returns_400(self, gw):
         client, _ = gw
-        r = client.post("/v1/auth/token", json={
-            "tenant_id": "notvalid",
-            "api_key": "key",
-        })
+        r = client.post(
+            "/v1/auth/token",
+            json={
+                "tenant_id": "notvalid",
+                "api_key": "key",
+            },
+        )
         assert r.status_code == 400
 
     def test_empty_api_key_returns_400(self, gw):
         client, _ = gw
-        r = client.post("/v1/auth/token", json={
-            "tenant_id": "tenant_abc",
-            "api_key": "   ",
-        })
+        r = client.post(
+            "/v1/auth/token",
+            json={
+                "tenant_id": "tenant_abc",
+                "api_key": "   ",
+            },
+        )
         assert r.status_code == 400
 
     def test_bad_project_id_returns_400(self, gw):
         client, _ = gw
-        r = client.post("/v1/auth/token", json={
-            "tenant_id": "tenant_abc",
-            "api_key": "key",
-            "project_id": "notaproject",
-        })
+        r = client.post(
+            "/v1/auth/token",
+            json={
+                "tenant_id": "tenant_abc",
+                "api_key": "key",
+                "project_id": "notaproject",
+            },
+        )
         assert r.status_code == 400
 
 
 # ── Gateway middleware — Bearer token acceptance ──────────────────────────────
 
-class TestGatewayBearerAuth:
 
+class TestGatewayBearerAuth:
     def _get_token(self, client) -> str:
-        r = client.post("/v1/auth/token", json={
-            "tenant_id": "tenant_bearer",
-            "api_key": "key",
-            "project_id": "proj_bearer",
-        })
+        r = client.post(
+            "/v1/auth/token",
+            json={
+                "tenant_id": "tenant_bearer",
+                "api_key": "key",
+                "project_id": "proj_bearer",
+            },
+        )
         return r.json()["access_token"]
 
     def _infer_body(self, tenant_id="tenant_bearer") -> dict:
@@ -295,7 +317,7 @@ class TestGatewayBearerAuth:
         token = self._get_token(client)
         parts = token.split(".")
         mid = len(parts[2]) // 2
-        parts[2] = parts[2][:mid] + ("A" if parts[2][mid] != "A" else "B") + parts[2][mid + 1:]
+        parts[2] = parts[2][:mid] + ("A" if parts[2][mid] != "A" else "B") + parts[2][mid + 1 :]
         bad = ".".join(parts)
         r = client.post(
             "/v1/infer",
@@ -329,8 +351,8 @@ class TestGatewayBearerAuth:
 
 # ── GET /v1/tenants list ──────────────────────────────────────────────────────
 
-class TestTenantList:
 
+class TestTenantList:
     def test_list_empty(self, gw):
         client, _ = gw
         r = client.get("/v1/tenants")
@@ -349,7 +371,10 @@ class TestTenantList:
 
     def test_active_only_filter(self, gw):
         client, _ = gw
-        r1 = client.post("/v1/tenants", json={"name": "Active"})
+        # Create an active tenant first
+        client.post("/v1/tenants", json={"name": "Active"})
+
+        # Create an inactive tenant
         r2 = client.post("/v1/tenants", json={"name": "Inactive"})
         t2_id = r2.json()["tenant_id"]
         client.patch(f"/v1/tenants/{t2_id}", json={"is_active": False})
@@ -362,10 +387,11 @@ class TestTenantList:
 
 # ── GET /v1/ingestion/jobs list ───────────────────────────────────────────────
 
-class TestJobList:
 
+class TestJobList:
     def _seed_job(self, db, tenant_id="tenant_j1", status="queued"):
         from packages.models.ingestion import IngestionJob
+
         job = IngestionJob(
             id=f"job_{__import__('uuid').uuid4().hex}",
             file_id="file_j1",

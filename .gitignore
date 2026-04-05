@@ -1,18 +1,10 @@
 ```
-# Dependencies
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
-env/
-venv/
-ENV/
-.venv/
-env.bak/
-venv.bak/
-
-# Build artifacts
 build/
 develop-eggs/
 dist/
@@ -29,42 +21,27 @@ wheels/
 .installed.cfg
 *.egg
 
-# Environment variables
+# Environment
 .env
 .env.local
 .env.*
 
-# IDE and editor files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
-.DS_Store
-Thumbs.db
 
 # Logs
 *.log
 
-# Coverage reports
+# Tests
+.pytest_cache/
 .coverage
 htmlcov/
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
+coverage/
 
-# Docker
-.dockerenv
-
-# Python specific
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
-.coverage*
-.pytest_cache/
-.mypy_cache/
+# System
+.DS_Store
+Thumbs.db
 ```

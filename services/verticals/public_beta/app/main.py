@@ -36,7 +36,7 @@ async def toggle_feature(feature_id: str):
     """Toggle feature availability."""
     if feature_id not in features_store:
         return {"error": "Feature not found"}
-    
+
     features_store[feature_id]["enabled"] = not features_store[feature_id]["enabled"]
     return {"feature_id": feature_id, "enabled": features_store[feature_id]["enabled"]}
 

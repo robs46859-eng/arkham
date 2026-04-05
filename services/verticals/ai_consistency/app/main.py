@@ -32,7 +32,7 @@ async def run_consistency_test(request: TestRequest):
         "request": request.dict(),
         "status": "completed",
         "consistency_score": 0.95,
-        "differences": []
+        "differences": [],
     }
     return {"test_id": test_id, "status": "completed"}
 

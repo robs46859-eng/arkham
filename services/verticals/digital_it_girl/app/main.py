@@ -24,7 +24,7 @@ async def add_trend(trend: TechTrend):
 
 
 @app.get("/trends")
-async def list_trends(maturity_level: str = None):
+async def list_trends(maturity_level: str | None = None):
     """List all tech trends with optional filtering."""
     trends = trends_store
     if maturity_level:

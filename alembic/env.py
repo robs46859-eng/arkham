@@ -11,7 +11,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 # Import all models so their tables are registered on Base.metadata
-from packages.models import Base  # noqa: F401 — side-effect import registers all tables
+from packages.models import Base
 from packages.models import (  # noqa: F401
     Tenant,
     Project,

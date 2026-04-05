@@ -11,6 +11,8 @@ from packages.schemas import HealthResponse
 from .settings import settings
 from .routers import infer as infer_router
 from .routers import workflows as workflows_router
+from .routers import auth as auth_router
+from .routers import tenants as tenants_router
 
 app = FastAPI(
     title="Robco Gateway",
@@ -18,8 +20,10 @@ app = FastAPI(
     description="Centralized inference control plane and policy engine.",
 )
 
+app.include_router(auth_router.router)
 app.include_router(infer_router.router)
 app.include_router(workflows_router.router)
+app.include_router(tenants_router.router)
 
 
 @app.get("/health", response_model=HealthResponse)

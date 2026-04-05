@@ -31,12 +31,15 @@ def client(monkeypatch):
 
 
 def test_register_file_returns_file_id(client):
-    response = client.post("/v1/files/register", json={
-        "tenant_id": "tenant_abc123",
-        "project_id": "proj_abc123",
-        "file_type": "ifc",
-        "storage_path": "s3://bim-files/proj_abc123/model.ifc",
-    })
+    response = client.post(
+        "/v1/files/register",
+        json={
+            "tenant_id": "tenant_abc123",
+            "project_id": "proj_abc123",
+            "file_type": "ifc",
+            "storage_path": "s3://bim-files/proj_abc123/model.ifc",
+        },
+    )
     assert response.status_code == 200
     body = response.json()
     assert body["file_id"].startswith("file_")
@@ -44,33 +47,42 @@ def test_register_file_returns_file_id(client):
 
 
 def test_register_file_rejects_bad_tenant_id(client):
-    response = client.post("/v1/files/register", json={
-        "tenant_id": "bad-format",
-        "project_id": "proj_abc123",
-        "file_type": "pdf",
-        "storage_path": "s3://bim-files/proj_abc123/report.pdf",
-    })
+    response = client.post(
+        "/v1/files/register",
+        json={
+            "tenant_id": "bad-format",
+            "project_id": "proj_abc123",
+            "file_type": "pdf",
+            "storage_path": "s3://bim-files/proj_abc123/report.pdf",
+        },
+    )
     assert response.status_code == 400
 
 
 def test_register_file_rejects_bad_project_id(client):
-    response = client.post("/v1/files/register", json={
-        "tenant_id": "tenant_abc123",
-        "project_id": "bad-format",
-        "file_type": "pdf",
-        "storage_path": "s3://bim-files/proj_abc123/report.pdf",
-    })
+    response = client.post(
+        "/v1/files/register",
+        json={
+            "tenant_id": "tenant_abc123",
+            "project_id": "bad-format",
+            "file_type": "pdf",
+            "storage_path": "s3://bim-files/proj_abc123/report.pdf",
+        },
+    )
     assert response.status_code == 400
 
 
 def test_ingest_returns_queued_job(client):
-    response = client.post("/v1/files/file_testid123/ingest", json={
-        "tenant_id": "tenant_abc123",
-        "project_id": "proj_abc123",
-        "file_id": "file_testid123",
-        "file_type": "ifc",
-        "storage_path": "s3://bim-files/proj_abc123/model.ifc",
-    })
+    response = client.post(
+        "/v1/files/file_testid123/ingest",
+        json={
+            "tenant_id": "tenant_abc123",
+            "project_id": "proj_abc123",
+            "file_id": "file_testid123",
+            "file_type": "ifc",
+            "storage_path": "s3://bim-files/proj_abc123/model.ifc",
+        },
+    )
     assert response.status_code == 200
     body = response.json()
     assert body["status"] == "queued"
@@ -78,13 +90,16 @@ def test_ingest_returns_queued_job(client):
 
 
 def test_ingest_rejects_file_id_mismatch(client):
-    response = client.post("/v1/files/file_wrong/ingest", json={
-        "tenant_id": "tenant_abc123",
-        "project_id": "proj_abc123",
-        "file_id": "file_different",
-        "file_type": "ifc",
-        "storage_path": "s3://bim-files/proj_abc123/model.ifc",
-    })
+    response = client.post(
+        "/v1/files/file_wrong/ingest",
+        json={
+            "tenant_id": "tenant_abc123",
+            "project_id": "proj_abc123",
+            "file_id": "file_different",
+            "file_type": "ifc",
+            "storage_path": "s3://bim-files/proj_abc123/model.ifc",
+        },
+    )
     assert response.status_code == 400
 
 

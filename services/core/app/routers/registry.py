@@ -2,6 +2,7 @@
 Dynamic Service Registry
 Tracks active services, their endpoints, and health status.
 """
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import Dict, List, Optional
@@ -37,7 +38,7 @@ async def register_service(registration: ServiceRegistration):
         **registration.dict(),
         "registered_at": datetime.utcnow(),
         "last_heartbeat": datetime.utcnow(),
-        "status": "healthy"
+        "status": "healthy",
     }
     return {"status": "registered", "service_id": registration.service_id}
 
@@ -47,7 +48,7 @@ async def service_heartbeat(service_id: str):
     """Update service heartbeat timestamp."""
     if service_id not in service_registry:
         raise HTTPException(status_code=404, detail="Service not found")
-    
+
     service_registry[service_id]["last_heartbeat"] = datetime.utcnow()
     service_registry[service_id]["status"] = "healthy"
     return {"status": "ok", "service_id": service_id}
@@ -75,7 +76,7 @@ async def unregister_service(service_id: str):
     """Remove a service from the registry."""
     if service_id not in service_registry:
         raise HTTPException(status_code=404, detail="Service not found")
-    
+
     del service_registry[service_id]
     return {"status": "unregistered", "service_id": service_id}
 

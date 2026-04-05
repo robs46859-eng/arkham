@@ -12,8 +12,7 @@ from enum import Enum
 from typing import Any
 
 
-from enum import Enum
-from typing import Any, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 import httpx
 
@@ -34,8 +33,7 @@ class Provider(Protocol):
         input_text: str,
         context: dict[str, Any],
         model_name: str | None = None,
-    ) -> dict[str, Any]:
-        ...
+    ) -> dict[str, Any]: ...
 
 
 class OllamaProvider:
@@ -117,7 +115,7 @@ class OpenAIProvider:
                 content = data["choices"][0]["message"]["content"]
                 # Rough cost estimate for gpt-4o-mini (approximate)
                 tokens = data.get("usage", {}).get("total_tokens", 0)
-                cost = (tokens / 1000000.0) * 0.15 # $0.15 per 1M tokens approx
+                cost = (tokens / 1000000.0) * 0.15  # $0.15 per 1M tokens approx
                 return {
                     "model_tier": "mid" if model_name == settings.openai_mid_tier_model else "premium",
                     "model_name": model_name,
@@ -159,9 +157,9 @@ class GeminiProvider:
                 response.raise_for_status()
                 data = response.json()
                 content = data["candidates"][0]["content"]["parts"][0]["text"]
-                # Gemini 1.5 Flash is very cheap, Pro is mid-cost. 
+                # Gemini 1.5 Flash is very cheap, Pro is mid-cost.
                 # Roughly estimating cost based on characters (Gemini is often priced per 1M characters/tokens)
-                cost = 0.0001 # Placeholder
+                cost = 0.0001  # Placeholder
                 return {
                     "model_tier": "mid" if model_name == settings.gemini_mid_tier_model else "premium",
                     "model_name": model_name,
@@ -201,13 +199,13 @@ class ProviderRegistry:
         """
         if allow_premium and self.premium and settings.enable_premium_escalation:
             return ModelTier.premium
-        
+
         # If we have a mid tier and premium not allowed or not enabled
         if self.mid:
             # Some tasks might prefer mid tier over local even if local exists
             # For now, default to local if available, as it's cheapest.
             return ModelTier.local
-        
+
         return ModelTier.local
 
     async def infer(
@@ -223,11 +221,11 @@ class ProviderRegistry:
         if tier == ModelTier.premium and self.premium:
             model_name = settings.openai_premium_model if settings.openai_api_key else settings.gemini_premium_model
             return await self.premium.infer(task_type, input_text, context, model_name=model_name)
-        
+
         if tier == ModelTier.mid and self.mid:
             model_name = settings.openai_mid_tier_model if settings.openai_api_key else settings.gemini_mid_tier_model
             return await self.mid.infer(task_type, input_text, context, model_name=model_name)
-        
+
         # Default fallback to local
         return await self.local.infer(task_type, input_text, context)
 

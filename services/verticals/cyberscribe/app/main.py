@@ -31,7 +31,7 @@ async def analyze_code(snippet: CodeSnippet):
         "language": snippet.language,
         "anomalies": [],
         "severity": "low",
-        "recommendations": []
+        "recommendations": [],
     }
     return {"snippet_id": snippet_id, "status": "analyzed"}
 

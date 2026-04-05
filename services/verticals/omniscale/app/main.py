@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Dict, Any
 
@@ -17,7 +17,7 @@ metrics_store: Dict[str, Any] = {
     "system_health": {"status": "healthy", "uptime": 0},
     "active_services": 0,
     "active_workflows": 0,
-    "total_requests": 0
+    "total_requests": 0,
 }
 
 
@@ -28,7 +28,7 @@ async def dashboard_overview():
         "status": "operational",
         "active_services": metrics_store["active_services"],
         "active_workflows": metrics_store["active_workflows"],
-        "total_requests": metrics_store["total_requests"]
+        "total_requests": metrics_store["total_requests"],
     }
 
 

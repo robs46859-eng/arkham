@@ -10,8 +10,10 @@ from packages.config.base import BaseServiceSettings, build_settings
 class Settings(BaseServiceSettings):
     service_name: str = "gateway"
 
-    # Signing key for tenant auth tokens (stub — replace with real secret in production)
-    signing_key: str = "changeme"
+    # Signing key for tenant auth tokens
+    # Production: Must be set via environment variable or Secret Manager
+    signing_key: str | None = None
+    
     orchestration_url: str = "http://localhost:8002"
 
     # Feature flags
@@ -21,7 +23,7 @@ class Settings(BaseServiceSettings):
     privacy_restore_responses: bool = True
     privacy_fail_closed: bool = False
     privacy_service_url: str = "http://localhost:3010"
-    privacy_service_token: str = "privacy-core-internal-token"
+    privacy_service_token: str | None = None
     privacy_default_tier: str = "dev"
 
     # Local Model Runtime (Ollama)
@@ -37,11 +39,52 @@ class Settings(BaseServiceSettings):
     openai_mid_tier_model: str = "gpt-4o-mini"
     openai_premium_model: str = "gpt-4o"
 
+    gemini_api_key: str | None = None
+    gemini_base_url: str | None = None
+    gemini_mid_tier_model: str = "gemini-1.5-flash"
+    gemini_premium_model: str = "gemini-1.5-pro"
+
     # Vector Store / Semantic Cache
     vector_store_path: str = "./.local/lancedb"
     embedding_provider: str = "ollama"  # ollama | openai
     embedding_model: str = "nomic-embed-text"
     cache_threshold: float = 0.85
 
+    @property
+    def effective_signing_key(self) -> str:
+        """Get signing key with test-mode fallback."""
+        if self.signing_key:
+            return self.signing_key
+        if self.is_test:
+            return "test-signing-key-not-for-production"
+        raise ValueError("SIGNING_KEY is required in non-test environments")
+
+    @property
+    def effective_privacy_service_token(self) -> str:
+        """Get privacy service token with test-mode fallback."""
+        if self.privacy_service_token:
+            return self.privacy_service_token
+        if self.is_test:
+            return "test-privacy-token"
+        raise ValueError("PRIVACY_SERVICE_TOKEN is required in non-test environments")
+
+    def require_runtime_config(self) -> None:
+        """Validate required configuration for non-test environments."""
+        if self.is_test:
+            return
+
+        missing: list[str] = []
+
+        if not self.signing_key:
+            missing.append("SIGNING_KEY")
+        if not self.privacy_service_token:
+            missing.append("PRIVACY_SERVICE_TOKEN")
+
+        if missing:
+            raise ValueError(
+                f"Missing required environment variables for {self.service_name}: {', '.join(missing)}"
+            )
+
 
 settings: Settings = build_settings(Settings)  # type: ignore[assignment]
+settings.require_runtime_config()

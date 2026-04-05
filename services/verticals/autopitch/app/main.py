@@ -24,7 +24,7 @@ async def submit_pitch(pitch: IdeaPitch):
 
 
 @app.get("/ideas")
-async def list_ideas(category: str = None, priority: str = None):
+async def list_ideas(category: str | None = None, priority: str | None = None):
     """List all idea pitches with optional filtering."""
     ideas = ideas_store
     if category:

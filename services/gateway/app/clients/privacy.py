@@ -1,7 +1,7 @@
 """
 Privacy service client for text sanitization and restoration.
 
-Implements PII redaction before sending to LLMs and restoration of 
+Implements PII redaction before sending to LLMs and restoration of
 original values in responses. Supports multi-tier privacy levels.
 """
 
@@ -21,7 +21,7 @@ async def sanitize_text(
 ) -> dict:
     """
     Send text to privacy service for PII sanitization.
-    
+
     Args:
         base_url: Privacy service base URL
         service_token: Internal service authentication token
@@ -29,10 +29,10 @@ async def sanitize_text(
         tier: Privacy tier (dev, growth, pro)
         request_id: Unique request identifier for tracking
         text: Raw text to sanitize
-        
+
     Returns:
         Dict with 'redactedText' and 'requestId' keys
-        
+
     Raises:
         httpx.HTTPError: If privacy service is unavailable
     """
@@ -65,7 +65,7 @@ async def restore_text(
 ) -> dict:
     """
     Restore original PII values in sanitized text.
-    
+
     Args:
         base_url: Privacy service base URL
         service_token: Internal service authentication token
@@ -73,10 +73,10 @@ async def restore_text(
         tier: Privacy tier (dev, growth, pro)
         request_id: Original request identifier from sanitization
         text: Sanitized text to restore
-        
+
     Returns:
         Dict with 'restoredText' key
-        
+
     Raises:
         httpx.HTTPError: If privacy service is unavailable
     """

@@ -18,22 +18,26 @@ from .workflow import WorkflowRun, WorkflowStep, WorkflowStatus
 from .deliverable import Deliverable
 from .memory import MemoryNote
 from .usage import UsageEvent
+from .tenant import TenantCreate, TenantUpdate, TenantResponse
 
 __all__ = [
+    "BuildingElement",
+    "Deliverable",
+    "DocumentChunk",
     "HealthResponse",
     "InferenceRequest",
     "InferenceResponse",
     "IngestionRequest",
     "IngestionResponse",
-    "BuildingElement",
-    "DocumentChunk",
     "Issue",
-    "ScheduleRow",
     "MarkupRecord",
-    "WorkflowRun",
-    "WorkflowStep",
-    "WorkflowStatus",
-    "Deliverable",
     "MemoryNote",
+    "ScheduleRow",
+    "TenantCreate",
+    "TenantResponse",
+    "TenantUpdate",
     "UsageEvent",
+    "WorkflowRun",
+    "WorkflowStatus",
+    "WorkflowStep",
 ]

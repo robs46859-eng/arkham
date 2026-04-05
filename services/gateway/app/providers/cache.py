@@ -100,9 +100,9 @@ class SemanticCache:
 
         try:
             vector = await self._get_embedding(input_text)
-            # threshold in lancedb distance is usually L2 or Cosine. 
+            # threshold in lancedb distance is usually L2 or Cosine.
             # We want similarity > threshold, so distance < (1 - threshold) for cosine.
-            # LanceDB default is L2. 
+            # LanceDB default is L2.
             results = (
                 table.search(vector)
                 .where(f"tenant_id = '{tenant_id}' AND task_type = '{task_type}'")
@@ -116,9 +116,9 @@ class SemanticCache:
                 # For more accuracy, we'd use cosine distance.
                 # If distance is very small, it's a hit.
                 actual_threshold = threshold if threshold is not None else settings.cache_threshold
-                # LanceDB results include _distance. 
+                # LanceDB results include _distance.
                 # Smaller distance = more similar.
-                if match["_distance"] < (1.0 - actual_threshold) * 2: # heuristic for L2 approx
+                if match["_distance"] < (1.0 - actual_threshold) * 2:  # heuristic for L2 approx
                     return match["output"]
         except Exception:
             # Silent fail for cache reads to avoid breaking the main flow
@@ -140,14 +140,16 @@ class SemanticCache:
         try:
             vector = await self._get_embedding(input_text)
             db = self._get_db()
-            data = [{
-                "vector": vector,
-                "input_text": input_text,
-                "output": output,
-                "tenant_id": tenant_id,
-                "task_type": task_type,
-            }]
-            
+            data = [
+                {
+                    "vector": vector,
+                    "input_text": input_text,
+                    "output": output,
+                    "tenant_id": tenant_id,
+                    "task_type": task_type,
+                }
+            ]
+
             if self._table_name not in db.table_names():
                 self._table = db.create_table(self._table_name, data=data)
             else:

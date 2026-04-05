@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 app = FastAPI(title="Workflow Architect", version="0.1.0")
 
@@ -43,7 +43,7 @@ async def validate_workflow(workflow_id: str):
     """Validate workflow structure."""
     if workflow_id not in workflows_store:
         return {"error": "Workflow not found"}
-    
+
     workflow = workflows_store[workflow_id]
     is_valid = len(workflow.get("steps", [])) > 0
     return {"valid": is_valid, "issues": [] if is_valid else ["No steps defined"]}

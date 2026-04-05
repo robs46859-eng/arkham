@@ -35,15 +35,15 @@ _TTL_SECONDS = DEFAULT_TTL_HOURS * 3600
 
 
 class TokenRequest(BaseModel):
-    tenant_id: str      # format: tenant_<ulid>
-    api_key: str        # STUB: any non-empty value accepted
+    tenant_id: str  # format: tenant_<ulid>
+    api_key: str  # STUB: any non-empty value accepted
     project_id: str = ""  # optional project scope
 
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    expires_in: int     # seconds
+    expires_in: int  # seconds
 
 
 @router.post("/auth/token", response_model=TokenResponse)
