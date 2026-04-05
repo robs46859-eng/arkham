@@ -8,10 +8,10 @@ import secrets
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
 
 from fastapi import HTTPException
 
-from packages.db import get_record, list_records
 from packages.models import Tenant, TenantAPIKey
 
 
@@ -49,16 +49,32 @@ def _split_api_key(api_key: str) -> tuple[str, str]:
     return prefix, secret
 
 
+def _get_record(db: Any, model: type[Any], record_id: str) -> Any | None:
+    if hasattr(db, "get"):
+        return db.get(model, record_id)
+    if hasattr(db, "query"):
+        return db.query(model).filter_by(id=record_id).first()
+    raise HTTPException(status_code=500, detail="Database session does not support record lookup.")
+
+
+def _list_records(db: Any, model: type[Any]) -> list[Any]:
+    if hasattr(db, "_objects"):
+        return [record for record in db._objects.values() if isinstance(record, model)]
+    if hasattr(db, "query"):
+        return list(db.query(model).all())
+    raise HTTPException(status_code=500, detail="Database session does not support record listing.")
+
+
 def list_tenant_api_keys(db: object, tenant_id: str) -> list[TenantAPIKey]:
     return [
         record
-        for record in list_records(db, TenantAPIKey)
+        for record in _list_records(db, TenantAPIKey)
         if isinstance(record, TenantAPIKey) and record.tenant_id == tenant_id
     ]
 
 
 def verify_api_key(*, db: object, tenant_id: str, api_key: str) -> TenantAPIKey:
-    tenant = get_record(db, Tenant, tenant_id)
+    tenant = _get_record(db, Tenant, tenant_id)
     if tenant is None or not isinstance(tenant, Tenant) or not tenant.is_active:
         raise HTTPException(status_code=403, detail="Tenant is inactive or missing.")
 

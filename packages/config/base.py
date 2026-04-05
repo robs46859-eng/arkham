@@ -18,6 +18,10 @@ class BaseServiceSettings(BaseSettings):
         case_sensitive=False,
     )
 
+    @property
+    def is_test(self) -> bool:
+        return self.app_env == "test"
+
 
 def build_settings(settings_cls: type[BaseServiceSettings]) -> BaseServiceSettings:
     @lru_cache(maxsize=1)

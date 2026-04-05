@@ -79,14 +79,9 @@ def _seed_tenant_api_key(db: MockSession, tenant_id: str, *, name: str = "Test T
         id=tenant_id,
         name=name,
         is_active=True,
-        plan="pro",
-        enable_premium_escalation=False,
-        enable_semantic_cache=False,
-        cache_similarity_threshold=0.92,
-        max_requests_per_day=10000,
         created_at=now,
-        updated_at=now,
     )
+    tenant.updated_at = now
     db.add(tenant)
     issued = issue_api_key(tenant_id=tenant_id)
     db.add(issued.record)

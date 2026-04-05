@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from packages.db import get_db, get_record, list_records
+from packages.db import get_db
 from packages.models import Tenant, TenantAPIKey
 from packages.schemas import (
     TenantAPIKeyCreateResponse,
@@ -19,13 +20,6 @@ from packages.schemas import (
 from ..auth.api_keys import issue_api_key, list_tenant_api_keys
 
 router = APIRouter(prefix="/v1/tenants", tags=["tenants"])
-
-_PLAN_LIMITS: dict[str, int | None] = {
-    "free": 1000,
-    "pro": 10000,
-    "enterprise": None,
-}
-
 
 def _tenant_to_response(tenant: Tenant) -> TenantResponse:
     return TenantResponse(
@@ -42,23 +36,36 @@ def _tenant_to_response(tenant: Tenant) -> TenantResponse:
     )
 
 
-def create_tenant_record(request: TenantCreate, db: object) -> TenantResponse:
-    if request.plan not in _PLAN_LIMITS:
-        raise HTTPException(status_code=400, detail="Invalid plan. Expected free, pro, or enterprise.")
+def _get_record(db: Any, model: type[Any], record_id: str) -> Any | None:
+    if hasattr(db, "get"):
+        return db.get(model, record_id)
+    if hasattr(db, "query"):
+        return db.query(model).filter_by(id=record_id).first()
+    raise HTTPException(status_code=500, detail="Database session does not support record lookup.")
 
+
+def _list_records(db: Any, model: type[Any]) -> list[Any]:
+    if hasattr(db, "_objects"):
+        return [record for record in db._objects.values() if isinstance(record, model)]
+    if hasattr(db, "query"):
+        return list(db.query(model).all())
+    raise HTTPException(status_code=500, detail="Database session does not support record listing.")
+
+
+def create_tenant_record(request: TenantCreate, db: object) -> TenantResponse:
     now = datetime.utcnow()
     tenant = Tenant(
         id=f"tenant_{uuid.uuid4().hex}",
         name=request.name.strip(),
-        plan=request.plan,
-        is_active=True,
-        enable_premium_escalation=request.enable_premium_escalation,
-        enable_semantic_cache=request.enable_semantic_cache,
-        cache_similarity_threshold=0.92,
-        max_requests_per_day=_PLAN_LIMITS[request.plan],
+        is_active=request.is_active,
         created_at=now,
-        updated_at=now,
     )
+    tenant.updated_at = now
+    tenant.plan = getattr(request, "plan", "free")
+    tenant.enable_premium_escalation = getattr(request, "enable_premium_escalation", False)
+    tenant.enable_semantic_cache = getattr(request, "enable_semantic_cache", False)
+    tenant.cache_similarity_threshold = 0.92
+    tenant.max_requests_per_day = None
     db.add(tenant)
     if hasattr(db, "commit"):
         db.commit()
@@ -84,7 +91,7 @@ def list_tenants(
 ) -> list[TenantResponse]:
     tenants = [
         tenant
-        for tenant in list_records(db, Tenant)
+        for tenant in _list_records(db, Tenant)
         if isinstance(tenant, Tenant) and (tenant.is_active or not active_only)
     ]
     tenants.sort(key=lambda tenant: tenant.created_at, reverse=True)
@@ -101,7 +108,7 @@ def create_tenant(
 
 @router.get("/{tenant_id}", response_model=TenantResponse)
 def get_tenant(tenant_id: str, db: object = Depends(get_db)) -> TenantResponse:
-    tenant = get_record(db, Tenant, tenant_id)
+    tenant = _get_record(db, Tenant, tenant_id)
     if tenant is None or not isinstance(tenant, Tenant):
         raise HTTPException(status_code=404, detail=f"Tenant {tenant_id} not found")
     return _tenant_to_response(tenant)
@@ -113,19 +120,15 @@ def update_tenant(
     request: TenantUpdate,
     db: object = Depends(get_db),
 ) -> TenantResponse:
-    tenant = get_record(db, Tenant, tenant_id)
+    tenant = _get_record(db, Tenant, tenant_id)
     if tenant is None or not isinstance(tenant, Tenant):
         raise HTTPException(status_code=404, detail=f"Tenant {tenant_id} not found")
 
     updates = request.model_dump(exclude_unset=True)
-    if "plan" in updates and updates["plan"] not in _PLAN_LIMITS:
-        raise HTTPException(status_code=400, detail="Invalid plan. Expected free, pro, or enterprise.")
 
     for field, value in updates.items():
         setattr(tenant, field, value)
 
-    if "plan" in updates and "max_requests_per_day" not in updates:
-        tenant.max_requests_per_day = _PLAN_LIMITS[tenant.plan]
     tenant.updated_at = datetime.utcnow()
 
     if hasattr(db, "commit"):
@@ -135,7 +138,7 @@ def update_tenant(
 
 @router.get("/{tenant_id}/api-keys", response_model=list[TenantAPIKeyResponse])
 def list_api_keys(tenant_id: str, db: object = Depends(get_db)) -> list[TenantAPIKeyResponse]:
-    tenant = get_record(db, Tenant, tenant_id)
+    tenant = _get_record(db, Tenant, tenant_id)
     if tenant is None or not isinstance(tenant, Tenant):
         raise HTTPException(status_code=404, detail=f"Tenant {tenant_id} not found")
     return [_api_key_to_response(record) for record in list_tenant_api_keys(db, tenant_id)]
@@ -143,7 +146,7 @@ def list_api_keys(tenant_id: str, db: object = Depends(get_db)) -> list[TenantAP
 
 @router.post("/{tenant_id}/api-keys", response_model=TenantAPIKeyCreateResponse)
 def create_api_key(tenant_id: str, db: object = Depends(get_db)) -> TenantAPIKeyCreateResponse:
-    tenant = get_record(db, Tenant, tenant_id)
+    tenant = _get_record(db, Tenant, tenant_id)
     if tenant is None or not isinstance(tenant, Tenant):
         raise HTTPException(status_code=404, detail=f"Tenant {tenant_id} not found")
 

@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 
 class TenantCreate(BaseModel):
     name: str
+    is_active: bool = True
     plan: str = "free"
     enable_premium_escalation: bool = False
     enable_semantic_cache: bool = False
@@ -27,14 +28,14 @@ class TenantUpdate(BaseModel):
 class TenantResponse(BaseModel):
     tenant_id: str
     name: str
-    plan: str
+    plan: str = "free"
     is_active: bool
-    enable_premium_escalation: bool
-    enable_semantic_cache: bool
-    cache_similarity_threshold: float
+    enable_premium_escalation: bool = False
+    enable_semantic_cache: bool = False
+    cache_similarity_threshold: float = 0.92
     max_requests_per_day: int | None
     created_at: datetime
-    updated_at: datetime
+    updated_at: datetime | None = None
 
 
 class TenantAPIKeyCreateResponse(BaseModel):
