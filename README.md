@@ -11,3 +11,8 @@ The initial vertical focuses on BIM project intake and analysis, producing struc
 This repository is structured as a modular monorepo so services can scale, separate, and evolve independently without breaking system integrity.
 
 *Start with Docker Compose and disciplined service boundaries.*
+
+## Deployment
+
+- Staging Terraform example: [infra/terraform/staging.tfvars.example](/Users/robert/arkham/infra/terraform/staging.tfvars.example)
+- Staging deploy runbook: [docs/deploy/staging.md](/Users/robert/arkham/docs/deploy/staging.md)
