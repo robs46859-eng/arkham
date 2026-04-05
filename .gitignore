@@ -1,3 +1,9 @@
+# Environment variables
+.env
+.env.local
+.env.*
+!.env.example
+
 # Python
 __pycache__/
 *.py[cod]
@@ -19,12 +25,16 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.nox/
+.mypy_cache/
 
-# Environment
-.env
-.env.local
-.env.*
-!.env.example
+# Terraform
+.terraform/
+terraform.tfstate*
+*.tfplan
 
 # IDE
 .vscode/
@@ -36,18 +46,16 @@ wheels/
 # Testing
 .pytest_cache/
 .coverage
+.coverage.*
+.cache
 htmlcov/
-.tox/
-.nox/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
 
 # Docker
 *.log
-
-# Terraform
-.terraform/
-*.tfstate
-*.tfstate.backup
-*.tfplan
 
 # Node
 node_modules/
