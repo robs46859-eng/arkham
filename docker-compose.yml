@@ -63,8 +63,24 @@ services:
       DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
       REDIS_URL: redis://redis:6379/0
       APP_ENV: development
+      PRIVACY_SERVICE_URL: http://privacy:3010
+      ENABLE_PRIVACY_PROXY: "true"
     ports:
       - "8000:8000"
+
+  privacy:
+    build:
+      context: .
+      dockerfile: services/privacy/Dockerfile
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      APP_ENV: development
+      SERVICE_TOKEN: privacy-core-internal-token
+    ports:
+      - "3010:3010"
 
   bim-ingestion:
     build:
@@ -101,8 +117,109 @@ services:
       DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
       REDIS_URL: redis://redis:6379/0
       APP_ENV: development
+      CORE_SERVICE_URL: http://core:8000
     ports:
       - "8002:8002"
+
+  # Core Service - Central Hub
+  core:
+    build:
+      context: .
+      dockerfile: services/core/Dockerfile
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      APP_ENV: development
+      SERVICE_NAME: robco-core
+    ports:
+      - "3000:8000"
+
+  # Vertical Services
+  omniscale:
+    build:
+      context: .
+      dockerfile: services/verticals/omniscale/Dockerfile
+    depends_on:
+      - core
+    environment:
+      CORE_SERVICE_URL: http://core:8000
+      APP_ENV: development
+    ports:
+      - "3040:8000"
+
+  ai-consistency:
+    build:
+      context: .
+      dockerfile: services/verticals/ai_consistency/Dockerfile
+    depends_on:
+      - core
+    environment:
+      CORE_SERVICE_URL: http://core:8000
+      APP_ENV: development
+    ports:
+      - "3050:8000"
+
+  workflow-architect:
+    build:
+      context: .
+      dockerfile: services/verticals/workflow_architect/Dockerfile
+    depends_on:
+      - core
+    environment:
+      CORE_SERVICE_URL: http://core:8000
+      APP_ENV: development
+    ports:
+      - "3060:8000"
+
+  cyberscribe:
+    build:
+      context: .
+      dockerfile: services/verticals/cyberscribe/Dockerfile
+    depends_on:
+      - core
+    environment:
+      CORE_SERVICE_URL: http://core:8000
+      APP_ENV: development
+    ports:
+      - "3070:8000"
+
+  public-beta:
+    build:
+      context: .
+      dockerfile: services/verticals/public_beta/Dockerfile
+    depends_on:
+      - core
+    environment:
+      CORE_SERVICE_URL: http://core:8000
+      APP_ENV: development
+    ports:
+      - "3080:8000"
+
+  autopitch:
+    build:
+      context: .
+      dockerfile: services/verticals/autopitch/Dockerfile
+    depends_on:
+      - core
+    environment:
+      CORE_SERVICE_URL: http://core:8000
+      APP_ENV: development
+    ports:
+      - "3090:8000"
+
+  digital-it-girl:
+    build:
+      context: .
+      dockerfile: services/verticals/digital_it_girl/Dockerfile
+    depends_on:
+      - core
+    environment:
+      CORE_SERVICE_URL: http://core:8000
+      APP_ENV: development
+    ports:
+      - "3100:8000"
 
   # ── Frontend Apps ────────────────────────────────────────────────────────────
 

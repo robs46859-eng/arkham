@@ -1,0 +1,46 @@
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI(title="PublicBeta", version="0.1.0")
+
+
+class FeaturePreview(BaseModel):
+    feature_id: str
+    name: str
+    description: str
+    enabled: bool = False
+
+
+# In-memory features store
+features_store = {}
+
+
+@app.post("/features/preview")
+async def create_preview(feature: FeaturePreview):
+    """Create a feature preview for beta testing."""
+    features_store[feature.feature_id] = feature.dict()
+    return {"status": "created", "feature_id": feature.feature_id}
+
+
+@app.get("/features/previews")
+async def list_previews(enabled_only: bool = False):
+    """List all feature previews."""
+    previews = features_store
+    if enabled_only:
+        previews = {k: v for k, v in previews.items() if v.get("enabled", False)}
+    return {"previews": previews}
+
+
+@app.put("/features/{feature_id}/toggle")
+async def toggle_feature(feature_id: str):
+    """Toggle feature availability."""
+    if feature_id not in features_store:
+        return {"error": "Feature not found"}
+    
+    features_store[feature_id]["enabled"] = not features_store[feature_id]["enabled"]
+    return {"feature_id": feature_id, "enabled": features_store[feature_id]["enabled"]}
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok", "service": "public-beta"}

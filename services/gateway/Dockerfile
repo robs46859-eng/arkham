@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1
 
@@ -9,6 +9,7 @@ COPY packages ./packages
 RUN pip install --no-cache-dir .
 
 COPY services/gateway ./services/gateway
+COPY services/privacy ./services/privacy
 
 WORKDIR /app/services/gateway
 
