@@ -1,6 +1,7 @@
 #!/bin/bash
 # Robco Platform - Deployment Script
 # Builds Docker images, pushes to Artifact Registry, and deploys to Cloud Run
+# All builds use repo root as context for proper package resolution
 
 set -euo pipefail
 
@@ -65,20 +66,21 @@ auth_docker() {
     fi
 }
 
-# Build a single service
+# Build a single service from repo root context
 build_service() {
     local service="$1"
-    local service_dir="services/${service}"
+    local dockerfile="services/${service}/Dockerfile"
     local image_name="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REGISTRY_NAME}/${service}:${TAG}"
     
-    if [[ ! -d "${service_dir}" ]]; then
-        warning "Service directory not found: ${service_dir}"
+    if [[ ! -f "${dockerfile}" ]]; then
+        warning "Dockerfile not found: ${dockerfile}"
         return 1
     fi
     
-    info "Building ${service}..."
+    info "Building ${service} from repo root..."
     
-    if docker build -t "${image_name}" -f "${service_dir}/Dockerfile" "${service_dir}"; then
+    # Build from repo root (.) with specific Dockerfile path
+    if docker build -t "${image_name}" -f "${dockerfile}" .; then
         success "Built ${service}"
         echo "${image_name}"
         return 0

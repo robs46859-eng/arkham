@@ -160,3 +160,15 @@ variable "private_services_access_cidr" {
   type        = string
   default     = "192.168.0.0/24"
 }
+
+# Redis authentication token (separate from privacy service)
+variable "redis_auth_token" {
+  description = "Authentication token for Redis (Memorystore)"
+  type        = string
+  sensitive   = true
+  
+  validation {
+    condition     = length(var.redis_auth_token) >= 16
+    error_message = "Redis auth token must be at least 16 characters."
+  }
+}

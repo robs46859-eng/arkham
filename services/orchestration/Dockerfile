@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1
 
@@ -12,5 +12,9 @@ COPY services/orchestration ./services/orchestration
 
 WORKDIR /app/services/orchestration
 
-EXPOSE 8002
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8002"]
+ENV PYTHONPATH=/app
+ENV APP_ENV=production
+
+EXPOSE 3020
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3020"]

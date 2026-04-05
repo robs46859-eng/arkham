@@ -1,5 +1,6 @@
 # Robco Platform - Cloud Run Services
 # Serverless deployment for all platform services
+# Uses Cloud Run GA API (v1) consistently
 
 locals {
   service_images = {
@@ -77,9 +78,10 @@ resource "google_cloud_run_service" "gateway" {
           }
         }
         
+        # Privacy service URL - references actual deployed service
         env {
           name  = "PRIVACY_SERVICE_URL"
-          value = "https://robco-privacy-${random_id.suffix.hex}-uc.a.run.app"
+          value = var.enable_cloud_run ? "http://robco-privacy.${var.cloud_run_region}.run.app" : "http://localhost:3010"
         }
         
         env {
@@ -123,7 +125,8 @@ resource "google_cloud_run_service" "gateway" {
     google_project_service.required_apis,
     google_secret_manager_secret_version.database_url,
     google_secret_manager_secret_version.redis_url,
-    google_secret_manager_secret_version.signing_key
+    google_secret_manager_secret_version.signing_key,
+    google_secret_manager_secret_version.privacy_service_token
   ]
   
   labels = local.common_tags
@@ -277,11 +280,6 @@ resource "google_cloud_run_service" "privacy" {
   ]
   
   labels = local.common_tags
-}
-
-# Random suffix for unique service URLs
-resource "random_id" "suffix" {
-  byte_length = 4
 }
 
 # Output service URLs

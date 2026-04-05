@@ -20,7 +20,7 @@ resource "google_secret_manager_secret_version" "database_url" {
   enabled = true
 }
 
-# Redis connection string with auth
+# Redis connection string with dedicated auth token
 resource "google_secret_manager_secret" "redis_url" {
   secret_id = "${var.environment}-redis-url"
   project   = var.project_id
@@ -32,10 +32,10 @@ resource "google_secret_manager_secret" "redis_url" {
   }
 }
 
-# Note: Redis auth token is generated separately or passed via variable
+# Redis uses its own dedicated auth token, separate from privacy service
 resource "google_secret_manager_secret_version" "redis_url" {
   secret      = google_secret_manager_secret.redis_url.id
-  secret_data = "redis://:${var.privacy_service_token}@${google_redis_instance.main.host}:${google_redis_instance.main.port}"
+  secret_data = "redis://:${var.redis_auth_token}@${google_redis_instance.main.host}:${google_redis_instance.main.port}"
   
   enabled = true
 }

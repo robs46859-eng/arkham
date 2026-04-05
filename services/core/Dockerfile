@@ -1,12 +1,18 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY services/core/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml README.md ./
+COPY packages ./packages
+RUN pip install --no-cache-dir .
 
-COPY services/core/app ./app
+COPY services/core ./services/core
 
-EXPOSE 8000
+WORKDIR /app/services/core
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENV PYTHONPATH=/app
+ENV APP_ENV=production
+
+EXPOSE 3000
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3000"]
