@@ -7,6 +7,7 @@ STUB paths: checkpoint store, step runner, retry manager, dead-letter handler.
 
 from fastapi import FastAPI
 
+from packages.healthchecks import check_database, check_redis
 from packages.schemas import HealthResponse
 from .settings import settings
 from .routers.workflows import router as workflows_router
@@ -40,5 +41,14 @@ async def healthz() -> HealthResponse:
 
 @app.get("/readyz")
 async def readyz() -> dict:
-    # STUB: add DB ping, Redis/queue ping before marking ready
-    return {"status": "ready", "service": settings.service_name}
+    db_ok, db_detail = check_database(settings.database_url)
+    redis_ok, redis_detail = check_redis(settings.redis_url)
+    ready = db_ok and redis_ok
+    return {
+        "status": "ready" if ready else "not_ready",
+        "service": settings.service_name,
+        "dependencies": {
+            "database": {"ok": db_ok, "detail": db_detail},
+            "redis": {"ok": redis_ok, "detail": redis_detail},
+        },
+    }

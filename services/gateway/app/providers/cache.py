@@ -9,8 +9,12 @@ import os
 from typing import Any, Optional
 
 import httpx
-import lancedb
 from pydantic import BaseModel
+
+try:
+    import lancedb
+except ModuleNotFoundError:  # pragma: no cover - dependency is optional at runtime
+    lancedb = None
 
 from ..settings import settings
 
@@ -35,6 +39,8 @@ class SemanticCache:
         self._table_name = "semantic_cache"
 
     def _get_db(self):
+        if lancedb is None:
+            return None
         if self._db is None:
             os.makedirs(settings.vector_store_path, exist_ok=True)
             self._db = lancedb.connect(settings.vector_store_path)
@@ -43,6 +49,8 @@ class SemanticCache:
     def _get_table(self):
         if self._table is None:
             db = self._get_db()
+            if db is None:
+                return None
             if self._table_name not in db.table_names():
                 # Lazy initialization: schema will be inferred from first insert
                 self._table = None
@@ -93,6 +101,8 @@ class SemanticCache:
         """
         if not settings.enable_semantic_cache:
             return None
+        if lancedb is None:
+            return None
 
         table = self._get_table()
         if table is None:
@@ -135,6 +145,8 @@ class SemanticCache:
     ) -> None:
         """Store a new inference result in the cache."""
         if not settings.enable_semantic_cache:
+            return
+        if lancedb is None:
             return
 
         try:

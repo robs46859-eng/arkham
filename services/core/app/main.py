@@ -4,6 +4,9 @@ Implements: Dynamic Service Registry, Event Bus, Unified Config
 """
 
 from fastapi import FastAPI
+
+from packages.healthchecks import check_database, check_redis
+
 from .settings import settings
 from .routers import registry as registry_router
 from .routers import events as events_router
@@ -22,10 +25,25 @@ app.include_router(config_router.router)
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "service": settings.service_name}
+    return {"status": "ok", "service": settings.service_name, "environment": settings.app_env}
+
+
+@app.get("/healthz")
+async def healthz():
+    return {"status": "ok", "service": settings.service_name, "environment": settings.app_env}
 
 
 @app.get("/readyz")
 async def ready_check():
-    # TODO: Add Redis and DB connection checks
-    return {"status": "ready", "service": settings.service_name}
+    db_ok, db_detail = check_database(settings.database_url)
+    redis_ok, redis_detail = check_redis(settings.redis_url)
+    ready = db_ok and redis_ok
+    return {
+        "status": "ready" if ready else "not_ready",
+        "service": settings.service_name,
+        "environment": settings.app_env,
+        "dependencies": {
+            "database": {"ok": db_ok, "detail": db_detail},
+            "redis": {"ok": redis_ok, "detail": redis_detail},
+        },
+    }

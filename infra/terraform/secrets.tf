@@ -20,7 +20,7 @@ resource "google_secret_manager_secret_version" "database_url" {
   enabled = true
 }
 
-# Redis connection string with dedicated auth token
+# Redis connection string with auth
 resource "google_secret_manager_secret" "redis_url" {
   secret_id = "${var.environment}-redis-url"
   project   = var.project_id
@@ -32,10 +32,10 @@ resource "google_secret_manager_secret" "redis_url" {
   }
 }
 
-# Redis uses its own dedicated auth token, separate from privacy service
+# Note: Redis auth token is generated separately or passed via variable
 resource "google_secret_manager_secret_version" "redis_url" {
   secret      = google_secret_manager_secret.redis_url.id
-  secret_data = "redis://:${var.redis_auth_token}@${google_redis_instance.main.host}:${google_redis_instance.main.port}"
+  secret_data = "redis://:${local.redis_auth_token}@${google_redis_instance.main.host}:${google_redis_instance.main.port}"
   
   enabled = true
 }
@@ -79,6 +79,11 @@ resource "google_secret_manager_secret_version" "privacy_service_token" {
 }
 
 resource "random_password" "privacy_token" {
+  length  = 32
+  special = false
+}
+
+resource "random_password" "redis_auth_token" {
   length  = 32
   special = false
 }
@@ -143,4 +148,8 @@ output "secret_ids" {
     stripe_webhook_secret = google_secret_manager_secret.stripe_webhook_secret.secret_id
     openai_api_key       = google_secret_manager_secret.openai_api_key.secret_id
   }
+}
+
+locals {
+  redis_auth_token = var.redis_auth_token != "" ? var.redis_auth_token : random_password.redis_auth_token.result
 }

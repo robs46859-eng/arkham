@@ -103,6 +103,13 @@ variable "privacy_service_token" {
   default     = ""
 }
 
+variable "redis_auth_token" {
+  description = "Auth token for Memorystore Redis"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 # Storage Configuration
 variable "storage_bucket_name" {
   description = "GCS bucket name for BIM files and artifacts"
@@ -159,16 +166,4 @@ variable "private_services_access_cidr" {
   description = "CIDR range for private services access"
   type        = string
   default     = "192.168.0.0/24"
-}
-
-# Redis authentication token (separate from privacy service)
-variable "redis_auth_token" {
-  description = "Authentication token for Redis (Memorystore)"
-  type        = string
-  sensitive   = true
-  
-  validation {
-    condition     = length(var.redis_auth_token) >= 16
-    error_message = "Redis auth token must be at least 16 characters."
-  }
 }

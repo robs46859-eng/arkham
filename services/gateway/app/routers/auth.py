@@ -12,20 +12,16 @@ Response
 
 API key validation
 ------------------
-STUB: currently accepts any non-empty api_key string.
-Real implementation: look up hashed api_key in a tenant_api_keys table,
-verify bcrypt hash, enforce key rotation policy.
-
-Rate limiting
--------------
-STUB: add Redis-backed rate limiter (e.g. 10 token requests/minute/tenant_id).
+Uses tenant-scoped stored API keys.
 """
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from packages.db import get_db
+from ..auth.api_keys import verify_api_key
 from ..auth.tokens import DEFAULT_TTL_HOURS, issue_token
 from ..settings import settings
 
@@ -35,26 +31,26 @@ _TTL_SECONDS = DEFAULT_TTL_HOURS * 3600
 
 
 class TokenRequest(BaseModel):
-    tenant_id: str  # format: tenant_<ulid>
-    api_key: str  # STUB: any non-empty value accepted
+    tenant_id: str      # format: tenant_<ulid>
+    api_key: str
     project_id: str = ""  # optional project scope
 
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    expires_in: int  # seconds
+    expires_in: int     # seconds
 
 
 @router.post("/auth/token", response_model=TokenResponse)
-def issue_access_token(request: TokenRequest) -> TokenResponse:
+def issue_access_token(request: TokenRequest, db: object = Depends(get_db)) -> TokenResponse:
     """
     Issue a JWT access token for a tenant.
 
     The returned token should be sent as `Authorization: Bearer <token>` on
     all subsequent API calls to the gateway.
 
-    STUB: api_key validation is bypassed — real key lookup is next sprint.
+    Validates a tenant-scoped API key before issuing a JWT.
     """
     if not request.tenant_id.startswith("tenant_"):
         raise HTTPException(400, "Invalid tenant_id format. Expected: tenant_<ulid>")
@@ -63,6 +59,8 @@ def issue_access_token(request: TokenRequest) -> TokenResponse:
 
     if request.project_id and not request.project_id.startswith("proj_"):
         raise HTTPException(400, "Invalid project_id format. Expected: proj_<ulid>")
+
+    verify_api_key(db=db, tenant_id=request.tenant_id, api_key=request.api_key)
 
     token = issue_token(
         tenant_id=request.tenant_id,

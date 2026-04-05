@@ -1,97 +1,161 @@
-"""
-Tenant management router.
+"""Tenant admin endpoints used by the admin dashboard."""
 
-STUB - NOT PRODUCTION READY
-This implementation uses in-memory storage for testing purposes only.
-Production implementation must use persistent database storage with proper transactions.
-"""
+from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Query
-from typing import List
-from datetime import datetime
 import uuid
+from datetime import datetime
 
-from packages.schemas.tenant import TenantCreate, TenantUpdate, TenantResponse
-from tests.conftest import MockSession
+from fastapi import APIRouter, Depends, HTTPException, Query
+
+from packages.db import get_db, get_record, list_records
+from packages.models import Tenant, TenantAPIKey
+from packages.schemas import (
+    TenantAPIKeyCreateResponse,
+    TenantAPIKeyResponse,
+    TenantCreate,
+    TenantResponse,
+    TenantUpdate,
+)
+from ..auth.api_keys import issue_api_key, list_tenant_api_keys
 
 router = APIRouter(prefix="/v1/tenants", tags=["tenants"])
 
-# In-memory storage for testing - STUB
-_tenants: dict[str, dict] = {}
+_PLAN_LIMITS: dict[str, int | None] = {
+    "free": 1000,
+    "pro": 10000,
+    "enterprise": None,
+}
 
 
-def _get_session(request) -> MockSession:
-    """Get mock session from request state."""
-    return getattr(request.state, "db_session", None)
+def _tenant_to_response(tenant: Tenant) -> TenantResponse:
+    return TenantResponse(
+        tenant_id=tenant.id,
+        name=tenant.name,
+        plan=getattr(tenant, "plan", "free"),
+        is_active=tenant.is_active,
+        enable_premium_escalation=getattr(tenant, "enable_premium_escalation", False),
+        enable_semantic_cache=getattr(tenant, "enable_semantic_cache", False),
+        cache_similarity_threshold=getattr(tenant, "cache_similarity_threshold", 0.92),
+        max_requests_per_day=getattr(tenant, "max_requests_per_day", None),
+        created_at=tenant.created_at,
+        updated_at=getattr(tenant, "updated_at", tenant.created_at),
+    )
 
 
-@router.post("", response_model=TenantResponse, status_code=201)
-async def create_tenant(payload: TenantCreate):
-    """
-    Create a new tenant.
+def create_tenant_record(request: TenantCreate, db: object) -> TenantResponse:
+    if request.plan not in _PLAN_LIMITS:
+        raise HTTPException(status_code=400, detail="Invalid plan. Expected free, pro, or enterprise.")
 
-    STUB: Uses in-memory storage. Production must use database.
-    """
-    tenant_id = f"tenant_{uuid.uuid4().hex[:12]}"
+    now = datetime.utcnow()
+    tenant = Tenant(
+        id=f"tenant_{uuid.uuid4().hex}",
+        name=request.name.strip(),
+        plan=request.plan,
+        is_active=True,
+        enable_premium_escalation=request.enable_premium_escalation,
+        enable_semantic_cache=request.enable_semantic_cache,
+        cache_similarity_threshold=0.92,
+        max_requests_per_day=_PLAN_LIMITS[request.plan],
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(tenant)
+    if hasattr(db, "commit"):
+        db.commit()
+    return _tenant_to_response(tenant)
 
-    tenant_data = {
-        "id": tenant_id,
-        "tenant_id": tenant_id,
-        "name": payload.name,
-        "is_active": payload.is_active,
-        "created_at": datetime.utcnow(),
-    }
 
-    _tenants[tenant_id] = tenant_data
+def _api_key_to_response(record: TenantAPIKey) -> TenantAPIKeyResponse:
+    return TenantAPIKeyResponse(
+        api_key_id=record.id,
+        tenant_id=record.tenant_id,
+        key_prefix=record.key_prefix,
+        is_active=record.is_active,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
+        last_used_at=record.last_used_at,
+    )
 
-    return TenantResponse(**tenant_data)
+
+@router.get("", response_model=list[TenantResponse])
+def list_tenants(
+    active_only: bool = Query(default=False),
+    db: object = Depends(get_db),
+) -> list[TenantResponse]:
+    tenants = [
+        tenant
+        for tenant in list_records(db, Tenant)
+        if isinstance(tenant, Tenant) and (tenant.is_active or not active_only)
+    ]
+    tenants.sort(key=lambda tenant: tenant.created_at, reverse=True)
+    return [_tenant_to_response(tenant) for tenant in tenants]
 
 
-@router.get("", response_model=List[TenantResponse])
-async def list_tenants(active_only: bool = Query(False)):
-    """
-    List all tenants.
-
-    STUB: Returns from in-memory storage. Production must query database.
-    """
-    results = list(_tenants.values())
-
-    if active_only:
-        results = [t for t in results if t.get("is_active", True)]
-
-    return [TenantResponse(**t) for t in results]
+@router.post("", response_model=TenantResponse)
+def create_tenant(
+    request: TenantCreate,
+    db: object = Depends(get_db),
+) -> TenantResponse:
+    return create_tenant_record(request, db)
 
 
 @router.get("/{tenant_id}", response_model=TenantResponse)
-async def get_tenant(tenant_id: str):
-    """
-    Get a specific tenant by ID.
-
-    STUB: Uses in-memory storage. Production must query database.
-    """
-    if tenant_id not in _tenants:
-        raise HTTPException(status_code=404, detail="Tenant not found")
-
-    return TenantResponse(**_tenants[tenant_id])
+def get_tenant(tenant_id: str, db: object = Depends(get_db)) -> TenantResponse:
+    tenant = get_record(db, Tenant, tenant_id)
+    if tenant is None or not isinstance(tenant, Tenant):
+        raise HTTPException(status_code=404, detail=f"Tenant {tenant_id} not found")
+    return _tenant_to_response(tenant)
 
 
 @router.patch("/{tenant_id}", response_model=TenantResponse)
-async def update_tenant(tenant_id: str, payload: TenantUpdate):
-    """
-    Update a tenant.
+def update_tenant(
+    tenant_id: str,
+    request: TenantUpdate,
+    db: object = Depends(get_db),
+) -> TenantResponse:
+    tenant = get_record(db, Tenant, tenant_id)
+    if tenant is None or not isinstance(tenant, Tenant):
+        raise HTTPException(status_code=404, detail=f"Tenant {tenant_id} not found")
 
-    STUB: Uses in-memory storage. Production must use database transactions.
-    """
-    if tenant_id not in _tenants:
-        raise HTTPException(status_code=404, detail="Tenant not found")
+    updates = request.model_dump(exclude_unset=True)
+    if "plan" in updates and updates["plan"] not in _PLAN_LIMITS:
+        raise HTTPException(status_code=400, detail="Invalid plan. Expected free, pro, or enterprise.")
 
-    tenant_data = _tenants[tenant_id].copy()
+    for field, value in updates.items():
+        setattr(tenant, field, value)
 
-    if payload.name is not None:
-        tenant_data["name"] = payload.name
-    if payload.is_active is not None:
-        tenant_data["is_active"] = payload.is_active
+    if "plan" in updates and "max_requests_per_day" not in updates:
+        tenant.max_requests_per_day = _PLAN_LIMITS[tenant.plan]
+    tenant.updated_at = datetime.utcnow()
 
-    _tenants[tenant_id] = tenant_data
+    if hasattr(db, "commit"):
+        db.commit()
+    return _tenant_to_response(tenant)
 
-    return TenantResponse(**tenant_data)
+
+@router.get("/{tenant_id}/api-keys", response_model=list[TenantAPIKeyResponse])
+def list_api_keys(tenant_id: str, db: object = Depends(get_db)) -> list[TenantAPIKeyResponse]:
+    tenant = get_record(db, Tenant, tenant_id)
+    if tenant is None or not isinstance(tenant, Tenant):
+        raise HTTPException(status_code=404, detail=f"Tenant {tenant_id} not found")
+    return [_api_key_to_response(record) for record in list_tenant_api_keys(db, tenant_id)]
+
+
+@router.post("/{tenant_id}/api-keys", response_model=TenantAPIKeyCreateResponse)
+def create_api_key(tenant_id: str, db: object = Depends(get_db)) -> TenantAPIKeyCreateResponse:
+    tenant = get_record(db, Tenant, tenant_id)
+    if tenant is None or not isinstance(tenant, Tenant):
+        raise HTTPException(status_code=404, detail=f"Tenant {tenant_id} not found")
+
+    issued = issue_api_key(tenant_id=tenant_id)
+    db.add(issued.record)
+    if hasattr(db, "commit"):
+        db.commit()
+
+    return TenantAPIKeyCreateResponse(
+        api_key_id=issued.record.id,
+        tenant_id=issued.record.tenant_id,
+        key_prefix=issued.record.key_prefix,
+        api_key=issued.plaintext,
+        created_at=issued.record.created_at,
+    )

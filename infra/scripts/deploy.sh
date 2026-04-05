@@ -1,9 +1,15 @@
 #!/bin/bash
 # Robco Platform - Deployment Script
 # Builds Docker images, pushes to Artifact Registry, and deploys to Cloud Run
-# All builds use repo root as context for proper package resolution
 
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+PYTHON_BIN="${PYTHON_BIN:-${REPO_ROOT}/.venv/bin/python}"
+if [[ ! -x "${PYTHON_BIN}" ]]; then
+    PYTHON_BIN="${PYTHON_FALLBACK:-python3}"
+fi
 
 echo "🚀 Robco Platform Deployment"
 echo "============================"
@@ -21,10 +27,13 @@ info() { echo "  $1"; }
 
 # Configuration
 SERVICES=("gateway" "core" "privacy" "orchestration" "bim_ingestion" "billing")
-PROJECT_ID=${PROJECT_ID:-$(gcloud config get-value project 2>/dev/null)}
+PROJECT_ID="${PROJECT_ID:-}"
 REGION=${REGION:-us-central1}
 REGISTRY_NAME=${REGISTRY_NAME:-robco-containers}
 TAG=${TAG:-latest}
+if [[ "${TAG}" == "latest" ]]; then
+    TAG="$(git -C "${REPO_ROOT}" rev-parse --short=12 HEAD)"
+fi
 
 # Validate prerequisites
 validate_prerequisites() {
@@ -43,6 +52,9 @@ validate_prerequisites() {
     success "Docker found"
     
     # Check project
+    if [[ -z "${PROJECT_ID}" ]]; then
+        PROJECT_ID="$(gcloud config get-value project 2>/dev/null || true)"
+    fi
     if [[ -z "${PROJECT_ID}" ]]; then
         error "PROJECT_ID not set and no default project configured"
     fi
@@ -66,21 +78,43 @@ auth_docker() {
     fi
 }
 
-# Build a single service from repo root context
+run_migrations() {
+    info "Running Alembic migrations..."
+
+    if [[ -z "${DATABASE_URL:-}" ]]; then
+        error "DATABASE_URL must be set to run migrations"
+    fi
+
+    (
+        cd "${REPO_ROOT}"
+        DATABASE_URL="${DATABASE_URL}" "${PYTHON_BIN}" -m alembic upgrade head
+    )
+    success "Migrations applied"
+}
+
+run_smoke_tests() {
+    info "Running smoke tests..."
+    (
+        cd "${REPO_ROOT}"
+        "${PYTHON_BIN}" -m pytest -m smoke
+    )
+    success "Smoke tests passed"
+}
+
+# Build a single service
 build_service() {
     local service="$1"
-    local dockerfile="services/${service}/Dockerfile"
+    local service_dir="${REPO_ROOT}/services/${service}"
     local image_name="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REGISTRY_NAME}/${service}:${TAG}"
     
-    if [[ ! -f "${dockerfile}" ]]; then
-        warning "Dockerfile not found: ${dockerfile}"
+    if [[ ! -d "${service_dir}" ]]; then
+        warning "Service directory not found: ${service_dir}"
         return 1
     fi
     
-    info "Building ${service} from repo root..."
+    info "Building ${service}..."
     
-    # Build from repo root (.) with specific Dockerfile path
-    if docker build -t "${image_name}" -f "${dockerfile}" .; then
+    if docker build -t "${image_name}" -f "${service_dir}/Dockerfile" "${REPO_ROOT}"; then
         success "Built ${service}"
         echo "${image_name}"
         return 0
@@ -222,27 +256,38 @@ main() {
             validate_prerequisites
             deploy_all
             ;;
+        migrate)
+            run_migrations
+            ;;
+        smoke)
+            run_smoke_tests
+            ;;
         all)
             validate_prerequisites
             auth_docker
             images=$(build_all)
             push_all ${images}
+            run_migrations
             deploy_all
+            run_smoke_tests
             ;;
         *)
-            echo "Usage: $0 {build|push|deploy|all} [service...]"
+            echo "Usage: $0 {build|push|deploy|migrate|smoke|all} [service...]"
             echo ""
             echo "Commands:"
             echo "  build   - Build Docker images for all services"
             echo "  push    - Build and push images to Artifact Registry"
             echo "  deploy  - Deploy services to Cloud Run"
+            echo "  migrate - Run Alembic migrations against DATABASE_URL"
+            echo "  smoke   - Run pytest smoke tests"
             echo "  all     - Build, push, and deploy (default)"
             echo ""
             echo "Environment variables:"
             echo "  PROJECT_ID     - GCP project ID (required)"
             echo "  REGION         - GCP region (default: us-central1)"
             echo "  REGISTRY_NAME  - Artifact Registry name (default: robco-containers)"
-            echo "  TAG            - Docker image tag (default: latest)"
+            echo "  TAG            - Docker image tag (default: current git SHA)"
+            echo "  DATABASE_URL   - Required for migrate/all"
             echo ""
             echo "Examples:"
             echo "  $0 all                          # Full deployment"

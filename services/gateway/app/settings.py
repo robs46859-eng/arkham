@@ -38,6 +38,10 @@ class Settings(BaseServiceSettings):
     openai_base_url: str | None = None
     openai_mid_tier_model: str = "gpt-4o-mini"
     openai_premium_model: str = "gpt-4o"
+    gemini_api_key: str | None = None
+    gemini_base_url: str | None = None
+    gemini_mid_tier_model: str = "gemini-1.5-flash"
+    gemini_premium_model: str = "gemini-1.5-pro"
 
     gemini_api_key: str | None = None
     gemini_base_url: str | None = None
