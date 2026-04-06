@@ -1,5 +1,6 @@
 # Robco Platform - Cloud Run Services
 # Serverless deployment for all platform services
+# Uses Direct VPC Egress (no VPC connector needed)
 
 locals {
   service_images = {
@@ -67,8 +68,11 @@ resource "google_cloud_run_v2_service" "privacy" {
     }
 
     vpc_access {
-      connector = google_vpc_access_connector.connector[0].id
-      egress    = "PRIVATE_RANGES_ONLY"
+      network_interfaces {
+        network    = google_compute_network.vpc.name
+        subnetwork = google_compute_subnetwork.main.name
+      }
+      egress = "PRIVATE_RANGES_ONLY"
     }
   }
 
@@ -164,8 +168,11 @@ resource "google_cloud_run_v2_service" "gateway" {
     }
 
     vpc_access {
-      connector = google_vpc_access_connector.connector[0].id
-      egress    = "PRIVATE_RANGES_ONLY"
+      network_interfaces {
+        network    = google_compute_network.vpc.name
+        subnetwork = google_compute_subnetwork.main.name
+      }
+      egress = "PRIVATE_RANGES_ONLY"
     }
   }
 
@@ -233,8 +240,11 @@ resource "google_cloud_run_v2_service" "core" {
     }
 
     vpc_access {
-      connector = google_vpc_access_connector.connector[0].id
-      egress    = "PRIVATE_RANGES_ONLY"
+      network_interfaces {
+        network    = google_compute_network.vpc.name
+        subnetwork = google_compute_subnetwork.main.name
+      }
+      egress = "PRIVATE_RANGES_ONLY"
     }
   }
 
@@ -261,8 +271,6 @@ output "privacy_url" {
 }
 
 # ── Vertical Services (hub-and-spoke spokes) ─────────────────────────────────
-# Add verticals to the map below. Each gets a Cloud Run service that
-# auto-registers with Core on startup via VerticalBase.
 
 variable "verticals" {
   description = "Map of vertical services to deploy. Key = service name, value = config."
@@ -333,8 +341,11 @@ resource "google_cloud_run_v2_service" "vertical" {
     }
 
     vpc_access {
-      connector = google_vpc_access_connector.connector[0].id
-      egress    = "PRIVATE_RANGES_ONLY"
+      network_interfaces {
+        network    = google_compute_network.vpc.name
+        subnetwork = google_compute_subnetwork.main.name
+      }
+      egress = "PRIVATE_RANGES_ONLY"
     }
   }
 
