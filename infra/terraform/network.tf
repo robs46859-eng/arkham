@@ -42,18 +42,30 @@ resource "google_service_networking_connection" "private_vpc" {
   depends_on = [google_project_service.required_apis]
 }
 
+# Dedicated subnet for VPC Access Connector
+resource "google_compute_subnetwork" "connector" {
+  count                    = var.enable_cloud_run ? 1 : 0
+  name                     = "robco-connector-subnet"
+  ip_cidr_range            = "10.9.0.0/28"
+  region                   = var.region
+  network                  = google_compute_network.vpc.id
+  private_ip_google_access = true
+}
+
 # Serverless VPC Access Connector for Cloud Run
 resource "google_vpc_access_connector" "connector" {
-  count         = var.enable_cloud_run ? 1 : 0
-  name          = "robco-vpc-connector"
-  project       = var.project_id
-  region        = var.region
-  network       = google_compute_network.vpc.id
-  ip_cidr_range = "10.8.0.0/28"
-  
+  count   = var.enable_cloud_run ? 1 : 0
+  name    = "robco-connector"
+  project = var.project_id
+  region  = var.region
+
+  subnet {
+    name = google_compute_subnetwork.connector[0].name
+  }
+
   min_instances = 2
   max_instances = 10
-  
+
   depends_on = [google_project_service.required_apis]
 }
 
