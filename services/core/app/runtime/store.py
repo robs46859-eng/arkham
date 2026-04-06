@@ -86,12 +86,15 @@ def list_subscriptions() -> dict[str, list[str]]:
     }
 
 
-def put_subscription(service_id: str, event_types: list[str]) -> None:
+def put_subscription(
+    service_id: str, event_types: list[str], *, callback_url: str | None = None
+) -> None:
+    sub_data = {"event_types": event_types, "callback_url": callback_url}
     if _is_test_env():
-        _TEST_STATE["subscriptions"][service_id] = event_types
+        _TEST_STATE["subscriptions"][service_id] = sub_data
         return
     client = _redis()
-    client.hset("core:subscriptions", service_id, json.dumps(event_types))
+    client.hset("core:subscriptions", service_id, json.dumps(sub_data))
 
 
 def delete_subscription(service_id: str) -> bool:
@@ -132,12 +135,17 @@ def save_config_store(payload: dict[str, Any]) -> None:
     client.set("core:config", json.dumps(payload, default=_json_default))
 
 
-def notified_subscribers(event_type: str, subscriptions: dict[str, list[str]]) -> list[str]:
-    return [
-        service_id
-        for service_id, event_types in subscriptions.items()
-        if event_type in event_types or "*" in event_types
-    ]
+def notified_subscribers(event_type: str, subscriptions: dict[str, Any]) -> list[str]:
+    matched: list[str] = []
+    for service_id, sub_data in subscriptions.items():
+        # Support both new dict shape and legacy list shape
+        if isinstance(sub_data, dict):
+            event_types = sub_data.get("event_types", [])
+        else:
+            event_types = sub_data
+        if event_type in event_types or "*" in event_types:
+            matched.append(service_id)
+    return matched
 
 
 def filter_events(

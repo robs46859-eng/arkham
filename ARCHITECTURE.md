@@ -69,20 +69,42 @@ open http://localhost:3040
 
 ## Adding New Verticals
 
+### Option A: Scaffold Script (recommended)
+
+```bash
+./infra/scripts/new_vertical.sh my_vertical 3110 search analytics
+```
+
+This creates the full directory structure, Dockerfile, requirements.txt, a `main.py`
+wired to `VerticalBase`, and appends the service to `docker-compose.yml`.
+
+### Option B: Manual Setup
+
 1. Create directory structure:
 ```bash
 mkdir -p services/verticals/new_vertical/app
 touch services/verticals/new_vertical/app/__init__.py
 ```
 
-2. Add main.py with FastAPI app:
+2. Add main.py using VerticalBase:
 ```python
-from fastapi import FastAPI
-app = FastAPI(title="New Vertical", version="0.1.0")
+from packages.vertical_base import EventPayload, VerticalBase
 
-@app.get("/health")
-async def health():
-    return {"status": "ok"}
+vertical = VerticalBase(
+    service_id="new_vertical",
+    port=8000,
+    capabilities=["search", "analytics"],
+    event_subscriptions=["workflow.completed"],
+)
+app = vertical.app
+
+@vertical.on_event("workflow.completed")
+async def handle_workflow(event: EventPayload):
+    print(f"Workflow done: {event.payload}")
+
+@app.get("/")
+async def root():
+    return {"service": "new_vertical", "status": "operational"}
 ```
 
 3. Add requirements.txt:
@@ -90,17 +112,36 @@ async def health():
 fastapi==0.109.0
 uvicorn[standard]==0.27.0
 pydantic==2.5.3
+httpx==0.26.0
 ```
 
 4. Add Dockerfile (copy from existing vertical)
 
 5. Add to docker-compose.yml
 
-6. Register with Core:
+### What VerticalBase gives you automatically
+
+- **Self-registration**: on startup, registers with Core's service registry
+- **Event subscription**: subscribes to event types with a callback URL
+- **Event receiving**: `POST /events/receive` endpoint auto-mounted
+- **Event handlers**: `@vertical.on_event("type")` decorator for clean handler registration
+- **Event publishing**: `await vertical.publish_event("type", payload)` from anywhere
+- **Health check**: `GET /health` auto-mounted
+- **Clean shutdown**: unregisters and unsubscribes on container stop
+
+### Accessing verticals via the Gateway
+
+Once registered, verticals are reachable through the gateway proxy:
+
 ```bash
-curl -X POST http://localhost:3000/verticals \
-  -H "Content-Type: application/json" \
-  -d '{"vertical_id": "new_vertical", "enabled": true, "config": {}}'
+# Direct access (within docker network)
+curl http://new_vertical:8000/
+
+# Via gateway (external access)
+curl http://localhost:8000/v1/verticals/new_vertical/
+
+# Any sub-path is proxied
+curl http://localhost:8000/v1/verticals/new_vertical/metrics
 ```
 
 ## Architecture Principles
