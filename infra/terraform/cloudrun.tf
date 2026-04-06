@@ -61,7 +61,7 @@ resource "google_cloud_run_v2_service" "privacy" {
 
       resources {
         limits = {
-          cpu    = "500m"
+          cpu    = "1000m"
           memory = "256Mi"
         }
       }
@@ -276,7 +276,7 @@ variable "verticals" {
   description = "Map of vertical services to deploy. Key = service name, value = config."
   type = map(object({
     container_port = optional(number, 8000)
-    cpu            = optional(string, "500m")
+    cpu            = optional(string, "1000m")
     memory         = optional(string, "256Mi")
     min_instances  = optional(number, 0)
     max_instances  = optional(number, 5)
