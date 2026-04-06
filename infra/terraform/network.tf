@@ -45,7 +45,7 @@ resource "google_service_networking_connection" "private_vpc" {
 # Serverless VPC Access Connector for Cloud Run
 resource "google_vpc_access_connector" "connector" {
   count         = var.enable_cloud_run ? 1 : 0
-  name          = "${var.vpc_name}-connector"
+  name          = "robco-vpc-connector"
   project       = var.project_id
   region        = var.region
   network       = google_compute_network.vpc.id
