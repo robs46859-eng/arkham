@@ -5,6 +5,6 @@ steps:
     args: ['push', '${_REGISTRY}/${_SERVICE}:latest']
 
 substitutions:
-  _REGISTRY: 'us-central1-docker.pkg.dev/$PROJECT_ID/robco-containers'
+  _REGISTRY: 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers'
   _SERVICE: 'core'
   _SERVICE_PATH: 'core'
