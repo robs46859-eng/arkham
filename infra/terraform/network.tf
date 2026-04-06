@@ -6,8 +6,6 @@ resource "google_compute_network" "vpc" {
   auto_create_subnetworks         = false
   routing_mode                    = "REGIONAL"
   project                         = var.project_id
-  
-  tags = ["robco-services"]
 }
 
 resource "google_compute_subnetwork" "main" {
