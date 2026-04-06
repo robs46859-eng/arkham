@@ -1,0 +1,10 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_REGISTRY}/${_SERVICE}:latest', '-f', 'services/${_SERVICE_PATH}/Dockerfile', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_REGISTRY}/${_SERVICE}:latest']
+
+substitutions:
+  _REGISTRY: 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers'
+  _SERVICE: 'core'
+  _SERVICE_PATH: 'core'
