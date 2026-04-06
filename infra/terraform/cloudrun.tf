@@ -141,6 +141,11 @@ resource "google_cloud_run_v2_service" "gateway" {
       }
 
       env {
+        name  = "CORE_SERVICE_URL"
+        value = google_cloud_run_v2_service.core[0].uri
+      }
+
+      env {
         name = "PRIVACY_SERVICE_TOKEN"
         value_source {
           secret_key_ref {
@@ -253,4 +258,96 @@ output "core_url" {
 output "privacy_url" {
   description = "Privacy Cloud Run service URL"
   value       = var.enable_cloud_run ? google_cloud_run_v2_service.privacy[0].uri : null
+}
+
+# ── Vertical Services (hub-and-spoke spokes) ─────────────────────────────────
+# Add verticals to the map below. Each gets a Cloud Run service that
+# auto-registers with Core on startup via VerticalBase.
+
+variable "verticals" {
+  description = "Map of vertical services to deploy. Key = service name, value = config."
+  type = map(object({
+    container_port = optional(number, 8000)
+    cpu            = optional(string, "500m")
+    memory         = optional(string, "256Mi")
+    min_instances  = optional(number, 0)
+    max_instances  = optional(number, 5)
+  }))
+  default = {
+    omniscale = {}
+  }
+}
+
+resource "google_cloud_run_v2_service" "vertical" {
+  for_each = var.enable_cloud_run ? var.verticals : {}
+
+  name     = "robco-${replace(each.key, "_", "-")}"
+  location = var.cloud_run_region
+  project  = var.project_id
+  ingress  = "INGRESS_TRAFFIC_INTERNAL_ONLY"
+  labels   = local.common_tags
+
+  template {
+    service_account                  = google_service_account.runtime.email
+    timeout                          = "300s"
+    max_instance_request_concurrency = 80
+
+    scaling {
+      min_instance_count = each.value.min_instances
+      max_instance_count = each.value.max_instances
+    }
+
+    containers {
+      image = "${google_artifact_registry_repository.containers.location}-docker.pkg.dev/${var.project_id}/${var.artifact_registry_name}/${each.key}:latest"
+
+      ports {
+        container_port = each.value.container_port
+      }
+
+      env {
+        name  = "CORE_SERVICE_URL"
+        value = google_cloud_run_v2_service.core[0].uri
+      }
+
+      env {
+        name  = "APP_ENV"
+        value = var.environment
+      }
+
+      env {
+        name = "REDIS_URL"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.redis_url.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      resources {
+        limits = {
+          cpu    = each.value.cpu
+          memory = each.value.memory
+        }
+      }
+    }
+
+    vpc_access {
+      connector = google_vpc_access_connector.connector[0].id
+      egress    = "PRIVATE_RANGES_ONLY"
+    }
+  }
+
+  depends_on = [
+    google_project_service.required_apis,
+    google_cloud_run_v2_service.core,
+    google_secret_manager_secret_version.redis_url,
+  ]
+}
+
+output "vertical_urls" {
+  description = "Cloud Run URLs for all deployed verticals"
+  value = var.enable_cloud_run ? {
+    for k, v in google_cloud_run_v2_service.vertical : k => v.uri
+  } : {}
 }

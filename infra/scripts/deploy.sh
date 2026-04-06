@@ -26,7 +26,19 @@ warning() { echo -e "${YELLOW}⚠${NC} $1"; }
 info() { echo "  $1"; }
 
 # Configuration
-SERVICES=("gateway" "core" "privacy" "orchestration" "bim_ingestion" "billing")
+CORE_SERVICES=("gateway" "core" "privacy" "orchestration" "bim_ingestion" "billing")
+
+# Auto-discover verticals
+VERTICAL_SERVICES=()
+if [[ -d "${REPO_ROOT}/services/verticals" ]]; then
+    for vertical_dir in "${REPO_ROOT}/services/verticals"/*/; do
+        if [[ -f "${vertical_dir}/Dockerfile" ]]; then
+            VERTICAL_SERVICES+=("$(basename "${vertical_dir}")")
+        fi
+    done
+fi
+
+SERVICES=("${CORE_SERVICES[@]}" "${VERTICAL_SERVICES[@]}")
 PROJECT_ID="${PROJECT_ID:-}"
 REGION=${REGION:-us-central1}
 REGISTRY_NAME=${REGISTRY_NAME:-robco-containers}
@@ -106,9 +118,14 @@ build_service() {
     local service="$1"
     local service_dir="${REPO_ROOT}/services/${service}"
     local image_name="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REGISTRY_NAME}/${service}:${TAG}"
-    
+
+    # Check core services path first, then verticals
     if [[ ! -d "${service_dir}" ]]; then
-        warning "Service directory not found: ${service_dir}"
+        service_dir="${REPO_ROOT}/services/verticals/${service}"
+    fi
+
+    if [[ ! -d "${service_dir}" ]]; then
+        warning "Service directory not found: ${service}"
         return 1
     fi
     
