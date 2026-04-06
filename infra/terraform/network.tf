@@ -27,7 +27,7 @@ resource "google_compute_global_address" "private_services" {
   name          = "${var.vpc_name}-psa"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
-  prefix_length = 24
+  prefix_length = 20
   network       = google_compute_network.vpc.id
   ip_version    = "IPV4"
   

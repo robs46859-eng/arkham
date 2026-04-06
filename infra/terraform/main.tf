@@ -67,6 +67,7 @@ resource "google_project_service" "required_apis" {
     "run.googleapis.com",
     "cloudbuild.googleapis.com",
     "servicenetworking.googleapis.com",
+    "vpcaccess.googleapis.com",
     "iam.googleapis.com"
   ])
   
