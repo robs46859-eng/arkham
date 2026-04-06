@@ -29,7 +29,7 @@ resource "google_redis_instance" "main" {
   
   # Persistence configuration
   persistence_config {
-    persistence_mode = "PERSISTENCE_MODE_DEFAULT"
+    persistence_mode = "DISABLED"
   }
   
   # Authentication

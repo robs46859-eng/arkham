@@ -13,7 +13,7 @@ resource "google_sql_database_instance" "main" {
     tier              = var.database_tier
     availability_type = var.enable_ha ? "REGIONAL" : "ZONAL"
     
-    disk_size_gb       = 50
+    disk_size          = 50
     disk_autoresize    = true
     disk_autoresize_limit = 500
     
