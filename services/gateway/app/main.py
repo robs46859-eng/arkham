@@ -6,6 +6,7 @@ STUB paths: semantic cache lookup, usage metering, JWT auth, orchestration clien
 """
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from packages.healthchecks import check_database, check_redis
 from packages.schemas import HealthResponse
@@ -20,9 +21,17 @@ from .routers import ai as ai_router
 from .routers import crm as crm_router
 
 app = FastAPI(
-    title="Robco Gateway",
+    title="Stelar Gateway",
     version="0.1.0",
     description="Centralized inference control plane and policy engine.",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(auth_router.router)

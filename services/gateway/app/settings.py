@@ -10,6 +10,17 @@ from packages.config.base import BaseServiceSettings, build_settings
 class Settings(BaseServiceSettings):
     service_name: str = "gateway"
 
+    # CORS — comma-separated list of allowed origins.
+    # Defaults cover local dev + stelar.host production domains.
+    allowed_origins: list[str] = [
+        "https://stelar.host",
+        "https://www.stelar.host",
+        "https://stelar-saas.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost:8080",
+    ]
+
     # Signing key for tenant auth tokens
     # Production: Must be set via environment variable or Secret Manager
     signing_key: str | None = None

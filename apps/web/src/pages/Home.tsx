@@ -323,7 +323,7 @@ export default function Home() {
           <li><a href="#">Changelog</a></li>
           <li><a href="#">Terms</a></li>
         </ul>
-        <div className="footer-copy">© 2026 RobCo / FullStack AI</div>
+        <div className="footer-copy">© 2026 Stelar · stelar.host</div>
       </footer>
     </>
   );
