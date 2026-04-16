@@ -140,6 +140,16 @@ resource "google_cloud_run_v2_service" "gateway" {
       }
 
       env {
+        name = "ADMIN_TOKEN"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.admin_token.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
         name  = "PRIVACY_SERVICE_URL"
         value = google_cloud_run_v2_service.privacy[0].uri
       }
@@ -147,6 +157,11 @@ resource "google_cloud_run_v2_service" "gateway" {
       env {
         name  = "CORE_SERVICE_URL"
         value = google_cloud_run_v2_service.core[0].uri
+      }
+
+      env {
+        name  = "BILLING_SERVICE_URL"
+        value = google_cloud_run_v2_service.billing[0].uri
       }
 
       env {
@@ -181,7 +196,9 @@ resource "google_cloud_run_v2_service" "gateway" {
     google_secret_manager_secret_version.database_url,
     google_secret_manager_secret_version.redis_url,
     google_secret_manager_secret_version.signing_key,
+    google_secret_manager_secret_version.admin_token,
     google_secret_manager_secret_version.privacy_service_token,
+    google_cloud_run_v2_service.billing,
   ]
 }
 
@@ -253,6 +270,139 @@ resource "google_cloud_run_v2_service" "core" {
     google_secret_manager_secret_version.database_url,
     google_secret_manager_secret_version.redis_url,
   ]
+}
+
+# Billing Service
+resource "google_cloud_run_v2_service" "billing" {
+  count    = var.enable_cloud_run ? 1 : 0
+  name     = "robco-billing"
+  location = var.cloud_run_region
+  project  = var.project_id
+  ingress  = "INGRESS_TRAFFIC_INTERNAL_ONLY"
+  labels   = local.common_tags
+
+  template {
+    service_account                  = google_service_account.runtime.email
+    timeout                          = "60s"
+    max_instance_request_concurrency = 80
+
+    scaling {
+      min_instance_count = var.cloud_run_min_instances
+      max_instance_count = var.cloud_run_max_instances
+    }
+
+    containers {
+      image = local.service_images.billing
+
+      ports {
+        container_port = 3020
+      }
+
+      env {
+        name = "DATABASE_URL"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.database_url.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "REDIS_URL"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.redis_url.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "SIGNING_KEY"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.signing_key.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "STRIPE_SECRET_KEY"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.stripe_secret_key.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "STRIPE_WEBHOOK_SECRET"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.stripe_webhook_secret.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name  = "STRIPE_PRICE_ID"
+        value = var.stripe_price_id
+      }
+
+      env {
+        name  = "STRIPE_SUCCESS_URL"
+        value = var.stripe_success_url
+      }
+
+      env {
+        name  = "STRIPE_CANCEL_URL"
+        value = var.stripe_cancel_url
+      }
+
+      env {
+        name  = "STRIPE_PORTAL_RETURN_URL"
+        value = var.stripe_portal_return_url
+      }
+
+      env {
+        name  = "APP_ENV"
+        value = var.environment
+      }
+
+      resources {
+        limits = {
+          cpu    = "1000m"
+          memory = "256Mi"
+        }
+      }
+    }
+
+    vpc_access {
+      network_interfaces {
+        network    = google_compute_network.vpc.name
+        subnetwork = google_compute_subnetwork.main.name
+      }
+      egress = "PRIVATE_RANGES_ONLY"
+    }
+  }
+
+  depends_on = [
+    google_project_service.required_apis,
+    google_secret_manager_secret_version.database_url,
+    google_secret_manager_secret_version.redis_url,
+    google_secret_manager_secret_version.signing_key,
+    google_secret_manager_secret_version.stripe_secret_key,
+    google_secret_manager_secret_version.stripe_webhook_secret,
+  ]
+}
+
+output "billing_url" {
+  description = "Billing Cloud Run service URL"
+  value       = var.enable_cloud_run ? google_cloud_run_v2_service.billing[0].uri : null
 }
 
 output "gateway_url" {

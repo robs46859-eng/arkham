@@ -1,7 +1,16 @@
-from fastapi import FastAPI
 from pydantic import BaseModel
 
-app = FastAPI(title="Digital IT Girl", version="0.1.0")
+from packages.vertical_base import VerticalBase
+
+vertical = VerticalBase(
+    service_id="digital-it-girl",
+    title="Digital IT Girl",
+    port=8000,
+    capabilities=["trend_tracking", "emerging_technology", "market_signals"],
+    event_subscriptions=[],
+)
+
+app = vertical.app
 
 
 class TechTrend(BaseModel):
@@ -19,7 +28,7 @@ trends_store = {}
 @app.post("/trends/add")
 async def add_trend(trend: TechTrend):
     """Add a new emerging tech trend."""
-    trends_store[trend.trend_id] = trend.dict()
+    trends_store[trend.trend_id] = trend.model_dump()
     return {"status": "added", "trend_id": trend.trend_id}
 
 
@@ -45,8 +54,3 @@ async def get_emerging_techs():
     """Get only emerging technologies."""
     emerging = {k: v for k, v in trends_store.items() if v.get("maturity_level") == "emerging"}
     return {"emerging_techs": emerging}
-
-
-@app.get("/health")
-async def health_check():
-    return {"status": "ok", "service": "digital-it-girl"}

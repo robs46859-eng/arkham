@@ -25,6 +25,7 @@ from packages.models import (  # noqa: F401
     DeliverableRecord,
     MemoryNoteRecord,
     UsageEventRecord,
+    AutomationLogRecord,
 )
 
 config = context.config

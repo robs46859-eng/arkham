@@ -9,6 +9,7 @@ export default defineConfig({
     proxy: {
       '/v1/auth':      { target: 'http://localhost:8000', changeOrigin: true },
       '/v1/tenants':   { target: 'http://localhost:8000', changeOrigin: true },
+      '/v1/crm':       { target: 'http://localhost:8000', changeOrigin: true },
       '/v1/infer':     { target: 'http://localhost:8000', changeOrigin: true },
       '/v1/workflows': { target: 'http://localhost:8000', changeOrigin: true },
       '/v1/ingestion': { target: 'http://localhost:8001', changeOrigin: true },

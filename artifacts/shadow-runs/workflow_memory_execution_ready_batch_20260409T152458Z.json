@@ -1,0 +1,460 @@
+[
+  {
+    "tenant_id": "tenant_shadow_no_cache_generate",
+    "lead": {
+      "name": "Xavier Renom",
+      "company": "Justinmind",
+      "title": "CEO &Founder",
+      "email": "xavier.renom@justinmind.com",
+      "technologies": "Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI"
+    },
+    "eligibility": {
+      "sendable": true,
+      "status": "sendable",
+      "missing_fields": [],
+      "email": "xavier.renom@justinmind.com",
+      "first_name": "Xavier",
+      "company_name": "Justinmind"
+    },
+    "case": "no_cache_generate",
+    "expectation": "fresh generation because no reusable flow exists yet",
+    "decision": {
+      "status": "fallback",
+      "reason": "not_found",
+      "score": 0.0,
+      "threshold": 0.0,
+      "stored": true,
+      "estimated_time_saved_ms": 0,
+      "summary": "regenerated because not_found; score 0.00 vs threshold 0.00",
+      "reason_path": [
+        "recall_attempted",
+        "cache_miss",
+        "decision:regenerate"
+      ],
+      "fallback_reason": "not_found"
+    },
+    "output_preview": {
+      "headline": "information technology & services automation that ships",
+      "subject": "information technology & services automation that ships",
+      "body_excerpt": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, G..."
+    },
+    "execution_contract": {
+      "channel": "email",
+      "provider_mode": "dry_run",
+      "to": "xavier.renom@justinmind.com",
+      "subject": "information technology & services automation that ships",
+      "body": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+      "product": {
+        "name": "Agency",
+        "product_id": "prod_UICyBy4ItoEBsW",
+        "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+        "price": "$30/mo"
+      },
+      "follow_up_sequence": [
+        2,
+        5,
+        10
+      ],
+      "crm_payload": {
+        "industry": "information technology & services",
+        "pain_point": "manual prospecting and follow-up",
+        "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+      }
+    },
+    "workflow_context": {
+      "workflow_type": "fullstack_outreach",
+      "offer_type": "agency",
+      "stage": "first_touch"
+    },
+    "metrics": {
+      "hit_rate": 0.0,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "not_found": 1
+      },
+      "outcome_score": 0.0,
+      "outcome_counts": {
+        "send_approval": 0,
+        "delivered": 0,
+        "reply": 0,
+        "booking": 0,
+        "rejection": 0
+      }
+    },
+    "reviewer": {
+      "disposition": null,
+      "judgment_reason": null,
+      "operator_quality_assessment": null,
+      "notes": null,
+      "matches_system_decision": null
+    }
+  },
+  {
+    "tenant_id": "tenant_shadow_borderline_reuse",
+    "lead": {
+      "name": "Tracy Potts",
+      "company": "feature[23]",
+      "title": "Chief Operating Officer+CoFounder",
+      "email": "tracy@feature23.com",
+      "technologies": "Cloudflare DNS, Mailchimp Mandrill, Sendgrid, Gmail, Outlook, Google Apps, Microsoft Office 365, Microsoft Application Insights, Atlassian Cloud, Slack, Hubspot, Facebook Widget, Linkedin Widget, Bootstrap Framework, Mobile Friendly, Google Tag Manager, Facebook Login (Connect), Linkedin Login, Google Analytics, React Native, Android, IoT, Node.js, Xamarin, Remote"
+    },
+    "eligibility": {
+      "sendable": true,
+      "status": "sendable",
+      "missing_fields": [],
+      "email": "tracy@feature23.com",
+      "first_name": "Tracy",
+      "company_name": "feature[23]"
+    },
+    "case": "borderline_reuse",
+    "expectation": "reuse because score sits just above threshold and there is no compatibility failure",
+    "decision": {
+      "status": "fallback",
+      "reason": "low_quality_score",
+      "score": -0.3333333333333333,
+      "threshold": 0.0,
+      "stored": true,
+      "estimated_time_saved_ms": 0,
+      "summary": "regenerated because auto-reuse requires a nonnegative score; score -0.33 vs threshold 0.00",
+      "reason_path": [
+        "recall_attempted",
+        "cache_found",
+        "validation:hit",
+        "policy:auto_reuse_requires_nonnegative_score",
+        "quality_gate:fail",
+        "decision:regenerate"
+      ],
+      "fallback_reason": "low_quality_score"
+    },
+    "output_preview": {
+      "headline": "information technology & services automation that ships",
+      "subject": "information technology & services automation that ships",
+      "body_excerpt": "Hi Tracy,\n\nI noticed feature[23] fits the FullStack buyer profile: Chief Operating Officer+CoFounders already working around Cloudflare DNS, Mailchimp Mandrill, Sendgrid, Gmail, Outlook, Google Apps, Microsoft Office 365..."
+    },
+    "execution_contract": {
+      "channel": "email",
+      "provider_mode": "dry_run",
+      "to": "tracy@feature23.com",
+      "subject": "information technology & services automation that ships",
+      "body": "Hi Tracy,\n\nI noticed feature[23] fits the FullStack buyer profile: Chief Operating Officer+CoFounders already working around Cloudflare DNS, Mailchimp Mandrill, Sendgrid, Gmail, Outlook, Google Apps, Microsoft Office 365, Microsoft Application Insights, Atlassian Cloud, Slack, Hubspot, Facebook Widget, Linkedin Widget, Bootstrap Framework, Mobile Friendly, Google Tag Manager, Facebook Login (Connect), Linkedin Login, Google Analytics, React Native, Android, IoT, Node.js, Xamarin, Remote.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+      "product": {
+        "name": "Agency",
+        "product_id": "prod_UICyBy4ItoEBsW",
+        "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+        "price": "$30/mo"
+      },
+      "follow_up_sequence": [
+        2,
+        5,
+        10
+      ],
+      "crm_payload": {
+        "industry": "information technology & services",
+        "pain_point": "manual prospecting and follow-up",
+        "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+      }
+    },
+    "workflow_context": {
+      "workflow_type": "fullstack_outreach",
+      "offer_type": "agency",
+      "stage": "first_touch"
+    },
+    "metrics": {
+      "hit_rate": 0.0,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "low_quality_score": 1
+      },
+      "outcome_score": -0.3333333333333333,
+      "outcome_counts": {
+        "send_approval": 1,
+        "delivered": 1,
+        "reply": 0,
+        "booking": 0,
+        "rejection": 1
+      }
+    },
+    "reviewer": {
+      "disposition": null,
+      "judgment_reason": null,
+      "operator_quality_assessment": null,
+      "notes": null,
+      "matches_system_decision": null
+    }
+  },
+  {
+    "tenant_id": "tenant_shadow_borderline_regenerate",
+    "lead": {
+      "name": "Matt Burkinshaw",
+      "company": "Home Appointments",
+      "title": "COO\u2502Co-Founder",
+      "email": "matt@homeappointments.com",
+      "technologies": "Cloudflare DNS, Gmail, Google Apps, DigitalOcean, ActiveProspect, Slack, Nginx, Google Tag Manager, reCAPTCHA, WordPress.org, Mobile Friendly, Bootstrap Framework, Google Font API, Android, Circle, Ab Initio, AI"
+    },
+    "eligibility": {
+      "sendable": true,
+      "status": "sendable",
+      "missing_fields": [],
+      "email": "matt@homeappointments.com",
+      "first_name": "Matt",
+      "company_name": "Home Appointments"
+    },
+    "case": "borderline_regenerate",
+    "expectation": "regenerate because score falls just below threshold",
+    "decision": {
+      "status": "fallback",
+      "reason": "low_quality_score",
+      "score": -0.6,
+      "threshold": 0.0,
+      "stored": true,
+      "estimated_time_saved_ms": 0,
+      "summary": "regenerated because auto-reuse requires a nonnegative score; score -0.60 vs threshold 0.00",
+      "reason_path": [
+        "recall_attempted",
+        "cache_found",
+        "validation:hit",
+        "policy:auto_reuse_requires_nonnegative_score",
+        "quality_gate:fail",
+        "decision:regenerate"
+      ],
+      "fallback_reason": "low_quality_score"
+    },
+    "output_preview": {
+      "headline": "marketing & advertising automation that ships",
+      "subject": "marketing & advertising automation that ships",
+      "body_excerpt": "Hi Matt,\n\nI noticed Home Appointments fits the FullStack buyer profile: COO\u2502Co-Founders already working around Cloudflare DNS, Gmail, Google Apps, DigitalOcean, ActiveProspect, Slack, Nginx, Google Tag Manager, reCAPTCHA..."
+    },
+    "execution_contract": {
+      "channel": "email",
+      "provider_mode": "dry_run",
+      "to": "matt@homeappointments.com",
+      "subject": "marketing & advertising automation that ships",
+      "body": "Hi Matt,\n\nI noticed Home Appointments fits the FullStack buyer profile: COO\u2502Co-Founders already working around Cloudflare DNS, Gmail, Google Apps, DigitalOcean, ActiveProspect, Slack, Nginx, Google Tag Manager, reCAPTCHA, WordPress.org, Mobile Friendly, Bootstrap Framework, Google Font API, Android, Circle, Ab Initio, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+      "product": {
+        "name": "Agency",
+        "product_id": "prod_UICyBy4ItoEBsW",
+        "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+        "price": "$30/mo"
+      },
+      "follow_up_sequence": [
+        2,
+        5,
+        10
+      ],
+      "crm_payload": {
+        "industry": "marketing & advertising",
+        "pain_point": "manual prospecting and follow-up",
+        "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+      }
+    },
+    "workflow_context": {
+      "workflow_type": "fullstack_outreach",
+      "offer_type": "agency",
+      "stage": "first_touch"
+    },
+    "metrics": {
+      "hit_rate": 0.0,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "low_quality_score": 1
+      },
+      "outcome_score": -0.6,
+      "outcome_counts": {
+        "send_approval": 1,
+        "delivered": 2,
+        "reply": 0,
+        "booking": 0,
+        "rejection": 2
+      }
+    },
+    "reviewer": {
+      "disposition": null,
+      "judgment_reason": null,
+      "operator_quality_assessment": null,
+      "notes": null,
+      "matches_system_decision": null
+    }
+  },
+  {
+    "tenant_id": "tenant_shadow_partial_payload_regenerate",
+    "lead": {
+      "name": "Richard Oliver",
+      "company": "Impact Design & Marketing",
+      "title": "Co-Founder; Owner; and Managing Director",
+      "email": "richard@impactdm.co.uk",
+      "technologies": "Cloudflare DNS, Outlook, Microsoft Office 365, CloudFlare Hosting, WordPress.org, Apache, Google Font API, Google Analytics, Mobile Friendly, AI, Remote"
+    },
+    "eligibility": {
+      "sendable": true,
+      "status": "sendable",
+      "missing_fields": [],
+      "email": "richard@impactdm.co.uk",
+      "first_name": "Richard",
+      "company_name": "Impact Design & Marketing"
+    },
+    "case": "partial_payload_regenerate",
+    "expectation": "regenerate because payload is incomplete even though quality is strong",
+    "decision": {
+      "status": "fallback",
+      "reason": "partial_payload",
+      "score": 5.0,
+      "threshold": 0.0,
+      "stored": true,
+      "estimated_time_saved_ms": 0,
+      "summary": "regenerated because partial_payload; score 5.00 vs threshold 0.00",
+      "reason_path": [
+        "recall_attempted",
+        "cache_found",
+        "validation:partial_payload",
+        "decision:regenerate"
+      ],
+      "fallback_reason": "partial_payload"
+    },
+    "output_preview": {
+      "headline": "marketing & advertising automation that ships",
+      "subject": "marketing & advertising automation that ships",
+      "body_excerpt": "Hi Richard,\n\nI noticed Impact Design & Marketing fits the FullStack buyer profile: Co-Founder; Owner; and Managing Directors already working around Cloudflare DNS, Outlook, Microsoft Office 365, CloudFlare Hosting, WordP..."
+    },
+    "execution_contract": {
+      "channel": "email",
+      "provider_mode": "dry_run",
+      "to": "richard@impactdm.co.uk",
+      "subject": "marketing & advertising automation that ships",
+      "body": "Hi Richard,\n\nI noticed Impact Design & Marketing fits the FullStack buyer profile: Co-Founder; Owner; and Managing Directors already working around Cloudflare DNS, Outlook, Microsoft Office 365, CloudFlare Hosting, WordPress.org, Apache, Google Font API, Google Analytics, Mobile Friendly, AI, Remote.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+      "product": {
+        "name": "Agency",
+        "product_id": "prod_UICyBy4ItoEBsW",
+        "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+        "price": "$30/mo"
+      },
+      "follow_up_sequence": [
+        2,
+        5,
+        10
+      ],
+      "crm_payload": {
+        "industry": "marketing & advertising",
+        "pain_point": "manual prospecting and follow-up",
+        "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+      }
+    },
+    "workflow_context": {
+      "workflow_type": "fullstack_outreach",
+      "offer_type": "agency",
+      "stage": "first_touch"
+    },
+    "metrics": {
+      "hit_rate": 0.0,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "partial_payload": 1
+      },
+      "outcome_score": 5.0,
+      "outcome_counts": {
+        "send_approval": 0,
+        "delivered": 0,
+        "reply": 1,
+        "booking": 0,
+        "rejection": 0
+      }
+    },
+    "reviewer": {
+      "disposition": null,
+      "judgment_reason": null,
+      "operator_quality_assessment": null,
+      "notes": null,
+      "matches_system_decision": null
+    }
+  },
+  {
+    "tenant_id": "tenant_shadow_version_drift_regenerate",
+    "lead": {
+      "name": "Peter Bamber",
+      "company": "Piranha Digital",
+      "title": "Owner& Creative Director",
+      "email": "peter@piranha-solutions.com",
+      "technologies": "Cloudflare DNS, Amazon SES, Outlook, Microsoft Office 365, CloudFlare Hosting, SendInBlue, Google Maps, Cloudinary, Google Maps (Non Paid Users), Mobile Friendly, Google Tag Manager, Google Font API, reCAPTCHA, WordPress.org"
+    },
+    "eligibility": {
+      "sendable": true,
+      "status": "sendable",
+      "missing_fields": [],
+      "email": "peter@piranha-solutions.com",
+      "first_name": "Peter",
+      "company_name": "Piranha Digital"
+    },
+    "case": "version_drift_regenerate",
+    "expectation": "regenerate because cached offer version drifted from active workflow",
+    "decision": {
+      "status": "fallback",
+      "reason": "offer_version_mismatch",
+      "score": 2.0,
+      "threshold": 0.0,
+      "stored": true,
+      "estimated_time_saved_ms": 0,
+      "summary": "regenerated because offer_version_mismatch; score 2.00 vs threshold 0.00",
+      "reason_path": [
+        "recall_attempted",
+        "cache_found",
+        "validation:offer_version_mismatch",
+        "decision:regenerate"
+      ],
+      "fallback_reason": "offer_version_mismatch"
+    },
+    "output_preview": {
+      "headline": "marketing & advertising automation that ships",
+      "subject": "marketing & advertising automation that ships",
+      "body_excerpt": "Hi Peter,\n\nI noticed Piranha Digital fits the FullStack buyer profile: Owner& Creative Directors already working around Cloudflare DNS, Amazon SES, Outlook, Microsoft Office 365, CloudFlare Hosting, SendInBlue, Google Ma..."
+    },
+    "execution_contract": {
+      "channel": "email",
+      "provider_mode": "dry_run",
+      "to": "peter@piranha-solutions.com",
+      "subject": "marketing & advertising automation that ships",
+      "body": "Hi Peter,\n\nI noticed Piranha Digital fits the FullStack buyer profile: Owner& Creative Directors already working around Cloudflare DNS, Amazon SES, Outlook, Microsoft Office 365, CloudFlare Hosting, SendInBlue, Google Maps, Cloudinary, Google Maps (Non Paid Users), Mobile Friendly, Google Tag Manager, Google Font API, reCAPTCHA, WordPress.org.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+      "product": {
+        "name": "Agency",
+        "product_id": "prod_UICyBy4ItoEBsW",
+        "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+        "price": "$30/mo"
+      },
+      "follow_up_sequence": [
+        2,
+        5,
+        10
+      ],
+      "crm_payload": {
+        "industry": "marketing & advertising",
+        "pain_point": "manual prospecting and follow-up",
+        "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+      }
+    },
+    "workflow_context": {
+      "workflow_type": "fullstack_outreach",
+      "offer_type": "agency",
+      "stage": "first_touch"
+    },
+    "metrics": {
+      "hit_rate": 0.0,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "offer_version_mismatch": 1
+      },
+      "outcome_score": 2.0,
+      "outcome_counts": {
+        "send_approval": 0,
+        "delivered": 1,
+        "reply": 0,
+        "booking": 0,
+        "rejection": 0
+      }
+    },
+    "reviewer": {
+      "disposition": null,
+      "judgment_reason": null,
+      "operator_quality_assessment": null,
+      "notes": null,
+      "matches_system_decision": null
+    }
+  }
+]

@@ -1,0 +1,303 @@
+[
+  {
+    "lead": {
+      "name": "Kirsten Bolton",
+      "company": "Commotion Media Group",
+      "title": "Founder. Strategic Director & Chief Storyteller.",
+      "email": "kirsten@commotionmedia.com",
+      "technologies": "Cloudflare DNS, Outlook, Media Temple SSL, Slack, Mobile Friendly, Squarespace ECommerce, Typekit"
+    },
+    "eligibility": {
+      "sendable": true,
+      "status": "sendable",
+      "missing_fields": [],
+      "email": "kirsten@commotionmedia.com",
+      "first_name": "Kirsten",
+      "company_name": "Commotion Media Group"
+    },
+    "case": "no_cache_generate",
+    "expectation": "fresh generation because no reusable flow exists yet",
+    "decision": {
+      "status": "fallback",
+      "reason": "not_found",
+      "score": 0.0,
+      "threshold": -0.5,
+      "stored": true,
+      "estimated_time_saved_ms": 0,
+      "summary": "regenerated because not_found; score 0.00 vs threshold -0.50",
+      "reason_path": [
+        "recall_attempted",
+        "cache_miss",
+        "decision:regenerate"
+      ],
+      "fallback_reason": "not_found"
+    },
+    "output_preview": {
+      "headline": "marketing & advertising automation that ships",
+      "subject": "marketing & advertising automation that ships",
+      "body_excerpt": "Hi Kirsten,\n\nI noticed Commotion Media Group fits the FullStack buyer profile: Founder. Strategic Director & Chief Storyteller.s already working around Cloudflare DNS, Outlook, Media Temple SSL, Slack, Mobile Friendly, S..."
+    },
+    "metrics": {
+      "hit_rate": 0.0,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "not_found": 1
+      },
+      "outcome_score": 0.0,
+      "outcome_counts": {
+        "send_approval": 0,
+        "delivered": 0,
+        "reply": 0,
+        "booking": 0,
+        "rejection": 0
+      }
+    },
+    "reviewer": {
+      "disposition": "approve_regenerate",
+      "judgment_reason": "cold-start generation is expected",
+      "operator_quality_assessment": "good",
+      "notes": "No disagreement.",
+      "matches_system_decision": true
+    }
+  },
+  {
+    "lead": {
+      "name": "Mia Francois",
+      "company": "the mf. Agency",
+      "title": "Founder+ CEO",
+      "email": "mia@themfagency.com",
+      "technologies": "Gmail, Google Apps, Google Cloud Hosting, Slack, Mobile Friendly, Varnish, Wix"
+    },
+    "eligibility": {
+      "sendable": true,
+      "status": "sendable",
+      "missing_fields": [],
+      "email": "mia@themfagency.com",
+      "first_name": "Mia",
+      "company_name": "the mf. Agency"
+    },
+    "case": "borderline_reuse",
+    "expectation": "reuse because score sits just above threshold and there is no compatibility failure",
+    "decision": {
+      "status": "hit",
+      "reason": "hit",
+      "score": -0.3333333333333333,
+      "threshold": -0.5,
+      "stored": false,
+      "estimated_time_saved_ms": 1800,
+      "summary": "reused because hit; score -0.33 vs threshold -0.50",
+      "reason_path": [
+        "recall_attempted",
+        "cache_found",
+        "validation:hit",
+        "quality_gate:pass",
+        "decision:reuse"
+      ],
+      "fallback_reason": null
+    },
+    "output_preview": {
+      "headline": "Reusable outreach flow",
+      "subject": "Reusable outreach flow",
+      "body_excerpt": "Hi Mia,\n\nI noticed the mf. Agency fits the FullStack buyer profile: Founder+ CEOs already working around Gmail, Google Apps, Google Cloud Hosting, Slack, Mobile Friendly, Varnish, Wix.\n\nFullStack gives agency operators o..."
+    },
+    "metrics": {
+      "hit_rate": 1.0,
+      "fallback_rate": 0.0,
+      "fallback_reasons": {},
+      "outcome_score": -0.3333333333333333,
+      "outcome_counts": {
+        "send_approval": 1,
+        "delivered": 1,
+        "reply": 0,
+        "booking": 0,
+        "rejection": 1
+      }
+    },
+    "reviewer": {
+      "disposition": "approve_reuse",
+      "judgment_reason": "the reuse path is still acceptable because compatibility passed and the score stayed above threshold",
+      "operator_quality_assessment": "borderline",
+      "notes": "I would keep this reusable but monitor outcomes closely.",
+      "matches_system_decision": true
+    }
+  },
+  {
+    "lead": {
+      "name": "Shu Pan",
+      "company": "Drop",
+      "title": "COO&Co-founder",
+      "email": "shu@usedrop.io",
+      "technologies": "Route 53, Gmail, Google Apps, Amazon AWS, Typeform, React Redux, TikTok, Webflow, Chargebee, Hubspot, Hotjar, Google AdWords Conversion, Linkedin Marketing Solutions, Mobile Friendly, Google Tag Manager, Facebook Custom Audiences, Vimeo, Google Analytics, Facebook Login (Connect), Facebook Widget, Intercom, Data Analytics, Remote, AI, Circle"
+    },
+    "eligibility": {
+      "sendable": true,
+      "status": "sendable",
+      "missing_fields": [],
+      "email": "shu@usedrop.io",
+      "first_name": "Shu",
+      "company_name": "Drop"
+    },
+    "case": "borderline_regenerate",
+    "expectation": "regenerate because score falls just below threshold",
+    "decision": {
+      "status": "fallback",
+      "reason": "low_quality_score",
+      "score": -0.6,
+      "threshold": -0.5,
+      "stored": true,
+      "estimated_time_saved_ms": 0,
+      "summary": "regenerated because low_quality_score; score -0.60 vs threshold -0.50",
+      "reason_path": [
+        "recall_attempted",
+        "cache_found",
+        "validation:hit",
+        "quality_gate:fail",
+        "decision:regenerate"
+      ],
+      "fallback_reason": "low_quality_score"
+    },
+    "output_preview": {
+      "headline": "information technology & services automation that ships",
+      "subject": "information technology & services automation that ships",
+      "body_excerpt": "Hi Shu,\n\nI noticed Drop fits the FullStack buyer profile: COO&Co-founders already working around Route 53, Gmail, Google Apps, Amazon AWS, Typeform, React Redux, TikTok, Webflow, Chargebee, Hubspot, Hotjar, Google AdWord..."
+    },
+    "metrics": {
+      "hit_rate": 0.0,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "low_quality_score": 1
+      },
+      "outcome_score": -0.6,
+      "outcome_counts": {
+        "send_approval": 1,
+        "delivered": 2,
+        "reply": 0,
+        "booking": 0,
+        "rejection": 2
+      }
+    },
+    "reviewer": {
+      "disposition": "approve_regenerate",
+      "judgment_reason": "below-threshold score should regenerate even if only slightly",
+      "operator_quality_assessment": "weak",
+      "notes": "Threshold behavior is understandable.",
+      "matches_system_decision": true
+    }
+  },
+  {
+    "lead": {
+      "name": "Ashly Depew",
+      "company": "Slantics",
+      "title": "Owner; Fractional CMO",
+      "email": "ashly@slantics.com",
+      "technologies": "NSOne, Gmail, Google Apps, Slack, Mobile Friendly, Typekit, Squarespace ECommerce, Google Tag Manager, Google Analytics, Cloudinary, Stitch, Google Workspace, Learnable, React Native, Circle, IoT, Data Analytics, Remote, Looker, Phoenix, Myob, Node.js, Micro, Android, AI, Sigma, Data Storage, QuickBooks"
+    },
+    "eligibility": {
+      "sendable": true,
+      "status": "sendable",
+      "missing_fields": [],
+      "email": "ashly@slantics.com",
+      "first_name": "Ashly",
+      "company_name": "Slantics"
+    },
+    "case": "partial_payload_regenerate",
+    "expectation": "regenerate because payload is incomplete even though quality is strong",
+    "decision": {
+      "status": "fallback",
+      "reason": "partial_payload",
+      "score": 5.0,
+      "threshold": -0.5,
+      "stored": true,
+      "estimated_time_saved_ms": 0,
+      "summary": "regenerated because partial_payload; score 5.00 vs threshold -0.50",
+      "reason_path": [
+        "recall_attempted",
+        "cache_found",
+        "validation:partial_payload",
+        "decision:regenerate"
+      ],
+      "fallback_reason": "partial_payload"
+    },
+    "output_preview": {
+      "headline": "marketing & advertising automation that ships",
+      "subject": "marketing & advertising automation that ships",
+      "body_excerpt": "Hi Ashly,\n\nI noticed Slantics fits the FullStack buyer profile: Owner; Fractional CMOs already working around NSOne, Gmail, Google Apps, Slack, Mobile Friendly, Typekit, Squarespace ECommerce, Google Tag Manager, Google ..."
+    },
+    "metrics": {
+      "hit_rate": 0.0,
+      "fallback_rate": 1.0,
+      "fallback_reasons": {
+        "partial_payload": 1
+      },
+      "outcome_score": 5.0,
+      "outcome_counts": {
+        "send_approval": 0,
+        "delivered": 0,
+        "reply": 1,
+        "booking": 0,
+        "rejection": 0
+      }
+    },
+    "reviewer": {
+      "disposition": "approve_regenerate",
+      "judgment_reason": "partial cached payload is not trustworthy enough to reuse",
+      "operator_quality_assessment": "good",
+      "notes": "Integrity gate is correct.",
+      "matches_system_decision": true
+    }
+  },
+  {
+    "lead": {
+      "name": "Alex Chu",
+      "company": "Nonvoice Agency",
+      "title": "Partner Agent",
+      "email": "",
+      "technologies": "Route 53, Gmail, Google Apps, Amazon AWS, Slack, Google Tag Manager, Apache, Google Font API, WordPress.org, Bootstrap Framework, reCAPTCHA, Mobile Friendly, AI"
+    },
+    "eligibility": {
+      "sendable": false,
+      "status": "incomplete",
+      "missing_fields": [
+        "email"
+      ],
+      "email": null,
+      "first_name": "Alex",
+      "company_name": "Nonvoice Agency"
+    },
+    "case": "version_drift_regenerate",
+    "expectation": "regenerate because cached offer version drifted from active workflow",
+    "decision": {
+      "status": "skipped_preflight",
+      "reason": "incomplete_lead",
+      "score": null,
+      "threshold": -0.5,
+      "stored": false,
+      "estimated_time_saved_ms": 0,
+      "summary": "skipped before preview because lead is incomplete",
+      "reason_path": [
+        "preflight:incomplete_lead",
+        "decision:skip"
+      ],
+      "fallback_reason": "incomplete_lead"
+    },
+    "output_preview": {
+      "headline": null,
+      "subject": null,
+      "body_excerpt": null
+    },
+    "metrics": {
+      "hit_rate": 0.0,
+      "fallback_rate": 0.0,
+      "fallback_reasons": {},
+      "outcome_score": 0.0,
+      "outcome_counts": {}
+    },
+    "reviewer": {
+      "disposition": "approve_skip",
+      "judgment_reason": "missing email blocks preview and outbound",
+      "operator_quality_assessment": "incomplete_data",
+      "notes": "Preflight skip is correct.",
+      "matches_system_decision": true
+    }
+  }
+]

@@ -7,10 +7,14 @@ from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import Header
 
 from packages.db import get_db
 from packages.models import Tenant, TenantAPIKey
 from packages.schemas import (
+    TenantActorPermissionSummary,
+    TenantActorRoleResponse,
+    TenantActorRoleUpsert,
     TenantAPIKeyCreateResponse,
     TenantAPIKeyResponse,
     TenantCreate,
@@ -18,8 +22,10 @@ from packages.schemas import (
     TenantUpdate,
 )
 from ..auth.api_keys import issue_api_key, list_tenant_api_keys
+from ..authz import TENANT_MEMBERS_MANAGE, ensure_actor_role_table, require_actor_permission, resolve_actor_access
+from ..middleware.admin_auth import require_admin
 
-router = APIRouter(prefix="/v1/tenants", tags=["tenants"])
+router = APIRouter(prefix="/v1/tenants", tags=["tenants"], dependencies=[Depends(require_admin)])
 
 def _tenant_to_response(tenant: Tenant) -> TenantResponse:
     return TenantResponse(
@@ -81,6 +87,23 @@ def _api_key_to_response(record: TenantAPIKey) -> TenantAPIKeyResponse:
         created_at=record.created_at,
         updated_at=record.updated_at,
         last_used_at=record.last_used_at,
+    )
+
+
+def _actor_role_response(record, permissions: set[str], source: str) -> TenantActorRoleResponse:
+    return TenantActorRoleResponse(
+        membership_id=record.id,
+        tenant_id=record.tenant_id,
+        actor_id=record.actor_id,
+        display_name=record.display_name,
+        role=record.role,
+        permissions=sorted(permissions),
+        granted_permissions=list(record.granted_permissions or []),
+        denied_permissions=list(record.denied_permissions or []),
+        is_active=record.is_active,
+        source=source,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
     )
 
 
@@ -162,3 +185,80 @@ def create_api_key(tenant_id: str, db: object = Depends(get_db)) -> TenantAPIKey
         api_key=issued.plaintext,
         created_at=issued.record.created_at,
     )
+
+
+@router.get("/{tenant_id}/actors", response_model=list[TenantActorRoleResponse])
+def list_tenant_actor_roles(
+    tenant_id: str,
+    _: None = Depends(require_admin),
+    x_admin_actor: str | None = Header(default=None, alias="X-Admin-Actor"),
+    db: object = Depends(get_db),
+) -> list[TenantActorRoleResponse]:
+    tenant = _get_record(db, Tenant, tenant_id)
+    if tenant is None or not isinstance(tenant, Tenant):
+        raise HTTPException(status_code=404, detail=f"Tenant {tenant_id} not found")
+    require_actor_permission(db, tenant_id, x_admin_actor, TENANT_MEMBERS_MANAGE)
+    ensure_actor_role_table(db)
+    from packages.models import TenantActorRoleRecord
+    roles = [
+        record
+        for record in _list_records(db, TenantActorRoleRecord)
+        if isinstance(record, TenantActorRoleRecord) and record.tenant_id == tenant_id
+    ]
+    responses = []
+    for record in sorted(roles, key=lambda item: item.created_at, reverse=True):
+        access = resolve_actor_access(db, tenant_id, record.actor_id)
+        responses.append(_actor_role_response(record, access.permissions, access.source))
+    return responses
+
+
+@router.get("/{tenant_id}/actors/me", response_model=TenantActorPermissionSummary)
+def get_current_actor_permissions(
+    tenant_id: str,
+    _: None = Depends(require_admin),
+    x_admin_actor: str | None = Header(default=None, alias="X-Admin-Actor"),
+    db: object = Depends(get_db),
+) -> TenantActorPermissionSummary:
+    tenant = _get_record(db, Tenant, tenant_id)
+    if tenant is None or not isinstance(tenant, Tenant):
+        raise HTTPException(status_code=404, detail=f"Tenant {tenant_id} not found")
+    ensure_actor_role_table(db)
+    access = resolve_actor_access(db, tenant_id, x_admin_actor)
+    return TenantActorPermissionSummary(
+        tenant_id=tenant_id,
+        actor_id=access.actor_id,
+        role=access.role,
+        permissions=sorted(access.permissions),
+        source=access.source,
+    )
+
+
+@router.put("/{tenant_id}/actors/{actor_id}", response_model=TenantActorRoleResponse)
+def upsert_tenant_actor_role(
+    tenant_id: str,
+    actor_id: str,
+    request: TenantActorRoleUpsert,
+    _: None = Depends(require_admin),
+    x_admin_actor: str | None = Header(default=None, alias="X-Admin-Actor"),
+    db: object = Depends(get_db),
+) -> TenantActorRoleResponse:
+    tenant = _get_record(db, Tenant, tenant_id)
+    if tenant is None or not isinstance(tenant, Tenant):
+        raise HTTPException(status_code=404, detail=f"Tenant {tenant_id} not found")
+    require_actor_permission(db, tenant_id, x_admin_actor, TENANT_MEMBERS_MANAGE)
+    if actor_id.strip().lower() != request.actor_id.strip().lower():
+        raise HTTPException(status_code=400, detail="Actor ID in path must match actor_id in body.")
+    from ..authz import upsert_actor_role
+
+    record = upsert_actor_role(
+        db,
+        tenant_id=tenant_id,
+        actor_id=request.actor_id,
+        display_name=request.display_name,
+        role=request.role,
+        granted_permissions=request.granted_permissions,
+        denied_permissions=request.denied_permissions,
+        is_active=request.is_active,
+    )
+    access = resolve_actor_access(db, tenant_id, record.actor_id)
+    return _actor_role_response(record, access.permissions, access.source)

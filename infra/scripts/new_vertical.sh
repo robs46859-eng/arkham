@@ -75,7 +75,7 @@ from typing import Any, Dict
 from packages.vertical_base import EventPayload, VerticalBase
 
 vertical = VerticalBase(
-    service_id="${VERTICAL_NAME}",
+    service_id="${SERVICE_NAME}",
     title="${TITLE}",
     port=8000,
     capabilities=${CAP_STR},
@@ -150,7 +150,7 @@ else
     depends_on:
       - core
     environment:
-      CORE_SERVICE_URL: http://core:8000
+      CORE_SERVICE_URL: http://core:3000
       APP_ENV: development
     ports:
       - "${PORT}:8000"

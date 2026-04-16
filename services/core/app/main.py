@@ -18,8 +18,8 @@ app = FastAPI(
     description="Central orchestration hub with service registry, event bus, and config management.",
 )
 
-app.include_router(registry_router.router)
-app.include_router(events_router.router)
+app.include_router(registry_router.router, prefix="/registry")
+app.include_router(events_router.router, prefix="/events")
 app.include_router(config_router.router)
 
 

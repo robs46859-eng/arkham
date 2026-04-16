@@ -121,7 +121,7 @@ async def unsubscribe(service_id: str):
     return {"status": "unsubscribed", "service_id": service_id}
 
 
-@router.get("/events", response_model=List[dict])
+@router.get("", response_model=List[dict])
 async def get_events(
     event_type: str = None,
     source_service: str = None,

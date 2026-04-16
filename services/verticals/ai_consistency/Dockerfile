@@ -15,6 +15,6 @@ WORKDIR /app/services/verticals/ai_consistency
 ENV PYTHONPATH=/app
 ENV APP_ENV=production
 
-EXPOSE 3099
+EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3099"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

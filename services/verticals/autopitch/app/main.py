@@ -1,7 +1,16 @@
-from fastapi import FastAPI
 from pydantic import BaseModel
 
-app = FastAPI(title="AutoPitch", version="0.1.0")
+from packages.vertical_base import VerticalBase
+
+vertical = VerticalBase(
+    service_id="autopitch",
+    title="AutoPitch",
+    port=8000,
+    capabilities=["idea_submission", "pitch_tracking", "prioritization"],
+    event_subscriptions=[],
+)
+
+app = vertical.app
 
 
 class IdeaPitch(BaseModel):
@@ -19,7 +28,7 @@ ideas_store = {}
 async def submit_pitch(pitch: IdeaPitch):
     """Submit a new idea pitch."""
     idea_id = f"idea_{len(ideas_store) + 1}"
-    ideas_store[idea_id] = pitch.dict()
+    ideas_store[idea_id] = pitch.model_dump()
     return {"idea_id": idea_id, "status": "submitted"}
 
 
@@ -40,8 +49,3 @@ async def get_idea(idea_id: str):
     if idea_id not in ideas_store:
         return {"error": "Idea not found"}
     return ideas_store[idea_id]
-
-
-@app.get("/health")
-async def health_check():
-    return {"status": "ok", "service": "autopitch"}

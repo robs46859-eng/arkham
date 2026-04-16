@@ -1,7 +1,16 @@
-from fastapi import FastAPI
 from pydantic import BaseModel
 
-app = FastAPI(title="PublicBeta", version="0.1.0")
+from packages.vertical_base import VerticalBase
+
+vertical = VerticalBase(
+    service_id="public-beta",
+    title="PublicBeta",
+    port=8000,
+    capabilities=["feature_preview", "beta_management", "release_toggles"],
+    event_subscriptions=[],
+)
+
+app = vertical.app
 
 
 class FeaturePreview(BaseModel):
@@ -18,7 +27,7 @@ features_store = {}
 @app.post("/features/preview")
 async def create_preview(feature: FeaturePreview):
     """Create a feature preview for beta testing."""
-    features_store[feature.feature_id] = feature.dict()
+    features_store[feature.feature_id] = feature.model_dump()
     return {"status": "created", "feature_id": feature.feature_id}
 
 
@@ -39,8 +48,3 @@ async def toggle_feature(feature_id: str):
 
     features_store[feature_id]["enabled"] = not features_store[feature_id]["enabled"]
     return {"feature_id": feature_id, "enabled": features_store[feature_id]["enabled"]}
-
-
-@app.get("/health")
-async def health_check():
-    return {"status": "ok", "service": "public-beta"}

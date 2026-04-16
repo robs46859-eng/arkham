@@ -1,0 +1,1506 @@
+{
+  "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+  "source_artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json",
+  "tenant_ids": [
+    "tenant_shadow_borderline_regenerate",
+    "tenant_shadow_borderline_reuse",
+    "tenant_shadow_no_cache_generate",
+    "tenant_shadow_partial_payload_regenerate",
+    "tenant_shadow_version_drift_regenerate"
+  ],
+  "imported_count": 5,
+  "updated_count": 1,
+  "execution_count": 1,
+  "delivery_count": 1,
+  "requested_reviews": {
+    "no_cache_generate": "approved"
+  },
+  "requested_executions": {
+    "no_cache_generate": "queued"
+  },
+  "requested_deliveries": [
+    "no_cache_generate"
+  ],
+  "actor": "operator.one",
+  "imported_items": [
+    {
+      "review_item_id": "wrq_de195b0c97c841c780f61a1edd670ddc",
+      "tenant_id": "tenant_shadow_no_cache_generate",
+      "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+      "source_artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json",
+      "request_id": "tenant_shadow_no_cache_generate:no_cache_generate",
+      "case_name": "no_cache_generate",
+      "lead_name": "Xavier Renom",
+      "company_name": "Justinmind",
+      "contact_email": "xavier.renom@justinmind.com",
+      "eligibility_status": "sendable",
+      "system_decision": "fallback",
+      "system_reason": "not_found",
+      "review_status": "pending",
+      "reviewer_name": "operator.one",
+      "reviewer_notes": null,
+      "metadata": {
+        "tenant_id": "tenant_shadow_no_cache_generate",
+        "lead": {
+          "name": "Xavier Renom",
+          "company": "Justinmind",
+          "title": "CEO &Founder",
+          "email": "xavier.renom@justinmind.com",
+          "technologies": "Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI"
+        },
+        "eligibility": {
+          "sendable": true,
+          "status": "sendable",
+          "missing_fields": [],
+          "email": "xavier.renom@justinmind.com",
+          "first_name": "Xavier",
+          "company_name": "Justinmind"
+        },
+        "decision": {
+          "status": "fallback",
+          "reason": "not_found",
+          "score": 0.0,
+          "threshold": 0.0,
+          "stored": true,
+          "estimated_time_saved_ms": 0,
+          "summary": "regenerated because not_found; score 0.00 vs threshold 0.00",
+          "reason_path": [
+            "recall_attempted",
+            "cache_miss",
+            "decision:regenerate"
+          ],
+          "fallback_reason": "not_found"
+        },
+        "output_preview": {
+          "headline": "information technology & services automation that ships",
+          "subject": "information technology & services automation that ships",
+          "body_excerpt": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, G..."
+        },
+        "execution_contract": {
+          "channel": "email",
+          "provider_mode": "dry_run",
+          "to": "xavier.renom@justinmind.com",
+          "subject": "information technology & services automation that ships",
+          "body": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+          "product": {
+            "name": "Agency",
+            "product_id": "prod_UICyBy4ItoEBsW",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "price": "$30/mo"
+          },
+          "follow_up_sequence": [
+            2,
+            5,
+            10
+          ],
+          "crm_payload": {
+            "industry": "information technology & services",
+            "pain_point": "manual prospecting and follow-up",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+          }
+        },
+        "workflow_context": {
+          "workflow_type": "fullstack_outreach",
+          "offer_type": "agency",
+          "stage": "first_touch"
+        },
+        "reviewer": {
+          "disposition": null,
+          "judgment_reason": null,
+          "operator_quality_assessment": null,
+          "notes": null,
+          "matches_system_decision": null
+        },
+        "expectation": "fresh generation because no reusable flow exists yet",
+        "queue_state_history": [
+          {
+            "tenant_id": "tenant_shadow_no_cache_generate",
+            "review_status": "pending",
+            "reviewer_name": "operator.one",
+            "reviewer_notes": null,
+            "actor": "operator.one",
+            "changed_at": "2026-04-09T15:35:21.151373",
+            "source": "import"
+          }
+        ]
+      },
+      "created_at": "2026-04-09T15:35:21.151373",
+      "updated_at": "2026-04-09T15:35:21.151373",
+      "outcome_counts": {},
+      "outcome_score": 0.0
+    },
+    {
+      "review_item_id": "wrq_2c4adb939f2a46ce9cee2f47d4b451d4",
+      "tenant_id": "tenant_shadow_borderline_reuse",
+      "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+      "source_artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json",
+      "request_id": "tenant_shadow_borderline_reuse:borderline_reuse",
+      "case_name": "borderline_reuse",
+      "lead_name": "Tracy Potts",
+      "company_name": "feature[23]",
+      "contact_email": "tracy@feature23.com",
+      "eligibility_status": "sendable",
+      "system_decision": "fallback",
+      "system_reason": "low_quality_score",
+      "review_status": "pending",
+      "reviewer_name": "operator.one",
+      "reviewer_notes": null,
+      "metadata": {
+        "tenant_id": "tenant_shadow_borderline_reuse",
+        "lead": {
+          "name": "Tracy Potts",
+          "company": "feature[23]",
+          "title": "Chief Operating Officer+CoFounder",
+          "email": "tracy@feature23.com",
+          "technologies": "Cloudflare DNS, Mailchimp Mandrill, Sendgrid, Gmail, Outlook, Google Apps, Microsoft Office 365, Microsoft Application Insights, Atlassian Cloud, Slack, Hubspot, Facebook Widget, Linkedin Widget, Bootstrap Framework, Mobile Friendly, Google Tag Manager, Facebook Login (Connect), Linkedin Login, Google Analytics, React Native, Android, IoT, Node.js, Xamarin, Remote"
+        },
+        "eligibility": {
+          "sendable": true,
+          "status": "sendable",
+          "missing_fields": [],
+          "email": "tracy@feature23.com",
+          "first_name": "Tracy",
+          "company_name": "feature[23]"
+        },
+        "decision": {
+          "status": "fallback",
+          "reason": "low_quality_score",
+          "score": -0.3333333333333333,
+          "threshold": 0.0,
+          "stored": true,
+          "estimated_time_saved_ms": 0,
+          "summary": "regenerated because auto-reuse requires a nonnegative score; score -0.33 vs threshold 0.00",
+          "reason_path": [
+            "recall_attempted",
+            "cache_found",
+            "validation:hit",
+            "policy:auto_reuse_requires_nonnegative_score",
+            "quality_gate:fail",
+            "decision:regenerate"
+          ],
+          "fallback_reason": "low_quality_score"
+        },
+        "output_preview": {
+          "headline": "information technology & services automation that ships",
+          "subject": "information technology & services automation that ships",
+          "body_excerpt": "Hi Tracy,\n\nI noticed feature[23] fits the FullStack buyer profile: Chief Operating Officer+CoFounders already working around Cloudflare DNS, Mailchimp Mandrill, Sendgrid, Gmail, Outlook, Google Apps, Microsoft Office 365..."
+        },
+        "execution_contract": {
+          "channel": "email",
+          "provider_mode": "dry_run",
+          "to": "tracy@feature23.com",
+          "subject": "information technology & services automation that ships",
+          "body": "Hi Tracy,\n\nI noticed feature[23] fits the FullStack buyer profile: Chief Operating Officer+CoFounders already working around Cloudflare DNS, Mailchimp Mandrill, Sendgrid, Gmail, Outlook, Google Apps, Microsoft Office 365, Microsoft Application Insights, Atlassian Cloud, Slack, Hubspot, Facebook Widget, Linkedin Widget, Bootstrap Framework, Mobile Friendly, Google Tag Manager, Facebook Login (Connect), Linkedin Login, Google Analytics, React Native, Android, IoT, Node.js, Xamarin, Remote.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+          "product": {
+            "name": "Agency",
+            "product_id": "prod_UICyBy4ItoEBsW",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "price": "$30/mo"
+          },
+          "follow_up_sequence": [
+            2,
+            5,
+            10
+          ],
+          "crm_payload": {
+            "industry": "information technology & services",
+            "pain_point": "manual prospecting and follow-up",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+          }
+        },
+        "workflow_context": {
+          "workflow_type": "fullstack_outreach",
+          "offer_type": "agency",
+          "stage": "first_touch"
+        },
+        "reviewer": {
+          "disposition": null,
+          "judgment_reason": null,
+          "operator_quality_assessment": null,
+          "notes": null,
+          "matches_system_decision": null
+        },
+        "expectation": "reuse because score sits just above threshold and there is no compatibility failure",
+        "queue_state_history": [
+          {
+            "tenant_id": "tenant_shadow_borderline_reuse",
+            "review_status": "pending",
+            "reviewer_name": "operator.one",
+            "reviewer_notes": null,
+            "actor": "operator.one",
+            "changed_at": "2026-04-09T15:35:21.151373",
+            "source": "import"
+          }
+        ]
+      },
+      "created_at": "2026-04-09T15:35:21.151373",
+      "updated_at": "2026-04-09T15:35:21.151373",
+      "outcome_counts": {},
+      "outcome_score": 0.0
+    },
+    {
+      "review_item_id": "wrq_5cf346ae6f794865bf31a17286152f2a",
+      "tenant_id": "tenant_shadow_borderline_regenerate",
+      "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+      "source_artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json",
+      "request_id": "tenant_shadow_borderline_regenerate:borderline_regenerate",
+      "case_name": "borderline_regenerate",
+      "lead_name": "Matt Burkinshaw",
+      "company_name": "Home Appointments",
+      "contact_email": "matt@homeappointments.com",
+      "eligibility_status": "sendable",
+      "system_decision": "fallback",
+      "system_reason": "low_quality_score",
+      "review_status": "pending",
+      "reviewer_name": "operator.one",
+      "reviewer_notes": null,
+      "metadata": {
+        "tenant_id": "tenant_shadow_borderline_regenerate",
+        "lead": {
+          "name": "Matt Burkinshaw",
+          "company": "Home Appointments",
+          "title": "COO\u2502Co-Founder",
+          "email": "matt@homeappointments.com",
+          "technologies": "Cloudflare DNS, Gmail, Google Apps, DigitalOcean, ActiveProspect, Slack, Nginx, Google Tag Manager, reCAPTCHA, WordPress.org, Mobile Friendly, Bootstrap Framework, Google Font API, Android, Circle, Ab Initio, AI"
+        },
+        "eligibility": {
+          "sendable": true,
+          "status": "sendable",
+          "missing_fields": [],
+          "email": "matt@homeappointments.com",
+          "first_name": "Matt",
+          "company_name": "Home Appointments"
+        },
+        "decision": {
+          "status": "fallback",
+          "reason": "low_quality_score",
+          "score": -0.6,
+          "threshold": 0.0,
+          "stored": true,
+          "estimated_time_saved_ms": 0,
+          "summary": "regenerated because auto-reuse requires a nonnegative score; score -0.60 vs threshold 0.00",
+          "reason_path": [
+            "recall_attempted",
+            "cache_found",
+            "validation:hit",
+            "policy:auto_reuse_requires_nonnegative_score",
+            "quality_gate:fail",
+            "decision:regenerate"
+          ],
+          "fallback_reason": "low_quality_score"
+        },
+        "output_preview": {
+          "headline": "marketing & advertising automation that ships",
+          "subject": "marketing & advertising automation that ships",
+          "body_excerpt": "Hi Matt,\n\nI noticed Home Appointments fits the FullStack buyer profile: COO\u2502Co-Founders already working around Cloudflare DNS, Gmail, Google Apps, DigitalOcean, ActiveProspect, Slack, Nginx, Google Tag Manager, reCAPTCHA..."
+        },
+        "execution_contract": {
+          "channel": "email",
+          "provider_mode": "dry_run",
+          "to": "matt@homeappointments.com",
+          "subject": "marketing & advertising automation that ships",
+          "body": "Hi Matt,\n\nI noticed Home Appointments fits the FullStack buyer profile: COO\u2502Co-Founders already working around Cloudflare DNS, Gmail, Google Apps, DigitalOcean, ActiveProspect, Slack, Nginx, Google Tag Manager, reCAPTCHA, WordPress.org, Mobile Friendly, Bootstrap Framework, Google Font API, Android, Circle, Ab Initio, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+          "product": {
+            "name": "Agency",
+            "product_id": "prod_UICyBy4ItoEBsW",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "price": "$30/mo"
+          },
+          "follow_up_sequence": [
+            2,
+            5,
+            10
+          ],
+          "crm_payload": {
+            "industry": "marketing & advertising",
+            "pain_point": "manual prospecting and follow-up",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+          }
+        },
+        "workflow_context": {
+          "workflow_type": "fullstack_outreach",
+          "offer_type": "agency",
+          "stage": "first_touch"
+        },
+        "reviewer": {
+          "disposition": null,
+          "judgment_reason": null,
+          "operator_quality_assessment": null,
+          "notes": null,
+          "matches_system_decision": null
+        },
+        "expectation": "regenerate because score falls just below threshold",
+        "queue_state_history": [
+          {
+            "tenant_id": "tenant_shadow_borderline_regenerate",
+            "review_status": "pending",
+            "reviewer_name": "operator.one",
+            "reviewer_notes": null,
+            "actor": "operator.one",
+            "changed_at": "2026-04-09T15:35:21.151373",
+            "source": "import"
+          }
+        ]
+      },
+      "created_at": "2026-04-09T15:35:21.151373",
+      "updated_at": "2026-04-09T15:35:21.151373",
+      "outcome_counts": {},
+      "outcome_score": 0.0
+    },
+    {
+      "review_item_id": "wrq_95a10bca70c94f248ce5c26750b449dd",
+      "tenant_id": "tenant_shadow_partial_payload_regenerate",
+      "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+      "source_artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json",
+      "request_id": "tenant_shadow_partial_payload_regenerate:partial_payload_regenerate",
+      "case_name": "partial_payload_regenerate",
+      "lead_name": "Richard Oliver",
+      "company_name": "Impact Design & Marketing",
+      "contact_email": "richard@impactdm.co.uk",
+      "eligibility_status": "sendable",
+      "system_decision": "fallback",
+      "system_reason": "partial_payload",
+      "review_status": "pending",
+      "reviewer_name": "operator.one",
+      "reviewer_notes": null,
+      "metadata": {
+        "tenant_id": "tenant_shadow_partial_payload_regenerate",
+        "lead": {
+          "name": "Richard Oliver",
+          "company": "Impact Design & Marketing",
+          "title": "Co-Founder; Owner; and Managing Director",
+          "email": "richard@impactdm.co.uk",
+          "technologies": "Cloudflare DNS, Outlook, Microsoft Office 365, CloudFlare Hosting, WordPress.org, Apache, Google Font API, Google Analytics, Mobile Friendly, AI, Remote"
+        },
+        "eligibility": {
+          "sendable": true,
+          "status": "sendable",
+          "missing_fields": [],
+          "email": "richard@impactdm.co.uk",
+          "first_name": "Richard",
+          "company_name": "Impact Design & Marketing"
+        },
+        "decision": {
+          "status": "fallback",
+          "reason": "partial_payload",
+          "score": 5.0,
+          "threshold": 0.0,
+          "stored": true,
+          "estimated_time_saved_ms": 0,
+          "summary": "regenerated because partial_payload; score 5.00 vs threshold 0.00",
+          "reason_path": [
+            "recall_attempted",
+            "cache_found",
+            "validation:partial_payload",
+            "decision:regenerate"
+          ],
+          "fallback_reason": "partial_payload"
+        },
+        "output_preview": {
+          "headline": "marketing & advertising automation that ships",
+          "subject": "marketing & advertising automation that ships",
+          "body_excerpt": "Hi Richard,\n\nI noticed Impact Design & Marketing fits the FullStack buyer profile: Co-Founder; Owner; and Managing Directors already working around Cloudflare DNS, Outlook, Microsoft Office 365, CloudFlare Hosting, WordP..."
+        },
+        "execution_contract": {
+          "channel": "email",
+          "provider_mode": "dry_run",
+          "to": "richard@impactdm.co.uk",
+          "subject": "marketing & advertising automation that ships",
+          "body": "Hi Richard,\n\nI noticed Impact Design & Marketing fits the FullStack buyer profile: Co-Founder; Owner; and Managing Directors already working around Cloudflare DNS, Outlook, Microsoft Office 365, CloudFlare Hosting, WordPress.org, Apache, Google Font API, Google Analytics, Mobile Friendly, AI, Remote.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+          "product": {
+            "name": "Agency",
+            "product_id": "prod_UICyBy4ItoEBsW",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "price": "$30/mo"
+          },
+          "follow_up_sequence": [
+            2,
+            5,
+            10
+          ],
+          "crm_payload": {
+            "industry": "marketing & advertising",
+            "pain_point": "manual prospecting and follow-up",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+          }
+        },
+        "workflow_context": {
+          "workflow_type": "fullstack_outreach",
+          "offer_type": "agency",
+          "stage": "first_touch"
+        },
+        "reviewer": {
+          "disposition": null,
+          "judgment_reason": null,
+          "operator_quality_assessment": null,
+          "notes": null,
+          "matches_system_decision": null
+        },
+        "expectation": "regenerate because payload is incomplete even though quality is strong",
+        "queue_state_history": [
+          {
+            "tenant_id": "tenant_shadow_partial_payload_regenerate",
+            "review_status": "pending",
+            "reviewer_name": "operator.one",
+            "reviewer_notes": null,
+            "actor": "operator.one",
+            "changed_at": "2026-04-09T15:35:21.151373",
+            "source": "import"
+          }
+        ]
+      },
+      "created_at": "2026-04-09T15:35:21.151373",
+      "updated_at": "2026-04-09T15:35:21.151373",
+      "outcome_counts": {},
+      "outcome_score": 0.0
+    },
+    {
+      "review_item_id": "wrq_77262bdfe9674c09ab6430732f41a641",
+      "tenant_id": "tenant_shadow_version_drift_regenerate",
+      "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+      "source_artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json",
+      "request_id": "tenant_shadow_version_drift_regenerate:version_drift_regenerate",
+      "case_name": "version_drift_regenerate",
+      "lead_name": "Peter Bamber",
+      "company_name": "Piranha Digital",
+      "contact_email": "peter@piranha-solutions.com",
+      "eligibility_status": "sendable",
+      "system_decision": "fallback",
+      "system_reason": "offer_version_mismatch",
+      "review_status": "pending",
+      "reviewer_name": "operator.one",
+      "reviewer_notes": null,
+      "metadata": {
+        "tenant_id": "tenant_shadow_version_drift_regenerate",
+        "lead": {
+          "name": "Peter Bamber",
+          "company": "Piranha Digital",
+          "title": "Owner& Creative Director",
+          "email": "peter@piranha-solutions.com",
+          "technologies": "Cloudflare DNS, Amazon SES, Outlook, Microsoft Office 365, CloudFlare Hosting, SendInBlue, Google Maps, Cloudinary, Google Maps (Non Paid Users), Mobile Friendly, Google Tag Manager, Google Font API, reCAPTCHA, WordPress.org"
+        },
+        "eligibility": {
+          "sendable": true,
+          "status": "sendable",
+          "missing_fields": [],
+          "email": "peter@piranha-solutions.com",
+          "first_name": "Peter",
+          "company_name": "Piranha Digital"
+        },
+        "decision": {
+          "status": "fallback",
+          "reason": "offer_version_mismatch",
+          "score": 2.0,
+          "threshold": 0.0,
+          "stored": true,
+          "estimated_time_saved_ms": 0,
+          "summary": "regenerated because offer_version_mismatch; score 2.00 vs threshold 0.00",
+          "reason_path": [
+            "recall_attempted",
+            "cache_found",
+            "validation:offer_version_mismatch",
+            "decision:regenerate"
+          ],
+          "fallback_reason": "offer_version_mismatch"
+        },
+        "output_preview": {
+          "headline": "marketing & advertising automation that ships",
+          "subject": "marketing & advertising automation that ships",
+          "body_excerpt": "Hi Peter,\n\nI noticed Piranha Digital fits the FullStack buyer profile: Owner& Creative Directors already working around Cloudflare DNS, Amazon SES, Outlook, Microsoft Office 365, CloudFlare Hosting, SendInBlue, Google Ma..."
+        },
+        "execution_contract": {
+          "channel": "email",
+          "provider_mode": "dry_run",
+          "to": "peter@piranha-solutions.com",
+          "subject": "marketing & advertising automation that ships",
+          "body": "Hi Peter,\n\nI noticed Piranha Digital fits the FullStack buyer profile: Owner& Creative Directors already working around Cloudflare DNS, Amazon SES, Outlook, Microsoft Office 365, CloudFlare Hosting, SendInBlue, Google Maps, Cloudinary, Google Maps (Non Paid Users), Mobile Friendly, Google Tag Manager, Google Font API, reCAPTCHA, WordPress.org.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+          "product": {
+            "name": "Agency",
+            "product_id": "prod_UICyBy4ItoEBsW",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "price": "$30/mo"
+          },
+          "follow_up_sequence": [
+            2,
+            5,
+            10
+          ],
+          "crm_payload": {
+            "industry": "marketing & advertising",
+            "pain_point": "manual prospecting and follow-up",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+          }
+        },
+        "workflow_context": {
+          "workflow_type": "fullstack_outreach",
+          "offer_type": "agency",
+          "stage": "first_touch"
+        },
+        "reviewer": {
+          "disposition": null,
+          "judgment_reason": null,
+          "operator_quality_assessment": null,
+          "notes": null,
+          "matches_system_decision": null
+        },
+        "expectation": "regenerate because cached offer version drifted from active workflow",
+        "queue_state_history": [
+          {
+            "tenant_id": "tenant_shadow_version_drift_regenerate",
+            "review_status": "pending",
+            "reviewer_name": "operator.one",
+            "reviewer_notes": null,
+            "actor": "operator.one",
+            "changed_at": "2026-04-09T15:35:21.151373",
+            "source": "import"
+          }
+        ]
+      },
+      "created_at": "2026-04-09T15:35:21.151373",
+      "updated_at": "2026-04-09T15:35:21.151373",
+      "outcome_counts": {},
+      "outcome_score": 0.0
+    }
+  ],
+  "updates": [
+    {
+      "review_item_id": "wrq_de195b0c97c841c780f61a1edd670ddc",
+      "tenant_id": "tenant_shadow_no_cache_generate",
+      "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+      "source_artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json",
+      "request_id": "tenant_shadow_no_cache_generate:no_cache_generate",
+      "case_name": "no_cache_generate",
+      "lead_name": "Xavier Renom",
+      "company_name": "Justinmind",
+      "contact_email": "xavier.renom@justinmind.com",
+      "eligibility_status": "sendable",
+      "system_decision": "fallback",
+      "system_reason": "not_found",
+      "review_status": "approved",
+      "reviewer_name": "Operator One",
+      "reviewer_notes": "approved via controlled handoff batch",
+      "metadata": {
+        "tenant_id": "tenant_shadow_no_cache_generate",
+        "lead": {
+          "name": "Xavier Renom",
+          "company": "Justinmind",
+          "title": "CEO &Founder",
+          "email": "xavier.renom@justinmind.com",
+          "technologies": "Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI"
+        },
+        "eligibility": {
+          "sendable": true,
+          "status": "sendable",
+          "missing_fields": [],
+          "email": "xavier.renom@justinmind.com",
+          "first_name": "Xavier",
+          "company_name": "Justinmind"
+        },
+        "decision": {
+          "status": "fallback",
+          "reason": "not_found",
+          "score": 0.0,
+          "threshold": 0.0,
+          "stored": true,
+          "estimated_time_saved_ms": 0,
+          "summary": "regenerated because not_found; score 0.00 vs threshold 0.00",
+          "reason_path": [
+            "recall_attempted",
+            "cache_miss",
+            "decision:regenerate"
+          ],
+          "fallback_reason": "not_found"
+        },
+        "output_preview": {
+          "headline": "information technology & services automation that ships",
+          "subject": "information technology & services automation that ships",
+          "body_excerpt": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, G..."
+        },
+        "execution_contract": {
+          "channel": "email",
+          "provider_mode": "dry_run",
+          "to": "xavier.renom@justinmind.com",
+          "subject": "information technology & services automation that ships",
+          "body": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+          "product": {
+            "name": "Agency",
+            "product_id": "prod_UICyBy4ItoEBsW",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "price": "$30/mo"
+          },
+          "follow_up_sequence": [
+            2,
+            5,
+            10
+          ],
+          "crm_payload": {
+            "industry": "information technology & services",
+            "pain_point": "manual prospecting and follow-up",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+          }
+        },
+        "workflow_context": {
+          "workflow_type": "fullstack_outreach",
+          "offer_type": "agency",
+          "stage": "first_touch"
+        },
+        "reviewer": {
+          "disposition": null,
+          "judgment_reason": null,
+          "operator_quality_assessment": null,
+          "notes": null,
+          "matches_system_decision": null
+        },
+        "expectation": "fresh generation because no reusable flow exists yet",
+        "queue_state_history": [
+          {
+            "tenant_id": "tenant_shadow_no_cache_generate",
+            "review_status": "pending",
+            "reviewer_name": "operator.one",
+            "reviewer_notes": null,
+            "actor": "operator.one",
+            "changed_at": "2026-04-09T15:35:21.151373",
+            "source": "import"
+          },
+          {
+            "tenant_id": "tenant_shadow_no_cache_generate",
+            "review_status": "approved",
+            "reviewer_name": "Operator One",
+            "reviewer_notes": "approved via controlled handoff batch",
+            "actor": "operator.one",
+            "changed_at": "2026-04-09T15:35:21.157954",
+            "source": "manual_review"
+          }
+        ],
+        "reviewer_update": {
+          "tenant_id": "tenant_shadow_no_cache_generate",
+          "review_status": "approved",
+          "reviewer_name": "Operator One",
+          "reviewer_notes": "approved via controlled handoff batch",
+          "actor": "operator.one",
+          "updated_at": "2026-04-09T15:35:21.157967"
+        }
+      },
+      "created_at": "2026-04-09T15:35:21.151373",
+      "updated_at": "2026-04-09T15:35:21.157973",
+      "outcome_counts": {},
+      "outcome_score": 0.0
+    }
+  ],
+  "executions": [
+    {
+      "execution_id": "wexec_aa810b6fd9cd4d51b5878185b8a3f9b6",
+      "tenant_id": "tenant_shadow_no_cache_generate",
+      "review_item_id": "wrq_de195b0c97c841c780f61a1edd670ddc",
+      "request_id": "tenant_shadow_no_cache_generate:no_cache_generate",
+      "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+      "workflow_type": null,
+      "offer_type": null,
+      "stage": null,
+      "execution_status": "queued",
+      "metadata": {
+        "contract_version": "workflow_execution.v1",
+        "tenant_id": "tenant_shadow_no_cache_generate",
+        "actor": "operator.one",
+        "review_item_snapshot": {
+          "review_item_id": "wrq_de195b0c97c841c780f61a1edd670ddc",
+          "tenant_id": "tenant_shadow_no_cache_generate",
+          "review_status": "approved",
+          "reviewer_name": "Operator One",
+          "reviewer_notes": "approved via controlled handoff batch",
+          "eligibility_status": "sendable",
+          "system_decision": "fallback",
+          "system_reason": "not_found"
+        },
+        "decision": {
+          "status": "fallback",
+          "reason": "not_found",
+          "score": 0.0,
+          "threshold": 0.0,
+          "stored": true,
+          "estimated_time_saved_ms": 0,
+          "summary": "regenerated because not_found; score 0.00 vs threshold 0.00",
+          "reason_path": [
+            "recall_attempted",
+            "cache_miss",
+            "decision:regenerate"
+          ],
+          "fallback_reason": "not_found"
+        },
+        "lead": {
+          "name": "Xavier Renom",
+          "company": "Justinmind",
+          "title": "CEO &Founder",
+          "email": "xavier.renom@justinmind.com",
+          "technologies": "Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI"
+        },
+        "output_preview": {
+          "headline": "information technology & services automation that ships",
+          "subject": "information technology & services automation that ships",
+          "body_excerpt": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, G..."
+        },
+        "workflow_context": {
+          "workflow_type": "fullstack_outreach",
+          "offer_type": "agency",
+          "stage": "first_touch"
+        },
+        "execution_contract": {
+          "channel": "email",
+          "provider_mode": "dry_run",
+          "to": "xavier.renom@justinmind.com",
+          "subject": "information technology & services automation that ships",
+          "body": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+          "product": {
+            "name": "Agency",
+            "product_id": "prod_UICyBy4ItoEBsW",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "price": "$30/mo"
+          },
+          "follow_up_sequence": [
+            2,
+            5,
+            10
+          ],
+          "crm_payload": {
+            "industry": "information technology & services",
+            "pain_point": "manual prospecting and follow-up",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+          }
+        },
+        "queue_state_history": [
+          {
+            "tenant_id": "tenant_shadow_no_cache_generate",
+            "review_status": "pending",
+            "reviewer_name": "operator.one",
+            "reviewer_notes": null,
+            "actor": "operator.one",
+            "changed_at": "2026-04-09T15:35:21.151373",
+            "source": "import"
+          },
+          {
+            "tenant_id": "tenant_shadow_no_cache_generate",
+            "review_status": "approved",
+            "reviewer_name": "Operator One",
+            "reviewer_notes": "approved via controlled handoff batch",
+            "actor": "operator.one",
+            "changed_at": "2026-04-09T15:35:21.157954",
+            "source": "manual_review"
+          }
+        ],
+        "requested_execution": {
+          "mode": "shadow_execution_simulation",
+          "artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json"
+        }
+      },
+      "created_at": "2026-04-09T15:35:21.162758",
+      "updated_at": "2026-04-09T15:35:21.162758"
+    }
+  ],
+  "deliveries": [
+    {
+      "delivery_id": "wdeliv_90984c765e724c9c8bb02dce5749ee8d",
+      "tenant_id": "tenant_shadow_no_cache_generate",
+      "execution_id": "wexec_aa810b6fd9cd4d51b5878185b8a3f9b6",
+      "review_item_id": "wrq_de195b0c97c841c780f61a1edd670ddc",
+      "channel": "email",
+      "provider": "dry_run",
+      "delivery_status": "dry_run",
+      "metadata": {
+        "tenant_id": "tenant_shadow_no_cache_generate",
+        "actor": "operator.one",
+        "execution_snapshot": {
+          "execution_id": "wexec_aa810b6fd9cd4d51b5878185b8a3f9b6",
+          "tenant_id": "tenant_shadow_no_cache_generate",
+          "execution_status": "queued",
+          "review_item_id": "wrq_de195b0c97c841c780f61a1edd670ddc"
+        },
+        "review_snapshot": {
+          "review_item_id": "wrq_de195b0c97c841c780f61a1edd670ddc",
+          "tenant_id": "tenant_shadow_no_cache_generate",
+          "review_status": "approved",
+          "reviewer_name": "Operator One",
+          "reviewer_notes": "approved via controlled handoff batch"
+        },
+        "attempt_contract": {
+          "channel": "email",
+          "provider_mode": "dry_run",
+          "to": "xavier.renom@justinmind.com",
+          "subject": "information technology & services automation that ships",
+          "body": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+          "product": {
+            "name": "Agency",
+            "product_id": "prod_UICyBy4ItoEBsW",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "price": "$30/mo"
+          },
+          "follow_up_sequence": [
+            2,
+            5,
+            10
+          ],
+          "crm_payload": {
+            "industry": "information technology & services",
+            "pain_point": "manual prospecting and follow-up",
+            "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+          }
+        },
+        "attempt_payload": {
+          "to": "xavier.renom@justinmind.com",
+          "subject": "information technology & services automation that ships",
+          "body": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+        },
+        "requested_delivery": {
+          "mode": "shadow_delivery_simulation",
+          "artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json"
+        },
+        "result": {
+          "status": "dry_run",
+          "payload": {
+            "to": "xavier.renom@justinmind.com",
+            "subject": "information technology & services automation that ships",
+            "body": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+          }
+        }
+      },
+      "created_at": "2026-04-09T15:35:21.167212"
+    }
+  ],
+  "delivery_history": {
+    "no_cache_generate": [
+      {
+        "delivery_id": "wdeliv_90984c765e724c9c8bb02dce5749ee8d",
+        "tenant_id": "tenant_shadow_no_cache_generate",
+        "execution_id": "wexec_aa810b6fd9cd4d51b5878185b8a3f9b6",
+        "review_item_id": "wrq_de195b0c97c841c780f61a1edd670ddc",
+        "channel": "email",
+        "provider": "dry_run",
+        "delivery_status": "dry_run",
+        "metadata": {
+          "tenant_id": "tenant_shadow_no_cache_generate",
+          "actor": "operator.one",
+          "execution_snapshot": {
+            "execution_id": "wexec_aa810b6fd9cd4d51b5878185b8a3f9b6",
+            "tenant_id": "tenant_shadow_no_cache_generate",
+            "execution_status": "queued",
+            "review_item_id": "wrq_de195b0c97c841c780f61a1edd670ddc"
+          },
+          "review_snapshot": {
+            "review_item_id": "wrq_de195b0c97c841c780f61a1edd670ddc",
+            "tenant_id": "tenant_shadow_no_cache_generate",
+            "review_status": "approved",
+            "reviewer_name": "Operator One",
+            "reviewer_notes": "approved via controlled handoff batch"
+          },
+          "attempt_contract": {
+            "channel": "email",
+            "provider_mode": "dry_run",
+            "to": "xavier.renom@justinmind.com",
+            "subject": "information technology & services automation that ships",
+            "body": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "product": {
+              "name": "Agency",
+              "product_id": "prod_UICyBy4ItoEBsW",
+              "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+              "price": "$30/mo"
+            },
+            "follow_up_sequence": [
+              2,
+              5,
+              10
+            ],
+            "crm_payload": {
+              "industry": "information technology & services",
+              "pain_point": "manual prospecting and follow-up",
+              "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+            }
+          },
+          "attempt_payload": {
+            "to": "xavier.renom@justinmind.com",
+            "subject": "information technology & services automation that ships",
+            "body": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+          },
+          "requested_delivery": {
+            "mode": "shadow_delivery_simulation",
+            "artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json"
+          },
+          "result": {
+            "status": "dry_run",
+            "payload": {
+              "to": "xavier.renom@justinmind.com",
+              "subject": "information technology & services automation that ships",
+              "body": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+            }
+          }
+        },
+        "created_at": "2026-04-09T15:35:21.167212"
+      }
+    ]
+  },
+  "queue_snapshot": {
+    "tenant_shadow_borderline_regenerate": [
+      {
+        "review_item_id": "wrq_5cf346ae6f794865bf31a17286152f2a",
+        "tenant_id": "tenant_shadow_borderline_regenerate",
+        "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+        "source_artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json",
+        "request_id": "tenant_shadow_borderline_regenerate:borderline_regenerate",
+        "case_name": "borderline_regenerate",
+        "lead_name": "Matt Burkinshaw",
+        "company_name": "Home Appointments",
+        "contact_email": "matt@homeappointments.com",
+        "eligibility_status": "sendable",
+        "system_decision": "fallback",
+        "system_reason": "low_quality_score",
+        "review_status": "pending",
+        "reviewer_name": "operator.one",
+        "reviewer_notes": null,
+        "metadata": {
+          "tenant_id": "tenant_shadow_borderline_regenerate",
+          "lead": {
+            "name": "Matt Burkinshaw",
+            "company": "Home Appointments",
+            "title": "COO\u2502Co-Founder",
+            "email": "matt@homeappointments.com",
+            "technologies": "Cloudflare DNS, Gmail, Google Apps, DigitalOcean, ActiveProspect, Slack, Nginx, Google Tag Manager, reCAPTCHA, WordPress.org, Mobile Friendly, Bootstrap Framework, Google Font API, Android, Circle, Ab Initio, AI"
+          },
+          "eligibility": {
+            "sendable": true,
+            "status": "sendable",
+            "missing_fields": [],
+            "email": "matt@homeappointments.com",
+            "first_name": "Matt",
+            "company_name": "Home Appointments"
+          },
+          "decision": {
+            "status": "fallback",
+            "reason": "low_quality_score",
+            "score": -0.6,
+            "threshold": 0.0,
+            "stored": true,
+            "estimated_time_saved_ms": 0,
+            "summary": "regenerated because auto-reuse requires a nonnegative score; score -0.60 vs threshold 0.00",
+            "reason_path": [
+              "recall_attempted",
+              "cache_found",
+              "validation:hit",
+              "policy:auto_reuse_requires_nonnegative_score",
+              "quality_gate:fail",
+              "decision:regenerate"
+            ],
+            "fallback_reason": "low_quality_score"
+          },
+          "output_preview": {
+            "headline": "marketing & advertising automation that ships",
+            "subject": "marketing & advertising automation that ships",
+            "body_excerpt": "Hi Matt,\n\nI noticed Home Appointments fits the FullStack buyer profile: COO\u2502Co-Founders already working around Cloudflare DNS, Gmail, Google Apps, DigitalOcean, ActiveProspect, Slack, Nginx, Google Tag Manager, reCAPTCHA..."
+          },
+          "execution_contract": {
+            "channel": "email",
+            "provider_mode": "dry_run",
+            "to": "matt@homeappointments.com",
+            "subject": "marketing & advertising automation that ships",
+            "body": "Hi Matt,\n\nI noticed Home Appointments fits the FullStack buyer profile: COO\u2502Co-Founders already working around Cloudflare DNS, Gmail, Google Apps, DigitalOcean, ActiveProspect, Slack, Nginx, Google Tag Manager, reCAPTCHA, WordPress.org, Mobile Friendly, Bootstrap Framework, Google Font API, Android, Circle, Ab Initio, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "product": {
+              "name": "Agency",
+              "product_id": "prod_UICyBy4ItoEBsW",
+              "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+              "price": "$30/mo"
+            },
+            "follow_up_sequence": [
+              2,
+              5,
+              10
+            ],
+            "crm_payload": {
+              "industry": "marketing & advertising",
+              "pain_point": "manual prospecting and follow-up",
+              "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+            }
+          },
+          "workflow_context": {
+            "workflow_type": "fullstack_outreach",
+            "offer_type": "agency",
+            "stage": "first_touch"
+          },
+          "reviewer": {
+            "disposition": null,
+            "judgment_reason": null,
+            "operator_quality_assessment": null,
+            "notes": null,
+            "matches_system_decision": null
+          },
+          "expectation": "regenerate because score falls just below threshold",
+          "queue_state_history": [
+            {
+              "tenant_id": "tenant_shadow_borderline_regenerate",
+              "review_status": "pending",
+              "reviewer_name": "operator.one",
+              "reviewer_notes": null,
+              "actor": "operator.one",
+              "changed_at": "2026-04-09T15:35:21.151373",
+              "source": "import"
+            }
+          ]
+        },
+        "created_at": "2026-04-09T15:35:21.151373",
+        "updated_at": "2026-04-09T15:35:21.151373",
+        "outcome_counts": {},
+        "outcome_score": 0.0
+      }
+    ],
+    "tenant_shadow_borderline_reuse": [
+      {
+        "review_item_id": "wrq_2c4adb939f2a46ce9cee2f47d4b451d4",
+        "tenant_id": "tenant_shadow_borderline_reuse",
+        "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+        "source_artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json",
+        "request_id": "tenant_shadow_borderline_reuse:borderline_reuse",
+        "case_name": "borderline_reuse",
+        "lead_name": "Tracy Potts",
+        "company_name": "feature[23]",
+        "contact_email": "tracy@feature23.com",
+        "eligibility_status": "sendable",
+        "system_decision": "fallback",
+        "system_reason": "low_quality_score",
+        "review_status": "pending",
+        "reviewer_name": "operator.one",
+        "reviewer_notes": null,
+        "metadata": {
+          "tenant_id": "tenant_shadow_borderline_reuse",
+          "lead": {
+            "name": "Tracy Potts",
+            "company": "feature[23]",
+            "title": "Chief Operating Officer+CoFounder",
+            "email": "tracy@feature23.com",
+            "technologies": "Cloudflare DNS, Mailchimp Mandrill, Sendgrid, Gmail, Outlook, Google Apps, Microsoft Office 365, Microsoft Application Insights, Atlassian Cloud, Slack, Hubspot, Facebook Widget, Linkedin Widget, Bootstrap Framework, Mobile Friendly, Google Tag Manager, Facebook Login (Connect), Linkedin Login, Google Analytics, React Native, Android, IoT, Node.js, Xamarin, Remote"
+          },
+          "eligibility": {
+            "sendable": true,
+            "status": "sendable",
+            "missing_fields": [],
+            "email": "tracy@feature23.com",
+            "first_name": "Tracy",
+            "company_name": "feature[23]"
+          },
+          "decision": {
+            "status": "fallback",
+            "reason": "low_quality_score",
+            "score": -0.3333333333333333,
+            "threshold": 0.0,
+            "stored": true,
+            "estimated_time_saved_ms": 0,
+            "summary": "regenerated because auto-reuse requires a nonnegative score; score -0.33 vs threshold 0.00",
+            "reason_path": [
+              "recall_attempted",
+              "cache_found",
+              "validation:hit",
+              "policy:auto_reuse_requires_nonnegative_score",
+              "quality_gate:fail",
+              "decision:regenerate"
+            ],
+            "fallback_reason": "low_quality_score"
+          },
+          "output_preview": {
+            "headline": "information technology & services automation that ships",
+            "subject": "information technology & services automation that ships",
+            "body_excerpt": "Hi Tracy,\n\nI noticed feature[23] fits the FullStack buyer profile: Chief Operating Officer+CoFounders already working around Cloudflare DNS, Mailchimp Mandrill, Sendgrid, Gmail, Outlook, Google Apps, Microsoft Office 365..."
+          },
+          "execution_contract": {
+            "channel": "email",
+            "provider_mode": "dry_run",
+            "to": "tracy@feature23.com",
+            "subject": "information technology & services automation that ships",
+            "body": "Hi Tracy,\n\nI noticed feature[23] fits the FullStack buyer profile: Chief Operating Officer+CoFounders already working around Cloudflare DNS, Mailchimp Mandrill, Sendgrid, Gmail, Outlook, Google Apps, Microsoft Office 365, Microsoft Application Insights, Atlassian Cloud, Slack, Hubspot, Facebook Widget, Linkedin Widget, Bootstrap Framework, Mobile Friendly, Google Tag Manager, Facebook Login (Connect), Linkedin Login, Google Analytics, React Native, Android, IoT, Node.js, Xamarin, Remote.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "product": {
+              "name": "Agency",
+              "product_id": "prod_UICyBy4ItoEBsW",
+              "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+              "price": "$30/mo"
+            },
+            "follow_up_sequence": [
+              2,
+              5,
+              10
+            ],
+            "crm_payload": {
+              "industry": "information technology & services",
+              "pain_point": "manual prospecting and follow-up",
+              "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+            }
+          },
+          "workflow_context": {
+            "workflow_type": "fullstack_outreach",
+            "offer_type": "agency",
+            "stage": "first_touch"
+          },
+          "reviewer": {
+            "disposition": null,
+            "judgment_reason": null,
+            "operator_quality_assessment": null,
+            "notes": null,
+            "matches_system_decision": null
+          },
+          "expectation": "reuse because score sits just above threshold and there is no compatibility failure",
+          "queue_state_history": [
+            {
+              "tenant_id": "tenant_shadow_borderline_reuse",
+              "review_status": "pending",
+              "reviewer_name": "operator.one",
+              "reviewer_notes": null,
+              "actor": "operator.one",
+              "changed_at": "2026-04-09T15:35:21.151373",
+              "source": "import"
+            }
+          ]
+        },
+        "created_at": "2026-04-09T15:35:21.151373",
+        "updated_at": "2026-04-09T15:35:21.151373",
+        "outcome_counts": {},
+        "outcome_score": 0.0
+      }
+    ],
+    "tenant_shadow_no_cache_generate": [
+      {
+        "review_item_id": "wrq_de195b0c97c841c780f61a1edd670ddc",
+        "tenant_id": "tenant_shadow_no_cache_generate",
+        "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+        "source_artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json",
+        "request_id": "tenant_shadow_no_cache_generate:no_cache_generate",
+        "case_name": "no_cache_generate",
+        "lead_name": "Xavier Renom",
+        "company_name": "Justinmind",
+        "contact_email": "xavier.renom@justinmind.com",
+        "eligibility_status": "sendable",
+        "system_decision": "fallback",
+        "system_reason": "not_found",
+        "review_status": "approved",
+        "reviewer_name": "Operator One",
+        "reviewer_notes": "approved via controlled handoff batch",
+        "metadata": {
+          "tenant_id": "tenant_shadow_no_cache_generate",
+          "lead": {
+            "name": "Xavier Renom",
+            "company": "Justinmind",
+            "title": "CEO &Founder",
+            "email": "xavier.renom@justinmind.com",
+            "technologies": "Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI"
+          },
+          "eligibility": {
+            "sendable": true,
+            "status": "sendable",
+            "missing_fields": [],
+            "email": "xavier.renom@justinmind.com",
+            "first_name": "Xavier",
+            "company_name": "Justinmind"
+          },
+          "decision": {
+            "status": "fallback",
+            "reason": "not_found",
+            "score": 0.0,
+            "threshold": 0.0,
+            "stored": true,
+            "estimated_time_saved_ms": 0,
+            "summary": "regenerated because not_found; score 0.00 vs threshold 0.00",
+            "reason_path": [
+              "recall_attempted",
+              "cache_miss",
+              "decision:regenerate"
+            ],
+            "fallback_reason": "not_found"
+          },
+          "output_preview": {
+            "headline": "information technology & services automation that ships",
+            "subject": "information technology & services automation that ships",
+            "body_excerpt": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, G..."
+          },
+          "execution_contract": {
+            "channel": "email",
+            "provider_mode": "dry_run",
+            "to": "xavier.renom@justinmind.com",
+            "subject": "information technology & services automation that ships",
+            "body": "Hi Xavier,\n\nI noticed Justinmind fits the FullStack buyer profile: CEO &Founders already working around Amazon CloudFront, Route 53, Rackspace Email, Amazon AWS, Zendesk, Slack, Google Analytics, WordPress.org, Apache, Google Font API, YouTube, Adobe Media Optimizer, reCAPTCHA, Vimeo, Facebook Login (Connect), Facebook Widget, Mobile Friendly, AddThis, Google Play, Cedexis Radar, Moat, Google Tag Manager, Android, Remote, AI.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "product": {
+              "name": "Agency",
+              "product_id": "prod_UICyBy4ItoEBsW",
+              "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+              "price": "$30/mo"
+            },
+            "follow_up_sequence": [
+              2,
+              5,
+              10
+            ],
+            "crm_payload": {
+              "industry": "information technology & services",
+              "pain_point": "manual prospecting and follow-up",
+              "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+            }
+          },
+          "workflow_context": {
+            "workflow_type": "fullstack_outreach",
+            "offer_type": "agency",
+            "stage": "first_touch"
+          },
+          "reviewer": {
+            "disposition": null,
+            "judgment_reason": null,
+            "operator_quality_assessment": null,
+            "notes": null,
+            "matches_system_decision": null
+          },
+          "expectation": "fresh generation because no reusable flow exists yet",
+          "queue_state_history": [
+            {
+              "tenant_id": "tenant_shadow_no_cache_generate",
+              "review_status": "pending",
+              "reviewer_name": "operator.one",
+              "reviewer_notes": null,
+              "actor": "operator.one",
+              "changed_at": "2026-04-09T15:35:21.151373",
+              "source": "import"
+            },
+            {
+              "tenant_id": "tenant_shadow_no_cache_generate",
+              "review_status": "approved",
+              "reviewer_name": "Operator One",
+              "reviewer_notes": "approved via controlled handoff batch",
+              "actor": "operator.one",
+              "changed_at": "2026-04-09T15:35:21.157954",
+              "source": "manual_review"
+            }
+          ],
+          "reviewer_update": {
+            "tenant_id": "tenant_shadow_no_cache_generate",
+            "review_status": "approved",
+            "reviewer_name": "Operator One",
+            "reviewer_notes": "approved via controlled handoff batch",
+            "actor": "operator.one",
+            "updated_at": "2026-04-09T15:35:21.157967"
+          }
+        },
+        "created_at": "2026-04-09T15:35:21.151373",
+        "updated_at": "2026-04-09T15:35:21.157973",
+        "outcome_counts": {},
+        "outcome_score": 0.0
+      }
+    ],
+    "tenant_shadow_partial_payload_regenerate": [
+      {
+        "review_item_id": "wrq_95a10bca70c94f248ce5c26750b449dd",
+        "tenant_id": "tenant_shadow_partial_payload_regenerate",
+        "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+        "source_artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json",
+        "request_id": "tenant_shadow_partial_payload_regenerate:partial_payload_regenerate",
+        "case_name": "partial_payload_regenerate",
+        "lead_name": "Richard Oliver",
+        "company_name": "Impact Design & Marketing",
+        "contact_email": "richard@impactdm.co.uk",
+        "eligibility_status": "sendable",
+        "system_decision": "fallback",
+        "system_reason": "partial_payload",
+        "review_status": "pending",
+        "reviewer_name": "operator.one",
+        "reviewer_notes": null,
+        "metadata": {
+          "tenant_id": "tenant_shadow_partial_payload_regenerate",
+          "lead": {
+            "name": "Richard Oliver",
+            "company": "Impact Design & Marketing",
+            "title": "Co-Founder; Owner; and Managing Director",
+            "email": "richard@impactdm.co.uk",
+            "technologies": "Cloudflare DNS, Outlook, Microsoft Office 365, CloudFlare Hosting, WordPress.org, Apache, Google Font API, Google Analytics, Mobile Friendly, AI, Remote"
+          },
+          "eligibility": {
+            "sendable": true,
+            "status": "sendable",
+            "missing_fields": [],
+            "email": "richard@impactdm.co.uk",
+            "first_name": "Richard",
+            "company_name": "Impact Design & Marketing"
+          },
+          "decision": {
+            "status": "fallback",
+            "reason": "partial_payload",
+            "score": 5.0,
+            "threshold": 0.0,
+            "stored": true,
+            "estimated_time_saved_ms": 0,
+            "summary": "regenerated because partial_payload; score 5.00 vs threshold 0.00",
+            "reason_path": [
+              "recall_attempted",
+              "cache_found",
+              "validation:partial_payload",
+              "decision:regenerate"
+            ],
+            "fallback_reason": "partial_payload"
+          },
+          "output_preview": {
+            "headline": "marketing & advertising automation that ships",
+            "subject": "marketing & advertising automation that ships",
+            "body_excerpt": "Hi Richard,\n\nI noticed Impact Design & Marketing fits the FullStack buyer profile: Co-Founder; Owner; and Managing Directors already working around Cloudflare DNS, Outlook, Microsoft Office 365, CloudFlare Hosting, WordP..."
+          },
+          "execution_contract": {
+            "channel": "email",
+            "provider_mode": "dry_run",
+            "to": "richard@impactdm.co.uk",
+            "subject": "marketing & advertising automation that ships",
+            "body": "Hi Richard,\n\nI noticed Impact Design & Marketing fits the FullStack buyer profile: Co-Founder; Owner; and Managing Directors already working around Cloudflare DNS, Outlook, Microsoft Office 365, CloudFlare Hosting, WordPress.org, Apache, Google Font API, Google Analytics, Mobile Friendly, AI, Remote.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "product": {
+              "name": "Agency",
+              "product_id": "prod_UICyBy4ItoEBsW",
+              "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+              "price": "$30/mo"
+            },
+            "follow_up_sequence": [
+              2,
+              5,
+              10
+            ],
+            "crm_payload": {
+              "industry": "marketing & advertising",
+              "pain_point": "manual prospecting and follow-up",
+              "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+            }
+          },
+          "workflow_context": {
+            "workflow_type": "fullstack_outreach",
+            "offer_type": "agency",
+            "stage": "first_touch"
+          },
+          "reviewer": {
+            "disposition": null,
+            "judgment_reason": null,
+            "operator_quality_assessment": null,
+            "notes": null,
+            "matches_system_decision": null
+          },
+          "expectation": "regenerate because payload is incomplete even though quality is strong",
+          "queue_state_history": [
+            {
+              "tenant_id": "tenant_shadow_partial_payload_regenerate",
+              "review_status": "pending",
+              "reviewer_name": "operator.one",
+              "reviewer_notes": null,
+              "actor": "operator.one",
+              "changed_at": "2026-04-09T15:35:21.151373",
+              "source": "import"
+            }
+          ]
+        },
+        "created_at": "2026-04-09T15:35:21.151373",
+        "updated_at": "2026-04-09T15:35:21.151373",
+        "outcome_counts": {},
+        "outcome_score": 0.0
+      }
+    ],
+    "tenant_shadow_version_drift_regenerate": [
+      {
+        "review_item_id": "wrq_77262bdfe9674c09ab6430732f41a641",
+        "tenant_id": "tenant_shadow_version_drift_regenerate",
+        "batch_label": "workflow_memory_execution_ready_batch_20260409T152458Z",
+        "source_artifact": "/Users/joeiton/Arkham/artifacts/shadow-runs/workflow_memory_execution_ready_batch_20260409T152458Z.json",
+        "request_id": "tenant_shadow_version_drift_regenerate:version_drift_regenerate",
+        "case_name": "version_drift_regenerate",
+        "lead_name": "Peter Bamber",
+        "company_name": "Piranha Digital",
+        "contact_email": "peter@piranha-solutions.com",
+        "eligibility_status": "sendable",
+        "system_decision": "fallback",
+        "system_reason": "offer_version_mismatch",
+        "review_status": "pending",
+        "reviewer_name": "operator.one",
+        "reviewer_notes": null,
+        "metadata": {
+          "tenant_id": "tenant_shadow_version_drift_regenerate",
+          "lead": {
+            "name": "Peter Bamber",
+            "company": "Piranha Digital",
+            "title": "Owner& Creative Director",
+            "email": "peter@piranha-solutions.com",
+            "technologies": "Cloudflare DNS, Amazon SES, Outlook, Microsoft Office 365, CloudFlare Hosting, SendInBlue, Google Maps, Cloudinary, Google Maps (Non Paid Users), Mobile Friendly, Google Tag Manager, Google Font API, reCAPTCHA, WordPress.org"
+          },
+          "eligibility": {
+            "sendable": true,
+            "status": "sendable",
+            "missing_fields": [],
+            "email": "peter@piranha-solutions.com",
+            "first_name": "Peter",
+            "company_name": "Piranha Digital"
+          },
+          "decision": {
+            "status": "fallback",
+            "reason": "offer_version_mismatch",
+            "score": 2.0,
+            "threshold": 0.0,
+            "stored": true,
+            "estimated_time_saved_ms": 0,
+            "summary": "regenerated because offer_version_mismatch; score 2.00 vs threshold 0.00",
+            "reason_path": [
+              "recall_attempted",
+              "cache_found",
+              "validation:offer_version_mismatch",
+              "decision:regenerate"
+            ],
+            "fallback_reason": "offer_version_mismatch"
+          },
+          "output_preview": {
+            "headline": "marketing & advertising automation that ships",
+            "subject": "marketing & advertising automation that ships",
+            "body_excerpt": "Hi Peter,\n\nI noticed Piranha Digital fits the FullStack buyer profile: Owner& Creative Directors already working around Cloudflare DNS, Amazon SES, Outlook, Microsoft Office 365, CloudFlare Hosting, SendInBlue, Google Ma..."
+          },
+          "execution_contract": {
+            "channel": "email",
+            "provider_mode": "dry_run",
+            "to": "peter@piranha-solutions.com",
+            "subject": "marketing & advertising automation that ships",
+            "body": "Hi Peter,\n\nI noticed Piranha Digital fits the FullStack buyer profile: Owner& Creative Directors already working around Cloudflare DNS, Amazon SES, Outlook, Microsoft Office 365, CloudFlare Hosting, SendInBlue, Google Maps, Cloudinary, Google Maps (Non Paid Users), Mobile Friendly, Google Tag Manager, Google Font API, reCAPTCHA, WordPress.org.\n\nFullStack helps Founders and owners of digital marketing agencies, automation consultants, and freelance SaaS operators with 1-50 employees already using Make.com, Zapier, or HubSpot turn manual prospecting and follow-up into an automated Discover -> Monitor -> Convert pipeline, with payment and follow-up handled from the gateway.\n\nWant to try Agency for $30/mo?\n\nhttps://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+            "product": {
+              "name": "Agency",
+              "product_id": "prod_UICyBy4ItoEBsW",
+              "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02",
+              "price": "$30/mo"
+            },
+            "follow_up_sequence": [
+              2,
+              5,
+              10
+            ],
+            "crm_payload": {
+              "industry": "marketing & advertising",
+              "pain_point": "manual prospecting and follow-up",
+              "payment_url": "https://buy.stripe.com/bJefZaeRR4V20iRfh5fnO02"
+            }
+          },
+          "workflow_context": {
+            "workflow_type": "fullstack_outreach",
+            "offer_type": "agency",
+            "stage": "first_touch"
+          },
+          "reviewer": {
+            "disposition": null,
+            "judgment_reason": null,
+            "operator_quality_assessment": null,
+            "notes": null,
+            "matches_system_decision": null
+          },
+          "expectation": "regenerate because cached offer version drifted from active workflow",
+          "queue_state_history": [
+            {
+              "tenant_id": "tenant_shadow_version_drift_regenerate",
+              "review_status": "pending",
+              "reviewer_name": "operator.one",
+              "reviewer_notes": null,
+              "actor": "operator.one",
+              "changed_at": "2026-04-09T15:35:21.151373",
+              "source": "import"
+            }
+          ]
+        },
+        "created_at": "2026-04-09T15:35:21.151373",
+        "updated_at": "2026-04-09T15:35:21.151373",
+        "outcome_counts": {},
+        "outcome_score": 0.0
+      }
+    ]
+  }
+}

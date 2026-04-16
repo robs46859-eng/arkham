@@ -13,8 +13,22 @@ class Settings(BaseServiceSettings):
     # Signing key for tenant auth tokens
     # Production: Must be set via environment variable or Secret Manager
     signing_key: str | None = None
+
+    # Admin token — guards /v1/tenants/* routes
+    # Production: Must be set via environment variable or Secret Manager
+    admin_token: str | None = None
     
     orchestration_url: str = "http://localhost:8002"
+    core_service_url: str = "http://core:3000"
+    billing_service_url: str = "http://localhost:3020"
+    email_provider: str | None = None
+    email_from: str | None = None
+    email_reply_to: str | None = None
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    automation_dry_run: bool = True
 
     # Feature flags
     enable_premium_escalation: bool = False
@@ -43,16 +57,20 @@ class Settings(BaseServiceSettings):
     gemini_mid_tier_model: str = "gemini-1.5-flash"
     gemini_premium_model: str = "gemini-1.5-pro"
 
-    gemini_api_key: str | None = None
-    gemini_base_url: str | None = None
-    gemini_mid_tier_model: str = "gemini-1.5-flash"
-    gemini_premium_model: str = "gemini-1.5-pro"
-
     # Vector Store / Semantic Cache
     vector_store_path: str = "./.local/lancedb"
     embedding_provider: str = "ollama"  # ollama | openai
     embedding_model: str = "nomic-embed-text"
     cache_threshold: float = 0.85
+
+    @property
+    def effective_admin_token(self) -> str:
+        """Get admin token with test-mode fallback."""
+        if self.admin_token:
+            return self.admin_token
+        if self.is_test:
+            return "test-admin-token-not-for-production"
+        raise ValueError("ADMIN_TOKEN is required in non-test environments")
 
     @property
     def effective_signing_key(self) -> str:
@@ -81,6 +99,8 @@ class Settings(BaseServiceSettings):
 
         if not self.signing_key:
             missing.append("SIGNING_KEY")
+        if not self.admin_token:
+            missing.append("ADMIN_TOKEN")
         if not self.privacy_service_token:
             missing.append("PRIVACY_SERVICE_TOKEN")
 

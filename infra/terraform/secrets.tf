@@ -101,27 +101,60 @@ resource "google_secret_manager_secret" "storage_credentials" {
   }
 }
 
-# Stripe secrets (for billing service)
-resource "google_secret_manager_secret" "stripe_secret_key" {
-  secret_id = "${var.environment}-stripe-secret-key"
+# Admin token — guards /v1/tenants/* routes
+resource "google_secret_manager_secret" "admin_token" {
+  secret_id = "${var.environment}-admin-token"
   project   = var.project_id
-  
+
   labels = local.common_tags
-  
+
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret" "stripe_webhook_secret" {
-  secret_id = "${var.environment}-stripe-webhook-secret"
+resource "google_secret_manager_secret_version" "admin_token" {
+  secret      = google_secret_manager_secret.admin_token.id
+  secret_data = var.admin_token
+
+  enabled = true
+}
+
+# Stripe secrets (for billing service)
+resource "google_secret_manager_secret" "stripe_secret_key" {
+  secret_id = "${var.environment}-stripe-secret-key"
   project   = var.project_id
-  
+
   labels = local.common_tags
-  
+
   replication {
     auto {}
   }
+}
+
+resource "google_secret_manager_secret_version" "stripe_secret_key" {
+  secret      = google_secret_manager_secret.stripe_secret_key.id
+  secret_data = var.stripe_secret_key
+
+  enabled = true
+}
+
+resource "google_secret_manager_secret" "stripe_webhook_secret" {
+  secret_id = "${var.environment}-stripe-webhook-secret"
+  project   = var.project_id
+
+  labels = local.common_tags
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_version" "stripe_webhook_secret" {
+  secret      = google_secret_manager_secret.stripe_webhook_secret.id
+  secret_data = var.stripe_webhook_secret
+
+  enabled = true
 }
 
 # API Keys (OpenAI, etc. - optional placeholders)
@@ -140,13 +173,14 @@ resource "google_secret_manager_secret" "openai_api_key" {
 output "secret_ids" {
   description = "Map of secret IDs for use in deployments"
   value = {
-    database_url         = google_secret_manager_secret.database_url.secret_id
-    redis_url            = google_secret_manager_secret.redis_url.secret_id
-    signing_key          = google_secret_manager_secret.signing_key.secret_id
+    database_url          = google_secret_manager_secret.database_url.secret_id
+    redis_url             = google_secret_manager_secret.redis_url.secret_id
+    signing_key           = google_secret_manager_secret.signing_key.secret_id
+    admin_token           = google_secret_manager_secret.admin_token.secret_id
     privacy_service_token = google_secret_manager_secret.privacy_service_token.secret_id
-    stripe_secret_key    = google_secret_manager_secret.stripe_secret_key.secret_id
+    stripe_secret_key     = google_secret_manager_secret.stripe_secret_key.secret_id
     stripe_webhook_secret = google_secret_manager_secret.stripe_webhook_secret.secret_id
-    openai_api_key       = google_secret_manager_secret.openai_api_key.secret_id
+    openai_api_key        = google_secret_manager_secret.openai_api_key.secret_id
   }
 }
 

@@ -16,7 +16,16 @@ redis_memory_size_gb     = 1
 redis_auth_token         = "replace-with-strong-staging-redis-token"
 
 signing_key              = "replace-with-32-plus-char-signing-key"
+admin_token              = "replace-with-32-plus-char-admin-token"
 privacy_service_token    = "replace-with-privacy-service-token"
+
+# Stripe (use test keys for staging)
+stripe_secret_key        = "sk_test_..."
+stripe_webhook_secret    = "whsec_..."
+stripe_price_id          = "price_..."
+stripe_success_url       = "https://your-frontend.example.com/billing/success"
+stripe_cancel_url        = "https://your-frontend.example.com/billing/cancel"
+stripe_portal_return_url = "https://your-frontend.example.com/billing"
 
 enable_gcs               = true
 storage_bucket_name      = "your-staging-storage-bucket"

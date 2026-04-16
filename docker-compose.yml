@@ -59,10 +59,25 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      billing:
+        condition: service_started
     environment:
       DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
       REDIS_URL: redis://redis:6379/0
       APP_ENV: development
+      SIGNING_KEY: local-dev-signing-key
+      ADMIN_TOKEN: local-dev-admin-token
+      PRIVACY_SERVICE_TOKEN: privacy-core-internal-token
+      CORE_SERVICE_URL: http://core:3000
+      ORCHESTRATION_URL: http://orchestration:8002
+      BILLING_SERVICE_URL: http://billing:3020
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
+      EMAIL_REPLY_TO: ${EMAIL_REPLY_TO:-}
+      AUTOMATION_DRY_RUN: ${AUTOMATION_DRY_RUN:-true}
       PRIVACY_SERVICE_URL: http://privacy:3010
       ENABLE_PRIVACY_PROXY: "true"
     ports:
@@ -117,9 +132,30 @@ services:
       DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
       REDIS_URL: redis://redis:6379/0
       APP_ENV: development
-      CORE_SERVICE_URL: http://core:8000
+      CORE_SERVICE_URL: http://core:3000
     ports:
       - "8002:8002"
+
+  billing:
+    build:
+      context: .
+      dockerfile: services/billing/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
+      REDIS_URL: redis://redis:6379/0
+      APP_ENV: development
+      SIGNING_KEY: local-dev-signing-key
+      STRIPE_SECRET_KEY: sk_test_replace_me
+      STRIPE_WEBHOOK_SECRET: whsec_replace_me
+      STRIPE_PRICE_ID: price_replace_me
+      STRIPE_SUCCESS_URL: http://localhost:5174/billing/success
+      STRIPE_CANCEL_URL: http://localhost:5174/billing/cancel
+      STRIPE_PORTAL_RETURN_URL: http://localhost:5174/billing
+    ports:
+      - "3020:3020"
 
   # Core Service - Central Hub
   core:
@@ -127,14 +163,17 @@ services:
       context: .
       dockerfile: services/core/Dockerfile
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     environment:
+      DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
       REDIS_URL: redis://redis:6379/0
       APP_ENV: development
       SERVICE_NAME: robco-core
     ports:
-      - "3000:8000"
+      - "3000:3000"
 
   # Vertical Services
   omniscale:
@@ -144,7 +183,7 @@ services:
     depends_on:
       - core
     environment:
-      CORE_SERVICE_URL: http://core:8000
+      CORE_SERVICE_URL: http://core:3000
       APP_ENV: development
     ports:
       - "3040:8000"
@@ -156,7 +195,7 @@ services:
     depends_on:
       - core
     environment:
-      CORE_SERVICE_URL: http://core:8000
+      CORE_SERVICE_URL: http://core:3000
       APP_ENV: development
     ports:
       - "3050:8000"
@@ -168,7 +207,7 @@ services:
     depends_on:
       - core
     environment:
-      CORE_SERVICE_URL: http://core:8000
+      CORE_SERVICE_URL: http://core:3000
       APP_ENV: development
     ports:
       - "3060:8000"
@@ -180,7 +219,7 @@ services:
     depends_on:
       - core
     environment:
-      CORE_SERVICE_URL: http://core:8000
+      CORE_SERVICE_URL: http://core:3000
       APP_ENV: development
     ports:
       - "3070:8000"
@@ -192,7 +231,7 @@ services:
     depends_on:
       - core
     environment:
-      CORE_SERVICE_URL: http://core:8000
+      CORE_SERVICE_URL: http://core:3000
       APP_ENV: development
     ports:
       - "3080:8000"
@@ -204,7 +243,7 @@ services:
     depends_on:
       - core
     environment:
-      CORE_SERVICE_URL: http://core:8000
+      CORE_SERVICE_URL: http://core:3000
       APP_ENV: development
     ports:
       - "3090:8000"
@@ -216,7 +255,7 @@ services:
     depends_on:
       - core
     environment:
-      CORE_SERVICE_URL: http://core:8000
+      CORE_SERVICE_URL: http://core:3000
       APP_ENV: development
     ports:
       - "3100:8000"

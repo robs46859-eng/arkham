@@ -56,6 +56,38 @@ class TenantAPIKeyResponse(BaseModel):
     last_used_at: datetime | None
 
 
+class TenantActorRoleUpsert(BaseModel):
+    actor_id: str
+    display_name: str | None = None
+    role: str
+    granted_permissions: list[str] = Field(default_factory=list)
+    denied_permissions: list[str] = Field(default_factory=list)
+    is_active: bool = True
+
+
+class TenantActorRoleResponse(BaseModel):
+    membership_id: str
+    tenant_id: str
+    actor_id: str
+    display_name: str | None = None
+    role: str
+    permissions: list[str] = Field(default_factory=list)
+    granted_permissions: list[str] = Field(default_factory=list)
+    denied_permissions: list[str] = Field(default_factory=list)
+    is_active: bool
+    source: str = "assigned"
+    created_at: datetime
+    updated_at: datetime
+
+
+class TenantActorPermissionSummary(BaseModel):
+    tenant_id: str
+    actor_id: str
+    role: str
+    permissions: list[str] = Field(default_factory=list)
+    source: str
+
+
 class DailyUsage(BaseModel):
     date: str
     requests: int

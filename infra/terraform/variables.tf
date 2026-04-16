@@ -103,6 +103,56 @@ variable "privacy_service_token" {
   default     = ""
 }
 
+variable "admin_token" {
+  description = "Static admin token for /v1/tenants/* routes"
+  type        = string
+  sensitive   = true
+
+  validation {
+    condition     = length(var.admin_token) >= 32
+    error_message = "Admin token must be at least 32 characters."
+  }
+}
+
+# Stripe
+variable "stripe_secret_key" {
+  description = "Stripe secret key (sk_live_... or sk_test_...)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "stripe_webhook_secret" {
+  description = "Stripe webhook signing secret (whsec_...)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "stripe_price_id" {
+  description = "Stripe Price ID for the subscription product (price_...)"
+  type        = string
+  default     = ""
+}
+
+variable "stripe_success_url" {
+  description = "URL Stripe redirects to after successful checkout"
+  type        = string
+  default     = "https://your-app.example.com/billing/success"
+}
+
+variable "stripe_cancel_url" {
+  description = "URL Stripe redirects to on checkout cancellation"
+  type        = string
+  default     = "https://your-app.example.com/billing/cancel"
+}
+
+variable "stripe_portal_return_url" {
+  description = "URL Stripe redirects to after customer portal session"
+  type        = string
+  default     = "https://your-app.example.com/billing"
+}
+
 variable "redis_auth_token" {
   description = "Auth token for Memorystore Redis"
   type        = string

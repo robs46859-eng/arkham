@@ -5,6 +5,7 @@ Implements: Build Rules §3 — No service depends on another service's internal
 """
 
 from .base import Base
+from .access import TenantActorRoleRecord
 from .api_key import TenantAPIKey
 from .tenant import Tenant
 from .project import Project, ProjectFile
@@ -14,9 +15,22 @@ from .workflow import WorkflowRunRecord, WorkflowStepRecord
 from .deliverable import DeliverableRecord
 from .memory import MemoryNoteRecord
 from .usage import UsageEventRecord
+from .automation import AutomationLogRecord
+from .crm import (
+    CompanyRecord,
+    ContactRecord,
+    LeadRecord,
+    DealRecord,
+    CRMActivityRecord,
+    WorkflowMemoryDecisionRecord,
+    WorkflowReviewQueueRecord,
+    WorkflowExecutionRecord,
+    WorkflowExecutionDeliveryRecord,
+)
 
 __all__ = [
     "Base",
+    "TenantActorRoleRecord",
     "TenantAPIKey",
     "Tenant",
     "Project",
@@ -30,4 +44,14 @@ __all__ = [
     "DeliverableRecord",
     "MemoryNoteRecord",
     "UsageEventRecord",
+    "AutomationLogRecord",
+    "CompanyRecord",
+    "ContactRecord",
+    "LeadRecord",
+    "DealRecord",
+    "CRMActivityRecord",
+    "WorkflowMemoryDecisionRecord",
+    "WorkflowReviewQueueRecord",
+    "WorkflowExecutionRecord",
+    "WorkflowExecutionDeliveryRecord",
 ]

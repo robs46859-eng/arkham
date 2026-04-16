@@ -1,8 +1,17 @@
-from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List, Dict
 
-app = FastAPI(title="AI Consistency Lab", version="0.1.0")
+from packages.vertical_base import VerticalBase
+
+vertical = VerticalBase(
+    service_id="ai-consistency",
+    title="AI Consistency Lab",
+    port=8000,
+    capabilities=["ai_testing", "model_validation", "consistency_scoring"],
+    event_subscriptions=[],
+)
+
+app = vertical.app
 
 
 class TestRequest(BaseModel):
@@ -29,7 +38,7 @@ async def run_consistency_test(request: TestRequest):
     """Run AI consistency test between models."""
     test_id = f"test_{len(tests_store) + 1}"
     tests_store[test_id] = {
-        "request": request.dict(),
+        "request": request.model_dump(),
         "status": "completed",
         "consistency_score": 0.95,
         "differences": [],
@@ -49,8 +58,3 @@ async def get_test_result(test_id: str):
 async def list_tests():
     """List all consistency tests."""
     return {"tests": list(tests_store.keys())}
-
-
-@app.get("/health")
-async def health_check():
-    return {"status": "ok", "service": "ai-consistency-lab"}

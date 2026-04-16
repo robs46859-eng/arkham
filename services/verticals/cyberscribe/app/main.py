@@ -1,8 +1,17 @@
-from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List, Dict
 
-app = FastAPI(title="CyberScribe", version="0.1.0")
+from packages.vertical_base import VerticalBase
+
+vertical = VerticalBase(
+    service_id="cyberscribe",
+    title="CyberScribe",
+    port=8000,
+    capabilities=["code_analysis", "anomaly_detection", "recommendations"],
+    event_subscriptions=[],
+)
+
+app = vertical.app
 
 
 class CodeSnippet(BaseModel):
@@ -48,8 +57,3 @@ async def get_anomaly_report(snippet_id: str):
 async def list_analyses():
     """List all code analyses."""
     return {"analyses": list(analyses_store.keys())}
-
-
-@app.get("/health")
-async def health_check():
-    return {"status": "ok", "service": "cyberscribe"}
