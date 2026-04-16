@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { createCheckout, login } from '../api';
-
-interface AuthProps {
-  onLogin: () => void;
-}
 
 type Mode = 'login' | 'signup';
 
@@ -26,7 +23,8 @@ const PLANS = [
   },
 ];
 
-export default function Auth({ onLogin }: AuthProps) {
+export default function Auth() {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<Mode>('login');
   const [tenantId, setTenantId] = useState('');
   const [apiKey, setApiKey] = useState('');
@@ -39,7 +37,7 @@ export default function Auth({ onLogin }: AuthProps) {
     setLoading('login');
     try {
       await login(tenantId.trim(), apiKey.trim());
-      onLogin();
+      navigate('/app', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -63,7 +61,7 @@ export default function Auth({ onLogin }: AuthProps) {
     <div className="auth-shell">
       <div className="auth-left">
         <div className="auth-brand">
-          <a href="#" className="nav-logo">ROBCO<span>AI</span></a>
+          <a href="/" className="nav-logo">ROBCO<span>AI</span></a>
           <p className="auth-tagline">
             BIM-first AI for architecture and construction.<br />
             Specs. Takeoffs. Proposals. In seconds.

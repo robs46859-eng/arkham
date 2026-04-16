@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { callVertical, clearAuth, getTenantId } from '../api';
 import type {
   ConsistencyResponse,
@@ -31,7 +32,8 @@ interface Deliverable {
 
 const PROJECT_ID = 'proj_demo_001';
 
-export default function Dashboard({ onLogout }: { onLogout: () => void }) {
+export default function Dashboard() {
+  const navigate = useNavigate();
   const tenantId = getTenantId() ?? '';
   const [activeVertical, setActiveVertical] = useState<VerticalKey>('takeoff');
   const [loading, setLoading] = useState(false);
@@ -56,7 +58,7 @@ export default function Dashboard({ onLogout }: { onLogout: () => void }) {
 
   function handleLogout() {
     clearAuth();
-    onLogout();
+    navigate('/login', { replace: true });
   }
 
   function handleFileComplete(fileId: string, fileName: string) {
