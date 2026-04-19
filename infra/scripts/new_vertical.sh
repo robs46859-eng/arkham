@@ -37,7 +37,8 @@ fi
 # Auto-assign port if not provided
 if [ "$PORT" = "0" ]; then
     # Find highest port in docker-compose and add 10
-    PORT=$(grep -oP '"\K\d+(?=:8000")' "$REPO_ROOT/docker-compose.yml" | sort -n | tail -1)
+    # Note: Using a simpler grep for cross-platform compatibility
+    PORT=$(grep -E '[0-9]+:8000' "$REPO_ROOT/docker-compose.yml" | sed 's/[^0-9]*\([0-9]*\):8000.*/\1/' | sort -n | tail -1)
     PORT=$((PORT + 10))
     echo "Auto-assigned port: $PORT"
 fi
@@ -140,8 +141,9 @@ DKEOF
 if grep -q "^  ${SERVICE_NAME}:" "$REPO_ROOT/docker-compose.yml" 2>/dev/null; then
     echo "WARNING: Service '${SERVICE_NAME}' already in docker-compose.yml — skipping"
 else
-    # Insert before the volumes: section
-    cat >> "$REPO_ROOT/docker-compose.yml.tmp" << DCEOF
+    # Create a temporary file with the new service entry
+    NEW_SERVICE_TMP=$(mktemp)
+    cat > "$NEW_SERVICE_TMP" << DCEOF
 
   ${SERVICE_NAME}:
     build:
@@ -156,9 +158,10 @@ else
       - "${PORT}:8000"
 DCEOF
 
-    # Insert the new service block before 'volumes:' line
-    sed -i "/^volumes:/e cat $REPO_ROOT/docker-compose.yml.tmp" "$REPO_ROOT/docker-compose.yml"
-    rm -f "$REPO_ROOT/docker-compose.yml.tmp"
+    # Use a cross-platform way to insert the content before 'volumes:'
+    awk -v file="$NEW_SERVICE_TMP" '/^volumes:/ { system("cat " file) } { print }' "$REPO_ROOT/docker-compose.yml" > "$REPO_ROOT/docker-compose.yml.tmp"
+    mv "$REPO_ROOT/docker-compose.yml.tmp" "$REPO_ROOT/docker-compose.yml"
+    rm -f "$NEW_SERVICE_TMP"
     echo "Added '${SERVICE_NAME}' to docker-compose.yml on port ${PORT}"
 fi
 

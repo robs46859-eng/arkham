@@ -1,27 +1,39 @@
 """
-AI Consistency — Cross-Document Coordination Checking Vertical.
-Analyzes multiple document sections, drawings descriptions, and BIM data
-to identify contradictions, missing coordination, and compliance gaps.
+AI Consistency Lab Vertical
+Implements: Model testing, validation, consistency analysis, and cross-document coordination checking.
 """
 
 from __future__ import annotations
 
 import json
 import os
-from typing import Any
+import uuid
+import datetime
+from typing import Any, Dict, List
 
 import httpx
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
 
 from packages.vertical_base import VerticalBase
+from packages.schemas.gateway import InferenceRequest, InferenceResponse, TaskType, InferenceInput, ModelTier
+from .settings import get_settings
+
+settings = get_settings()
+
+# ── Vertical Setup ───────────────────────────────────────────────────────────
 
 vertical = VerticalBase(
-    service_id="ai-consistency",
-    title="AI Consistency — Document Coordination",
+    service_id="ai_consistency",
+    title="AI Consistency Lab",
     port=8000,
-    capabilities=["consistency_check", "coordination_review", "compliance_gap"],
-    event_subscriptions=[],
+    capabilities=[
+        "model-validation", 
+        "consistency-analysis", 
+        "consistency_check", 
+        "coordination_review", 
+        "compliance_gap"
+    ],
 )
 
 app = vertical.app
@@ -51,7 +63,29 @@ async def _call_claude(system_prompt: str, user_message: str, model: str = "clau
         return resp.json()["content"][0]["text"]
 
 
-# ── Request / Response models ─────────────────────────────────────────────────
+# ── Schemas: Model Comparison ────────────────────────────────────────────────
+
+class ConsistencyTestRequest(BaseModel):
+    test_name: str
+    tenant_id: str
+    project_id: str
+    prompt: str
+    model_a_tier: ModelTier = ModelTier.local
+    model_b_tier: ModelTier = ModelTier.mid
+    criteria: List[str] = Field(default_factory=list)
+
+
+class ConsistencyTestResult(BaseModel):
+    test_id: str
+    timestamp: str
+    request: ConsistencyTestRequest
+    response_a: Dict[str, Any]
+    response_b: Dict[str, Any]
+    consistency_score: float
+    analysis: str
+
+
+# ── Schemas: Document Coordination ───────────────────────────────────────────
 
 class DocumentSection(BaseModel):
     discipline: str      # Architectural, Structural, MEP, Civil, Landscape
@@ -91,7 +125,14 @@ class ConsistencyCheckResponse(BaseModel):
     recommended_actions: list[str]
 
 
+# ── State ────────────────────────────────────────────────────────────────────
+
+# In-memory stores for v1
+test_results: Dict[str, ConsistencyTestResult] = {}
 _checks: dict[str, dict] = {}
+
+
+# ── Prompts ───────────────────────────────────────────────────────────────────
 
 _SYSTEM = """You are an expert BIM coordinator and construction document reviewer with 25 years of AEC experience.
 You specialize in multi-discipline coordination, catching contradictions between architectural, structural, and MEP drawings,
@@ -123,7 +164,73 @@ Generate at least 5 issues covering different check types and severity levels.
 Score: deduct 15 pts per Critical, 5 pts per Major, 1 pt per Minor from 100."""
 
 
-# ── Routes ───────────────────────────────────────────────────────────────────
+# ── Routes: Model Comparison ─────────────────────────────────────────────────
+
+@app.post("/tests/run", response_model=ConsistencyTestResult)
+async def run_consistency_test(request: ConsistencyTestRequest):
+    """
+    Run a consistency test by querying two different model tiers via the Gateway.
+    """
+    test_id = f"test_{uuid.uuid4().hex[:8]}"
+    
+    # In a real implementation, we would call the gateway here.
+    # For now, we simulate the gateway calls to keep the build ladder intact.
+    
+    # Mock Gateway Call A
+    mock_response_a = {
+        "model_used": request.model_a_tier,
+        "output": {"text": f"Response from {request.model_a_tier} for: {request.prompt}"},
+        "latency_ms": 150
+    }
+    
+    # Mock Gateway Call B
+    mock_response_b = {
+        "model_used": request.model_b_tier,
+        "output": {"text": f"Response from {request.model_b_tier} for: {request.prompt}"},
+        "latency_ms": 450
+    }
+    
+    # Logic to compare responses (Deterministic fallback)
+    # If text is identical, score is 1.0. Otherwise 0.5 (placeholder).
+    score = 1.0 if mock_response_a["output"]["text"] == mock_response_b["output"]["text"] else 0.5
+    
+    result = ConsistencyTestResult(
+        test_id=test_id,
+        timestamp=datetime.datetime.utcnow().isoformat(),
+        request=request,
+        response_a=mock_response_a,
+        response_b=mock_response_b,
+        consistency_score=score,
+        analysis="Simulated consistency check. identical responses result in 1.0."
+    )
+    
+    test_results[test_id] = result
+    
+    # Publish event to the bus
+    await vertical.publish_event("consistency.test.completed", {
+        "test_id": test_id,
+        "score": score,
+        "tenant_id": request.tenant_id
+    })
+    
+    return result
+
+
+@app.get("/tests/{test_id}", response_model=ConsistencyTestResult)
+async def get_test_result(test_id: str):
+    """Retrieve results of a previous consistency test."""
+    if test_id not in test_results:
+        raise HTTPException(status_code=404, detail="Test result not found")
+    return test_results[test_id]
+
+
+@app.get("/tests", response_model=List[str])
+async def list_tests():
+    """List IDs of completed consistency tests."""
+    return list(test_results.keys())
+
+
+# ── Routes: Document Coordination ───────────────────────────────────────────
 
 @app.post("/check", response_model=ConsistencyCheckResponse)
 async def run_consistency_check(req: ConsistencyCheckRequest) -> ConsistencyCheckResponse:
@@ -181,6 +288,16 @@ async def get_check(check_id: str):
     return _checks[check_id]
 
 
+# ── General Routes ───────────────────────────────────────────────────────────
+
 @app.get("/")
 async def root():
-    return {"service": "ai-consistency", "status": "operational", "checks": len(_checks)}
+    return {
+        "service": "ai_consistency",
+        "status": "operational",
+        "capabilities": vertical.capabilities,
+        "metrics": {
+            "model_tests": len(test_results),
+            "doc_checks": len(_checks)
+        }
+    }

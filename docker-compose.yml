@@ -260,6 +260,20 @@ services:
     ports:
       - "3100:8000"
 
+  navfam:
+    build:
+      context: .
+      dockerfile: services/verticals/navfam/Dockerfile
+    depends_on:
+      - core
+    environment:
+      CORE_SERVICE_URL: http://core:8000
+      APP_ENV: development
+      AMADEUS_CLIENT_ID: ${AMADEUS_CLIENT_ID:-}
+      AMADEUS_CLIENT_SECRET: ${AMADEUS_CLIENT_SECRET:-}
+    ports:
+      - "3110:8000"
+
   # ── Frontend Apps ────────────────────────────────────────────────────────────
 
   web:
