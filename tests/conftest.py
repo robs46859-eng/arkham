@@ -85,6 +85,10 @@ class MockSession:
         """Mock refresh - no-op for in-memory storage."""
         pass
 
+    def flush(self) -> None:
+        """Mock flush - no-op for in-memory storage."""
+        pass
+
 
 class MockQuery:
     """

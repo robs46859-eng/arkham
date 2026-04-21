@@ -107,6 +107,38 @@ def _audit(
     )
 
 
+def _ensure_persona(
+    db: Session,
+    *,
+    persona_id: str,
+    tenant_id: str,
+    checkpoint: str,
+) -> SidecarPersona:
+    """Create a minimal persona row on first checkpoint so FK-backed writes succeed."""
+    persona = db.query(SidecarPersona).filter_by(id=persona_id).first()
+    if persona:
+        return persona
+
+    state = {
+        "intake": "intake",
+        "probation": "probation",
+        "exit": "released",
+    }.get(checkpoint, "intake")
+    now = datetime.utcnow()
+    persona = SidecarPersona(
+        id=persona_id,
+        tenant_id=tenant_id,
+        display_name=persona_id,
+        owner_tenant=tenant_id,
+        state=state,
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(persona)
+    db.flush()
+    return persona
+
+
 # ── core pipeline ─────────────────────────────────────────────────────────────
 
 def _checkpoint(
@@ -124,6 +156,13 @@ def _checkpoint(
     """
     if not corpus:
         raise ValueError("corpus must not be empty")
+
+    _ensure_persona(
+        db,
+        persona_id=persona_id,
+        tenant_id=tenant_id,
+        checkpoint=checkpoint,
+    )
 
     # 1. QA batteries
     qa_scores = run_checkpoint_batteries(
