@@ -46,9 +46,7 @@ class SidecarFingerprint(Base):
     __tablename__ = "sidecar_fingerprints"
 
     id: Mapped[str] = mapped_column(sa.String, primary_key=True)
-    persona_id: Mapped[str] = mapped_column(
-        sa.String, sa.ForeignKey("sidecar_personas.id"), nullable=False, index=True
-    )
+    persona_id: Mapped[str] = mapped_column(sa.String, nullable=False, index=True)
     tenant_id: Mapped[str] = mapped_column(sa.String, nullable=False, index=True)
     # intake | probation | exit | yard  (yard = escaped prisoner)
     checkpoint: Mapped[str] = mapped_column(sa.String, nullable=False)
