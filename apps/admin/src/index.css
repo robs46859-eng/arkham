@@ -198,6 +198,7 @@ td {
 tr:last-child td { border-bottom: none; }
 tr.has-error td { background: #fff8f8; }
 tr.error-row td { background: #fff0f1; padding: 0; }
+tr.governance-detail-row td { background: #f8fafc; padding: 0; }
 
 .cell-primary { font-weight: 500; }
 .cell-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
@@ -395,4 +396,146 @@ input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px r
   word-break: break-all;
 }
 
+.governance-detail {
+  display: grid;
+  gap: 18px;
+  padding: 16px 18px;
+}
+
+.governance-alerts {
+  display: grid;
+  gap: 10px;
+}
+
+.governance-alert {
+  border-radius: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.governance-alert-high { border-color: #f5b3bd; background: #fff3f5; }
+.governance-alert-medium { border-color: #f3dcc0; background: #fff8ef; }
+.governance-alert-low { border-color: #d9e2f3; background: #f7faff; }
+
+.detail-grid {
+  display: grid;
+  gap: 8px 16px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-top: 12px;
+}
+
+.governance-trend {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  min-height: 120px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.governance-trend-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 36px;
+}
+
+.governance-trend-bar {
+  width: 22px;
+  min-height: 8px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(180deg, var(--accent2), var(--accent));
+}
+
 section { margin-bottom: 24px; }
+
+/* ── Predictability Grid & Cards ────────────────────────────────────────── */
+.predictability-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 16px 18px 20px;
+}
+
+.predictability-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.predictability-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.predictability-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.predictability-score-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.predictability-scorebar {
+  flex: 1;
+  height: 8px;
+  background: #f0f2f5;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.predictability-scorebar span {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 4px;
+}
+
+.predictability-factors {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.predictability-factor {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.predictability-factor-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.predictability-factor-bar {
+  height: 4px;
+  background: #f0f2f5;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.predictability-factor-bar span {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: var(--muted);
+  opacity: 0.4;
+  border-radius: 2px;
+}

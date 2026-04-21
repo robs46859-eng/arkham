@@ -162,6 +162,85 @@ export interface WorkflowExecutionDelivery {
   created_at: string;
 }
 
+export interface GovernanceScorecard {
+  scorecard_id: string;
+  battery: string;
+  passed: boolean;
+  total_tokens: number;
+  latency_ms: number;
+  cost_usd: number;
+  scores: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface GovernanceVerdict {
+  verdict_id: string;
+  persona_id: string;
+  persona_display_name?: string | null;
+  persona_state?: string | null;
+  tenant_id: string;
+  request_id?: string | null;
+  checkpoint: string;
+  verdict: 'approve' | 'hold' | 'reject';
+  shadow_mode: boolean;
+  reasoning?: string | null;
+  drift_score?: number | null;
+  yard_match_score?: number | null;
+  yard_match_id?: string | null;
+  battery_scores: Record<string, number>;
+  scorecards: GovernanceScorecard[];
+  created_at: string;
+}
+
+export interface GovernanceSummary {
+  total_verdicts: number;
+  shadow_mode_count: number;
+  enforced_count: number;
+  tenant_count: number;
+  verdict_counts: Record<string, number>;
+  checkpoint_counts: Record<string, number>;
+  latest_verdict_at?: string | null;
+  daily_verdicts: Array<{ date: string; count: number }>;
+  recent_alerts: Array<{ id: string; severity: string; title: string; detail: string; related_id?: string | null }>;
+}
+
+export interface PredictabilityFactor {
+  key: string;
+  label: string;
+  score: number;
+  impact: string;
+  detail: string;
+}
+
+export interface PredictabilityScale {
+  score: number;
+  band: string;
+  confidence: number;
+  factors: PredictabilityFactor[];
+  summary: string;
+}
+
+export interface DigitalTwinProjectSummary {
+  project_id: string;
+  tenant_id: string;
+  tenant_name: string;
+  project_name: string;
+  twin_status: string;
+  twin_version: string;
+  readiness_score: number;
+  file_counts: Record<string, number>;
+  building_element_count: number;
+  document_chunk_count: number;
+  issue_count: number;
+  high_severity_issue_count: number;
+  workflow_run_count: number;
+  latest_ingestion_status?: string | null;
+  latest_activity_at?: string | null;
+  alerts: string[];
+  operational_predictability: PredictabilityScale;
+  environmental_predictability: PredictabilityScale;
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 async function req<T>(url: string, init?: RequestInit): Promise<T> {
@@ -273,5 +352,36 @@ export const api = {
       }),
     deliveryHistory: (executionId: string) =>
       req<WorkflowExecutionDelivery[]>(`/v1/crm/workflow-executions/${executionId}/deliveries`),
+  },
+
+  governance: {
+    summary: (tenantId?: string) =>
+      req<GovernanceSummary>(`/v1/admin/governance/summary${tenantId ? `?tenant_id=${encodeURIComponent(tenantId)}` : ''}`),
+    verdicts: (params?: {
+      tenantId?: string;
+      verdict?: string;
+      checkpoint?: string;
+      shadowMode?: boolean;
+      limit?: number;
+    }) => {
+      const search = new URLSearchParams();
+      if (params?.tenantId) search.set('tenant_id', params.tenantId);
+      if (params?.verdict) search.set('verdict', params.verdict);
+      if (params?.checkpoint) search.set('checkpoint', params.checkpoint);
+      if (params?.shadowMode !== undefined) search.set('shadow_mode', String(params.shadowMode));
+      if (params?.limit) search.set('limit', String(params.limit));
+      const qs = search.toString();
+      return req<GovernanceVerdict[]>(`/v1/admin/governance/verdicts${qs ? `?${qs}` : ''}`);
+    },
+  },
+
+  digitalTwins: {
+    projects: (params?: { tenantId?: string; limit?: number }) => {
+      const search = new URLSearchParams();
+      if (params?.tenantId) search.set('tenant_id', params.tenantId);
+      if (params?.limit) search.set('limit', String(params.limit));
+      const qs = search.toString();
+      return req<DigitalTwinProjectSummary[]>(`/v1/admin/digital-twins/projects${qs ? `?${qs}` : ''}`);
+    },
   },
 };

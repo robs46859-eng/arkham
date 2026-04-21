@@ -1,60 +1,75 @@
-import React, { useEffect, useState } from 'react';
-import { api, Tenant, IngestionJob } from '../api';
-
-interface ProjectSummary {
-  project_id: string;
-  tenant_id: string;
-  tenant_name: string;
-  job_count: number;
-  entities_created: number;
-  latest_status: string;
-  latest_updated: string;
-}
-
-function buildSummaries(jobs: IngestionJob[], tenantMap: Map<string, string>): ProjectSummary[] {
-  const byProject = new Map<string, IngestionJob[]>();
-  for (const j of jobs) {
-    const list = byProject.get(j.project_id) ?? [];
-    list.push(j);
-    byProject.set(j.project_id, list);
-  }
-
-  const summaries: ProjectSummary[] = [];
-  byProject.forEach((pjobs, project_id) => {
-    const sorted = [...pjobs].sort(
-      (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
-    );
-    const latest = sorted[0];
-    summaries.push({
-      project_id,
-      tenant_id: latest.tenant_id,
-      tenant_name: tenantMap.get(latest.tenant_id) ?? latest.tenant_id,
-      job_count: pjobs.length,
-      entities_created: pjobs.reduce((s, j) => s + j.entities_created, 0),
-      latest_status: latest.status,
-      latest_updated: latest.updated_at,
-    });
-  });
-
-  return summaries.sort(
-    (a, b) => new Date(b.latest_updated).getTime() - new Date(a.latest_updated).getTime(),
-  );
-}
+import React, { Fragment, useEffect, useState } from 'react';
+import { api, DigitalTwinProjectSummary, PredictabilityScale, Tenant } from '../api';
 
 const STATUS_CLASS: Record<string, string> = {
-  queued: 'badge-gray',
-  processing: 'badge-blue',
-  complete: 'badge-green',
-  failed: 'badge-red',
+  seeded: 'badge-gray',
+  registered: 'badge-blue',
+  syncing: 'badge-blue',
+  ingested: 'badge-purple',
+  active: 'badge-green',
 };
 
 function fmt(iso: string) {
   return new Date(iso).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' });
 }
 
+function pct(value: number) {
+  return `${Math.round(value * 100)}%`;
+}
+
+function bandClass(band: string) {
+  switch (band) {
+    case 'high':
+      return 'badge-green';
+    case 'moderate':
+      return 'badge-blue';
+    case 'low':
+      return 'badge-purple';
+    default:
+      return 'badge-red';
+  }
+}
+
+function PredictabilityCard({ title, scale }: { title: string; scale: PredictabilityScale }) {
+  return (
+    <div className="predictability-card">
+      <div className="predictability-header">
+        <div>
+          <div className="cell-primary">{title}</div>
+          <div className="cell-sub">{scale.summary}</div>
+        </div>
+        <div className="predictability-meta">
+          <span className={`badge ${bandClass(scale.band)}`}>{scale.band}</span>
+          <span className="cell-sub">confidence {pct(scale.confidence)}</span>
+        </div>
+      </div>
+      <div className="predictability-score-row">
+        <div className="predictability-scorebar">
+          <span style={{ width: `${Math.max(scale.score * 100, 6)}%` }} />
+        </div>
+        <div className="monospace">{pct(scale.score)}</div>
+      </div>
+      <div className="predictability-factors">
+        {scale.factors.map(factor => (
+          <div key={factor.key} className="predictability-factor">
+            <div className="predictability-factor-top">
+              <span>{factor.label}</span>
+              <span className="monospace">{pct(factor.score)}</span>
+            </div>
+            <div className="predictability-factor-bar">
+              <span style={{ width: `${Math.max(factor.score * 100, 4)}%` }} />
+            </div>
+            <div className="cell-sub">{factor.detail}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function ProjectsView() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
-  const [projects, setProjects] = useState<ProjectSummary[]>([]);
+  const [projects, setProjects] = useState<DigitalTwinProjectSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
@@ -64,21 +79,8 @@ export default function ProjectsView() {
     try {
       const ts = await api.tenants.list();
       setTenants(ts);
-      const tenantMap = new Map(ts.map(t => [t.tenant_id, t.name]));
-
-      const allJobs: IngestionJob[] = [];
-      await Promise.all(
-        ts.map(async t => {
-          try {
-            const jobs = await api.jobs.list(t.tenant_id, 200);
-            allJobs.push(...jobs);
-          } catch {
-            // skip tenants with no job access
-          }
-        }),
-      );
-
-      setProjects(buildSummaries(allJobs, tenantMap));
+      const twins = await api.digitalTwins.projects({ limit: 200 });
+      setProjects(twins);
     } catch (ex) {
       setErr(String(ex));
     } finally {
@@ -97,7 +99,7 @@ export default function ProjectsView() {
         </div>
       </div>
       <p className="muted" style={{ marginBottom: 16 }}>
-        Aggregated from ingestion jobs across all {tenants.length} tenant{tenants.length !== 1 ? 's' : ''}.
+        Digital twin readiness across all {tenants.length} tenant{tenants.length !== 1 ? 's' : ''}. Spatial identity remains the future master record; this view starts from current project/domain truth.
       </p>
 
       {err && <p className="error">{err}</p>}
@@ -111,28 +113,56 @@ export default function ProjectsView() {
           <table>
             <thead>
               <tr>
-                <th>Project ID</th>
+                <th>Project</th>
                 <th>Tenant</th>
-                <th>Jobs</th>
-                <th>Entities</th>
-                <th>Latest Status</th>
-                <th>Last Updated</th>
+                <th>Twin Status</th>
+                <th>Readiness</th>
+                <th>Coverage</th>
+                <th>Issues</th>
+                <th>Last Activity</th>
               </tr>
             </thead>
             <tbody>
               {projects.map(p => (
-                <tr key={p.project_id}>
-                  <td className="monospace">{p.project_id}</td>
-                  <td>{p.tenant_name}</td>
-                  <td>{p.job_count}</td>
-                  <td>{p.entities_created.toLocaleString()}</td>
-                  <td>
-                    <span className={`badge ${STATUS_CLASS[p.latest_status] ?? 'badge-gray'}`}>
-                      {p.latest_status}
-                    </span>
-                  </td>
-                  <td>{fmt(p.latest_updated)}</td>
-                </tr>
+                <Fragment key={p.project_id}>
+                  <tr>
+                    <td>
+                      <div className="cell-primary">{p.project_name}</div>
+                      <div className="cell-sub monospace">{p.project_id} · {p.twin_version}</div>
+                    </td>
+                    <td>{p.tenant_name}</td>
+                    <td>
+                      <span className={`badge ${STATUS_CLASS[p.twin_status] ?? 'badge-gray'}`}>
+                        {p.twin_status}
+                      </span>
+                    </td>
+                    <td>{Math.round(p.readiness_score * 100)}%</td>
+                    <td>
+                      <div className="cell-primary">{p.building_element_count} elements · {p.document_chunk_count} chunks</div>
+                      <div className="cell-sub">
+                        {Object.entries(p.file_counts).length === 0
+                          ? 'No registered files'
+                          : Object.entries(p.file_counts).map(([type, count]) => `${type}:${count}`).join(' · ')}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="cell-primary">{p.issue_count} total · {p.high_severity_issue_count} high</div>
+                      <div className="cell-sub">{p.alerts.length ? p.alerts.join(' · ') : 'no active alerts'}</div>
+                    </td>
+                    <td>
+                      <div className="cell-primary">{p.latest_activity_at ? fmt(p.latest_activity_at) : '—'}</div>
+                      <div className="cell-sub">ingestion {p.latest_ingestion_status ?? 'not started'}</div>
+                    </td>
+                  </tr>
+                  <tr className="governance-detail-row">
+                    <td colSpan={7}>
+                      <div className="predictability-grid">
+                        <PredictabilityCard title="Operational Predictability" scale={p.operational_predictability} />
+                        <PredictabilityCard title="Environmental Predictability" scale={p.environmental_predictability} />
+                      </div>
+                    </td>
+                  </tr>
+                </Fragment>
               ))}
             </tbody>
           </table>

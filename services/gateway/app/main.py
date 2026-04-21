@@ -19,6 +19,8 @@ from .routers import verticals as verticals_router
 from .routers import billing as billing_router
 from .routers import ai as ai_router
 from .routers import crm as crm_router
+from .routers import digital_twin as digital_twin_router
+from .routers import governance as governance_router
 
 app = FastAPI(
     title="Stelar Gateway",
@@ -42,6 +44,8 @@ app.include_router(verticals_router.router)
 app.include_router(billing_router.router)
 app.include_router(ai_router.router)
 app.include_router(crm_router.router)
+app.include_router(digital_twin_router.router)
+app.include_router(governance_router.router)
 
 
 @app.get("/health", response_model=HealthResponse)

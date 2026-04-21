@@ -4,8 +4,9 @@ import JobsView from './views/JobsView';
 import UsageView from './views/UsageView';
 import ProjectsView from './views/ProjectsView';
 import WorkflowMemoryView from './views/WorkflowMemoryView';
+import GovernanceView from './views/GovernanceView';
 
-type Tab = 'tenants' | 'jobs' | 'usage' | 'projects' | 'workflow-memory';
+type Tab = 'tenants' | 'jobs' | 'usage' | 'projects' | 'workflow-memory' | 'governance';
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'tenants',  label: 'Tenants',  icon: '🏢' },
@@ -13,6 +14,7 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'usage',    label: 'Usage',    icon: '📊' },
   { id: 'projects', label: 'Projects', icon: '📁' },
   { id: 'workflow-memory', label: 'Workflow Memory', icon: '🧠' },
+  { id: 'governance', label: 'Governance', icon: '🛡️' },
 ];
 
 export default function App() {
@@ -48,6 +50,7 @@ export default function App() {
         {tab === 'usage'    && <UsageView />}
         {tab === 'projects' && <ProjectsView />}
         {tab === 'workflow-memory' && <WorkflowMemoryView />}
+        {tab === 'governance' && <GovernanceView />}
       </main>
     </div>
   );

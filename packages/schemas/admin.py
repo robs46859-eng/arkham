@@ -124,6 +124,48 @@ class WorkflowHealth(BaseModel):
     queued_jobs: int
 
 
+class GovernanceScorecardResponse(BaseModel):
+    scorecard_id: str
+    battery: str
+    passed: bool
+    total_tokens: int
+    latency_ms: int
+    cost_usd: float
+    scores: dict = Field(default_factory=dict)
+    created_at: datetime
+
+
+class GovernanceVerdictResponse(BaseModel):
+    verdict_id: str
+    persona_id: str
+    persona_display_name: str | None = None
+    persona_state: str | None = None
+    tenant_id: str
+    request_id: str | None = None
+    checkpoint: str
+    verdict: str
+    shadow_mode: bool
+    reasoning: str | None = None
+    drift_score: float | None = None
+    yard_match_score: float | None = None
+    yard_match_id: str | None = None
+    battery_scores: dict = Field(default_factory=dict)
+    scorecards: list[GovernanceScorecardResponse] = Field(default_factory=list)
+    created_at: datetime
+
+
+class GovernanceSummaryResponse(BaseModel):
+    total_verdicts: int
+    shadow_mode_count: int
+    enforced_count: int
+    tenant_count: int
+    verdict_counts: dict[str, int] = Field(default_factory=dict)
+    checkpoint_counts: dict[str, int] = Field(default_factory=dict)
+    latest_verdict_at: datetime | None = None
+    daily_verdicts: list[dict] = Field(default_factory=list)
+    recent_alerts: list[AdminAlert] = Field(default_factory=list)
+
+
 class QueueStatus(BaseModel):
     service: str
     queued: int
@@ -192,3 +234,40 @@ class AdminDashboardResponse(BaseModel):
     queue_status: list[QueueStatus] = Field(default_factory=list)
     sanitizer_summary: SanitizerSummary
     recent_alerts: list[AdminAlert] = Field(default_factory=list)
+
+
+class PredictabilityFactor(BaseModel):
+    key: str
+    label: str
+    score: float
+    impact: str
+    detail: str
+
+
+class PredictabilityScale(BaseModel):
+    score: float
+    band: str
+    confidence: float
+    factors: list[PredictabilityFactor] = Field(default_factory=list)
+    summary: str
+
+
+class DigitalTwinProjectSummary(BaseModel):
+    project_id: str
+    tenant_id: str
+    tenant_name: str
+    project_name: str
+    twin_status: str
+    twin_version: str
+    readiness_score: float
+    file_counts: dict[str, int] = Field(default_factory=dict)
+    building_element_count: int = 0
+    document_chunk_count: int = 0
+    issue_count: int = 0
+    high_severity_issue_count: int = 0
+    workflow_run_count: int = 0
+    latest_ingestion_status: str | None = None
+    latest_activity_at: datetime | None = None
+    alerts: list[str] = Field(default_factory=list)
+    operational_predictability: PredictabilityScale
+    environmental_predictability: PredictabilityScale
