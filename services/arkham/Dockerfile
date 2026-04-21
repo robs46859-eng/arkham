@@ -12,4 +12,7 @@ COPY alembic.ini ./alembic.ini
 
 ENV PYTHONPATH=/app
 
-CMD ["uvicorn", "services.arkham.app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+COPY services/arkham/start.sh ./start.sh
+RUN chmod +x ./start.sh
+
+CMD ["./start.sh"]

@@ -21,46 +21,7 @@ steps:
     id: push
     waitFor: [build]
 
-  # Create or update the migration Cloud Run Job, then execute it
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: bash
-    args:
-      - -c
-      - |
-        IMAGE="us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:$COMMIT_SHA"
-        JOB=arkham-migrate
-        REGION=us-central1
-
-        if gcloud run jobs describe $$JOB --region=$$REGION --project=${PROJECT_ID} &>/dev/null; then
-          gcloud run jobs update $$JOB \
-            --image="$$IMAGE" \
-            --region=$$REGION \
-            --project=${PROJECT_ID} \
-            --set-secrets=DATABASE_URL=fs-ai-database-url:latest \
-            --set-env-vars=APP_ENV=production \
-            --add-cloudsql-instances=arkham-492414:us-central1:arkham-db \
-            --command=alembic \
-            --args=upgrade,head
-        else
-          gcloud run jobs create $$JOB \
-            --image="$$IMAGE" \
-            --region=$$REGION \
-            --project=${PROJECT_ID} \
-            --set-secrets=DATABASE_URL=fs-ai-database-url:latest \
-            --set-env-vars=APP_ENV=production \
-            --add-cloudsql-instances=arkham-492414:us-central1:arkham-db \
-            --command=alembic \
-            --args=upgrade,head
-        fi
-
-        gcloud run jobs execute $$JOB \
-          --region=$$REGION \
-          --project=${PROJECT_ID} \
-          --wait
-    id: migrate
-    waitFor: [push]
-
-  # Deploy to Cloud Run
+  # Deploy to Cloud Run — migration runs inside start.sh before uvicorn
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -71,17 +32,17 @@ steps:
       - --region=us-central1
       - --project=${PROJECT_ID}
       - --no-allow-unauthenticated
+      - --add-cloudsql-instances=arkham-492414:us-central1:arkham-db
       - --vpc-egress=private-ranges-only
       - --network=default
       - --subnet=default
       - --memory=512Mi
       - --cpu=1
       - --max-instances=3
-      - --add-cloudsql-instances=arkham-492414:us-central1:arkham-db
       - --set-secrets=DATABASE_URL=fs-ai-database-url:latest,BLOODS_VAULT_KEY=arkham-vault-key:latest,SIDECAR_SERVICE_TOKEN=arkham-sidecar-api-token:latest
       - --set-env-vars=APP_ENV=production,SIDECAR_SHADOW_MODE=true,BLOODS_ENABLED=true
     id: deploy
-    waitFor: [migrate]
+    waitFor: [push]
 
 images:
   - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:$COMMIT_SHA'
