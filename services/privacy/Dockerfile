@@ -5,7 +5,8 @@ WORKDIR /app
 # Install dependencies from repo root
 COPY pyproject.toml README.md ./
 COPY packages ./packages
-RUN pip install --no-cache-dir .
+RUN pip install --no-cache-dir ".[privacy]" && \
+    python -m spacy download en_core_web_sm
 
 # Copy service code
 COPY services/privacy ./services/privacy

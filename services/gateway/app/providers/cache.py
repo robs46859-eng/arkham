@@ -1,22 +1,25 @@
-"""
-Semantic Cache provider using LanceDB and Ollama/OpenAI embeddings.
-Implements: Master Architecture §4.4 — Semantic Cache.
-"""
+"""Semantic cache provider backed by LanceDB with cosine similarity."""
 
 from __future__ import annotations
 
+import logging
 import os
-from typing import Any, Optional
+import re
+from typing import Any
 
 import httpx
 from pydantic import BaseModel
 
 try:
     import lancedb
-except ModuleNotFoundError:  # pragma: no cover - dependency is optional at runtime
+except ModuleNotFoundError:  # pragma: no cover
     lancedb = None
 
 from ..settings import settings
+
+logger = logging.getLogger(__name__)
+
+_SAFE_FILTER_VALUE = re.compile(r"^[\w\-]+$")
 
 
 class CacheEntry(BaseModel):
@@ -28,12 +31,9 @@ class CacheEntry(BaseModel):
 
 
 class SemanticCache:
-    """
-    Handles semantic cache lookup and persistence.
-    Reduces redundant inference by serving similar past requests.
-    """
+    """Semantic cache lookup and persistence using cosine similarity."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._db = None
         self._table = None
         self._table_name = "semantic_cache"
@@ -47,46 +47,45 @@ class SemanticCache:
         return self._db
 
     def _get_table(self):
-        if self._table is None:
-            db = self._get_db()
-            if db is None:
-                return None
-            if self._table_name not in db.table_names():
-                # Lazy initialization: schema will be inferred from first insert
-                self._table = None
-            else:
-                self._table = db.open_table(self._table_name)
+        if self._table is not None:
+            return self._table
+        db = self._get_db()
+        if db is None:
+            return None
+        if self._table_name in db.table_names():
+            self._table = db.open_table(self._table_name)
         return self._table
 
     async def _get_embedding(self, text: str) -> list[float]:
-        """Fetch embeddings from the configured provider."""
         if settings.embedding_provider == "ollama":
             async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(
+                resp = await client.post(
                     f"{settings.ollama_host}/api/embeddings",
-                    json={
-                        "model": settings.embedding_model,
-                        "prompt": text,
-                    },
+                    json={"model": settings.embedding_model, "prompt": text},
                 )
-                response.raise_for_status()
-                return response.json()["embedding"]
-        elif settings.embedding_provider == "openai":
+                resp.raise_for_status()
+                return resp.json()["embedding"]
+
+        if settings.embedding_provider == "openai":
             if not settings.openai_api_key:
-                raise ValueError("openai_api_key is required for openai embeddings")
+                raise ValueError("openai_api_key required for openai embeddings")
+            base = settings.openai_base_url or "https://api.openai.com/v1"
             async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(
-                    f"{settings.openai_base_url or 'https://api.openai.com/v1'}/embeddings",
+                resp = await client.post(
+                    f"{base}/embeddings",
                     headers={"Authorization": f"Bearer {settings.openai_api_key}"},
-                    json={
-                        "model": settings.embedding_model,
-                        "input": text,
-                    },
+                    json={"model": settings.embedding_model, "input": text},
                 )
-                response.raise_for_status()
-                return response.json()["data"][0]["embedding"]
-        else:
-            raise ValueError(f"Unsupported embedding provider: {settings.embedding_provider}")
+                resp.raise_for_status()
+                return resp.json()["data"][0]["embedding"]
+
+        raise ValueError(f"Unsupported embedding provider: {settings.embedding_provider}")
+
+    @staticmethod
+    def _validate_filter_value(value: str, field: str) -> str:
+        if not _SAFE_FILTER_VALUE.match(value):
+            raise ValueError(f"Invalid characters in cache filter field '{field}': {value!r}")
+        return value
 
     async def get(
         self,
@@ -94,14 +93,9 @@ class SemanticCache:
         task_type: str,
         input_text: str,
         threshold: float | None = None,
-    ) -> Optional[dict[str, Any]]:
-        """
-        Perform a semantic lookup for a similar past request.
-        Only returns if similarity > threshold and tenant_id matches.
-        """
-        if not settings.enable_semantic_cache:
-            return None
-        if lancedb is None:
+    ) -> dict[str, Any] | None:
+        """Return a cached result when cosine similarity exceeds threshold, else None."""
+        if not settings.enable_semantic_cache or lancedb is None:
             return None
 
         table = self._get_table()
@@ -109,30 +103,37 @@ class SemanticCache:
             return None
 
         try:
+            tenant_id = self._validate_filter_value(tenant_id, "tenant_id")
+            task_type = self._validate_filter_value(task_type, "task_type")
             vector = await self._get_embedding(input_text)
-            # threshold in lancedb distance is usually L2 or Cosine.
-            # We want similarity > threshold, so distance < (1 - threshold) for cosine.
-            # LanceDB default is L2.
+            cutoff = threshold if threshold is not None else settings.cache_threshold
+
             results = (
                 table.search(vector)
+                .metric("cosine")
                 .where(f"tenant_id = '{tenant_id}' AND task_type = '{task_type}'")
                 .limit(1)
                 .to_list()
             )
 
             if results:
-                match = results[0]
-                # Rough distance-to-similarity conversion for L2 (simplified)
-                # For more accuracy, we'd use cosine distance.
-                # If distance is very small, it's a hit.
-                actual_threshold = threshold if threshold is not None else settings.cache_threshold
-                # LanceDB results include _distance.
-                # Smaller distance = more similar.
-                if match["_distance"] < (1.0 - actual_threshold) * 2:  # heuristic for L2 approx
-                    return match["output"]
+                # LanceDB cosine distance is 1 - cosine_similarity (range [0, 1] for
+                # unit-normalised embeddings).  A hit requires similarity > cutoff,
+                # i.e. distance < 1 - cutoff.
+                if results[0]["_distance"] < (1.0 - cutoff):
+                    logger.debug(
+                        "cache hit tenant=%s task=%s distance=%.4f",
+                        tenant_id,
+                        task_type,
+                        results[0]["_distance"],
+                    )
+                    return results[0]["output"]
+
+            logger.debug("cache miss tenant=%s task=%s", tenant_id, task_type)
+        except ValueError:
+            raise
         except Exception:
-            # Silent fail for cache reads to avoid breaking the main flow
-            return None
+            logger.warning("cache read failed", exc_info=True)
 
         return None
 
@@ -143,16 +144,14 @@ class SemanticCache:
         input_text: str,
         output: dict[str, Any],
     ) -> None:
-        """Store a new inference result in the cache."""
-        if not settings.enable_semantic_cache:
-            return
-        if lancedb is None:
+        """Persist an inference result for future semantic lookups."""
+        if not settings.enable_semantic_cache or lancedb is None:
             return
 
         try:
             vector = await self._get_embedding(input_text)
             db = self._get_db()
-            data = [
+            row = [
                 {
                     "vector": vector,
                     "input_text": input_text,
@@ -161,15 +160,13 @@ class SemanticCache:
                     "task_type": task_type,
                 }
             ]
-
             if self._table_name not in db.table_names():
-                self._table = db.create_table(self._table_name, data=data)
+                self._table = db.create_table(self._table_name, data=row, metric="cosine")
             else:
-                table = db.open_table(self._table_name)
-                table.add(data)
+                table = self._get_table()
+                table.add(row)
         except Exception:
-            # Silent fail for cache writes
-            pass
+            logger.warning("cache write failed", exc_info=True)
 
 
 semantic_cache = SemanticCache()
