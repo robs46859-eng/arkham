@@ -80,7 +80,7 @@ export default function App() {
           </div>
         ))}
 
-        <div style={{ marginTop: "auto", padding: "16px", borderTop: "1px solid var(--border)", marginTop: 20 }}>
+        <div style={{ padding: "16px", borderTop: "1px solid var(--border)", marginTop: 20 }}>
           {stats && (
             <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)", lineHeight: 2 }}>
               <div>FP: {stats.fingerprints}</div>
