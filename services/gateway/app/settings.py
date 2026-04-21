@@ -106,19 +106,22 @@ class Settings(BaseServiceSettings):
         if self.is_test:
             return
 
-        missing: list[str] = []
+        import logging
+        _log = logging.getLogger(__name__)
 
+        hard_missing: list[str] = []
         if not self.signing_key:
-            missing.append("SIGNING_KEY")
-        if not self.admin_token:
-            missing.append("ADMIN_TOKEN")
+            hard_missing.append("SIGNING_KEY")
         if not self.privacy_service_token:
-            missing.append("PRIVACY_SERVICE_TOKEN")
+            hard_missing.append("PRIVACY_SERVICE_TOKEN")
 
-        if missing:
+        if hard_missing:
             raise ValueError(
-                f"Missing required environment variables for {self.service_name}: {', '.join(missing)}"
+                f"Missing required environment variables for {self.service_name}: {', '.join(hard_missing)}"
             )
+
+        if not self.admin_token:
+            _log.warning("ADMIN_TOKEN not set — /v1/admin/* routes will return 401")
 
 
 settings: Settings = build_settings(Settings)  # type: ignore[assignment]
