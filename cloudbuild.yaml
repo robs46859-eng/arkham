@@ -1,10 +1,91 @@
 steps:
+  # Build the arkham governance service image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_REGISTRY}/${_SERVICE}:latest', '-f', 'services/${_SERVICE_PATH}/Dockerfile', '.']
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', '${_REGISTRY}/${_SERVICE}:latest']
+    args:
+      - build
+      - -t
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:$COMMIT_SHA'
+      - -t
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:latest'
+      - -f
+      - services/arkham/Dockerfile
+      - .
+    id: build
 
-substitutions:
-  _REGISTRY: 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers'
-  _SERVICE: 'core'
-  _SERVICE_PATH: 'core'
+  # Push image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - --all-tags
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham'
+    id: push
+    waitFor: [build]
+
+  # Create or update the migration Cloud Run Job, then execute it
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        IMAGE="us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:$COMMIT_SHA"
+        JOB=arkham-migrate
+        REGION=us-central1
+
+        if gcloud run jobs describe $JOB --region=$REGION --project=${PROJECT_ID} &>/dev/null; then
+          gcloud run jobs update $JOB \
+            --image="$IMAGE" \
+            --region=$REGION \
+            --project=${PROJECT_ID} \
+            --set-secrets=DATABASE_URL=fs-ai-database-url:latest \
+            --set-env-vars=APP_ENV=production \
+            --vpc-egress=private-ranges-only \
+            --network=default \
+            --subnet=default \
+            --command=alembic \
+            --args=upgrade,head
+        else
+          gcloud run jobs create $JOB \
+            --image="$IMAGE" \
+            --region=$REGION \
+            --project=${PROJECT_ID} \
+            --set-secrets=DATABASE_URL=fs-ai-database-url:latest \
+            --set-env-vars=APP_ENV=production \
+            --vpc-egress=private-ranges-only \
+            --network=default \
+            --subnet=default \
+            --command=alembic \
+            --args=upgrade,head
+        fi
+
+        gcloud run jobs execute $JOB \
+          --region=$REGION \
+          --project=${PROJECT_ID} \
+          --wait
+    id: migrate
+    waitFor: [push]
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - arkham
+      - --image=us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:$COMMIT_SHA
+      - --region=us-central1
+      - --project=${PROJECT_ID}
+      - --no-allow-unauthenticated
+      - --vpc-egress=private-ranges-only
+      - --network=default
+      - --subnet=default
+      - --memory=512Mi
+      - --cpu=1
+      - --max-instances=3
+      - --set-secrets=DATABASE_URL=fs-ai-database-url:latest,BLOODS_VAULT_KEY=arkham-vault-key:latest,SIDECAR_SERVICE_TOKEN=arkham-sidecar-api-token:latest
+      - --set-env-vars=APP_ENV=production,SIDECAR_SHADOW_MODE=true,BLOODS_ENABLED=true
+    id: deploy
+    waitFor: [migrate]
+
+images:
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:latest'

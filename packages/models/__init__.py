@@ -27,6 +27,15 @@ from .crm import (
     WorkflowExecutionRecord,
     WorkflowExecutionDeliveryRecord,
 )
+from .sidecar import (
+    SidecarPersona,
+    SidecarScorecard,
+    SidecarFingerprint,
+    SidecarParoleVerdict,
+    SidecarBloodsVault,
+    SidecarBenchmarkCache,
+    SidecarAuditLog,
+)
 
 __all__ = [
     "Base",
@@ -54,4 +63,11 @@ __all__ = [
     "WorkflowReviewQueueRecord",
     "WorkflowExecutionRecord",
     "WorkflowExecutionDeliveryRecord",
+    "SidecarPersona",
+    "SidecarScorecard",
+    "SidecarFingerprint",
+    "SidecarParoleVerdict",
+    "SidecarBloodsVault",
+    "SidecarBenchmarkCache",
+    "SidecarAuditLog",
 ]
