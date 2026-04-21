@@ -1,0 +1,36 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - -t
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/privacy:$COMMIT_SHA'
+      - -t
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/privacy:latest'
+      - -f
+      - services/privacy/Dockerfile
+      - .
+    id: build
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - --all-tags
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/privacy'
+    id: push
+    waitFor: [build]
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - robco-privacy
+      - --image=us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/privacy:$COMMIT_SHA
+      - --region=us-central1
+      - --project=${PROJECT_ID}
+    id: deploy
+    waitFor: [push]
+
+images:
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/privacy:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/privacy:latest'

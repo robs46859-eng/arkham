@@ -1,0 +1,36 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - -t
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/gateway:$COMMIT_SHA'
+      - -t
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/gateway:latest'
+      - -f
+      - services/gateway/Dockerfile
+      - .
+    id: build
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - --all-tags
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/gateway'
+    id: push
+    waitFor: [build]
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - robco-gateway
+      - --image=us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/gateway:$COMMIT_SHA
+      - --region=us-central1
+      - --project=${PROJECT_ID}
+    id: deploy
+    waitFor: [push]
+
+images:
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/gateway:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/gateway:latest'
