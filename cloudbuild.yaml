@@ -38,9 +38,7 @@ steps:
             --project=${PROJECT_ID} \
             --set-secrets=DATABASE_URL=fs-ai-database-url:latest \
             --set-env-vars=APP_ENV=production \
-            --vpc-egress=private-ranges-only \
-            --network=default \
-            --subnet=default \
+            --add-cloudsql-instances=arkham-492414:us-central1:arkham-db \
             --command=alembic \
             --args=upgrade,head
         else
@@ -50,9 +48,7 @@ steps:
             --project=${PROJECT_ID} \
             --set-secrets=DATABASE_URL=fs-ai-database-url:latest \
             --set-env-vars=APP_ENV=production \
-            --vpc-egress=private-ranges-only \
-            --network=default \
-            --subnet=default \
+            --add-cloudsql-instances=arkham-492414:us-central1:arkham-db \
             --command=alembic \
             --args=upgrade,head
         fi
@@ -81,6 +77,7 @@ steps:
       - --memory=512Mi
       - --cpu=1
       - --max-instances=3
+      - --add-cloudsql-instances=arkham-492414:us-central1:arkham-db
       - --set-secrets=DATABASE_URL=fs-ai-database-url:latest,BLOODS_VAULT_KEY=arkham-vault-key:latest,SIDECAR_SERVICE_TOKEN=arkham-sidecar-api-token:latest
       - --set-env-vars=APP_ENV=production,SIDECAR_SHADOW_MODE=true,BLOODS_ENABLED=true
     id: deploy
