@@ -1,0 +1,53 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - build
+      - -t
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/arkhamprison:$COMMIT_SHA'
+      - -t
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/arkhamprison:latest'
+      - -f
+      - apps/arkhamprison/Dockerfile
+      - --build-arg
+      - VITE_ARKHAM_URL=https://arkham-zth4qhgsda-uc.a.run.app
+      - --build-arg
+      - VITE_GATEWAY_URL=https://robco-gateway-zth4qhgsda-uc.a.run.app
+      - --build-arg
+      - VITE_PRIVACY_URL=https://robco-privacy-zth4qhgsda-uc.a.run.app
+      - --build-arg
+      - VITE_FSAI_URL=https://fs-ai-zth4qhgsda-uc.a.run.app
+      - --build-arg
+      - VITE_CORE_URL=https://robco-core-zth4qhgsda-uc.a.run.app
+      - --build-arg
+      - VITE_OMNISCALE_URL=https://robco-omniscale-zth4qhgsda-uc.a.run.app
+      - .
+    id: build
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - --all-tags
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/arkhamprison'
+    id: push
+    waitFor: [build]
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - arkhamprison
+      - --image=us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/arkhamprison:$COMMIT_SHA
+      - --region=us-central1
+      - --project=${PROJECT_ID}
+      - --allow-unauthenticated
+      - --port=8080
+      - --memory=256Mi
+      - --cpu=1
+      - --max-instances=3
+    id: deploy
+    waitFor: [push]
+
+images:
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/arkhamprison:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/arkhamprison:latest'

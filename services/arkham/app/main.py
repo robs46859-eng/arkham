@@ -434,6 +434,129 @@ def yard_list(db: Session = Depends(get_db)) -> dict:
     }
 
 
+@app.get("/v1/verdicts")
+def verdict_list(
+    limit: int = 50,
+    offset: int = 0,
+    verdict: str | None = None,
+    db: Session = Depends(get_db),
+) -> dict:
+    """List recent Parole Board verdicts for the dashboard."""
+    q = db.query(SidecarParoleVerdict).order_by(SidecarParoleVerdict.created_at.desc())
+    if verdict:
+        q = q.filter(SidecarParoleVerdict.verdict == verdict)
+    total = q.count()
+    rows = q.offset(offset).limit(limit).all()
+    return {
+        "total": total,
+        "verdicts": [
+            {
+                "id": v.id,
+                "persona_id": v.persona_id,
+                "tenant_id": v.tenant_id,
+                "checkpoint": v.checkpoint,
+                "verdict": v.verdict,
+                "points": v.points,
+                "drift_score": v.drift_score,
+                "yard_match_score": v.yard_match_score,
+                "yard_match_id": v.yard_match_id,
+                "shadow_mode": v.shadow_mode,
+                "reasoning": v.reasoning,
+                "request_id": v.request_id,
+                "created_at": v.created_at.isoformat(),
+            }
+            for v in rows
+        ],
+    }
+
+
+@app.get("/v1/stats")
+def stats(db: Session = Depends(get_db)) -> dict:
+    """Aggregate governance stats for dashboard overview."""
+    from sqlalchemy import func
+    total_verdicts = db.query(func.count(SidecarParoleVerdict.id)).scalar() or 0
+    approve_count = db.query(func.count(SidecarParoleVerdict.id)).filter(SidecarParoleVerdict.verdict == "approve").scalar() or 0
+    hold_count = db.query(func.count(SidecarParoleVerdict.id)).filter(SidecarParoleVerdict.verdict == "hold").scalar() or 0
+    reject_count = db.query(func.count(SidecarParoleVerdict.id)).filter(SidecarParoleVerdict.verdict == "reject").scalar() or 0
+    total_personas = db.query(func.count(SidecarPersona.id)).scalar() or 0
+    yard_count = db.query(func.count(SidecarFingerprint.id)).filter(SidecarFingerprint.checkpoint == "yard").scalar() or 0
+    total_fingerprints = db.query(func.count(SidecarFingerprint.id)).scalar() or 0
+    return {
+        "verdicts": {
+            "total": total_verdicts,
+            "approve": approve_count,
+            "hold": hold_count,
+            "reject": reject_count,
+        },
+        "personas": total_personas,
+        "yard_escapes": yard_count,
+        "fingerprints": total_fingerprints,
+        "shadow_mode": settings.shadow_mode,
+    }
+
+
+@app.get("/v1/verdicts/stream")
+async def verdict_stream(db: Session = Depends(get_db)):
+    """SSE stream — pushes new verdicts as they arrive (polls DB every 3s)."""
+    import json
+    import asyncio
+    from fastapi.responses import StreamingResponse
+
+    last_id: str | None = (
+        db.query(SidecarParoleVerdict.id)
+        .order_by(SidecarParoleVerdict.created_at.desc())
+        .limit(1)
+        .scalar()
+    )
+
+    async def event_generator():
+        nonlocal last_id
+        from packages.db import transactional_session
+        yield "data: {\"type\":\"connected\"}\n\n"
+        while True:
+            await asyncio.sleep(3)
+            try:
+                with transactional_session() as session:
+                    q = session.query(SidecarParoleVerdict).order_by(
+                        SidecarParoleVerdict.created_at.desc()
+                    ).limit(20)
+                    rows = q.all()
+                    new_rows = []
+                    found_last = False
+                    for row in rows:
+                        if row.id == last_id:
+                            found_last = True
+                            break
+                        new_rows.append(row)
+                    if not found_last:
+                        new_rows = rows[:1]
+                    for row in reversed(new_rows):
+                        payload = json.dumps({
+                            "type": "verdict",
+                            "id": row.id,
+                            "persona_id": row.persona_id,
+                            "tenant_id": row.tenant_id,
+                            "checkpoint": row.checkpoint,
+                            "verdict": row.verdict,
+                            "points": row.points,
+                            "drift_score": row.drift_score,
+                            "yard_match_score": row.yard_match_score,
+                            "shadow_mode": row.shadow_mode,
+                            "created_at": row.created_at.isoformat(),
+                        })
+                        yield f"data: {payload}\n\n"
+                        last_id = row.id
+            except Exception:
+                logger.exception("SSE stream error")
+                yield "data: {\"type\":\"error\"}\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok", "service": "arkham"}
