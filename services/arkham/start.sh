@@ -1,16 +1,24 @@
 #!/bin/sh
 set -e
 python3 -c "
-import os, sqlalchemy as sa
-engine = sa.create_engine(os.environ['DATABASE_URL'])
-with engine.connect() as c:
-    try:
-        row = c.execute(sa.text('SELECT version_num FROM alembic_version LIMIT 1')).fetchone()
-    except Exception:
-        row = None
+import os
+import sqlalchemy as sa
+
+url = os.environ['DATABASE_URL']
+engine = sa.create_engine(url)
+with engine.begin() as c:
+    c.execute(sa.text('''
+        CREATE TABLE IF NOT EXISTS alembic_version (
+            version_num VARCHAR(32) NOT NULL,
+            CONSTRAINT alembic_version_pkc PRIMARY KEY (version_num)
+        )
+    '''))
+    row = c.execute(sa.text('SELECT version_num FROM alembic_version LIMIT 1')).fetchone()
     if not row:
-        c.execute(sa.text(\"INSERT INTO alembic_version (version_num) VALUES ('20260407_0005') ON CONFLICT DO NOTHING\"))
-        c.commit()
-" 2>/dev/null || true
+        c.execute(sa.text(\"INSERT INTO alembic_version (version_num) VALUES ('20260407_0005')\"))
+        print('Stamped alembic baseline to 20260407_0005')
+    else:
+        print('alembic_version already set to:', row[0])
+"
 alembic upgrade head
 exec uvicorn services.arkham.app.main:app --host 0.0.0.0 --port 8080
