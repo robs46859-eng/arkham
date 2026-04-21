@@ -14,6 +14,8 @@ request_id flows from gateway through every DB write.
 """
 from __future__ import annotations
 
+import asyncio
+import logging
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -23,6 +25,8 @@ from typing import Any
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 from packages.db import get_db
 from packages.models.sidecar import (
@@ -50,12 +54,21 @@ YARD_PATH = Path(__file__).parent.parent / "yard.jsonl"
 
 # ── startup ──────────────────────────────────────────────────────────────────
 
+def _run_yard_crossover() -> None:
+    from packages.db import transactional_session
+    try:
+        with transactional_session() as db:
+            crossover_yard_escapes(YARD_PATH, db)
+    except Exception:
+        logger.exception("yard crossover failed — service continues without it")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     from packages.db import transactional_session
     with transactional_session() as db:
         _seed_defaults(db)
-        crossover_yard_escapes(YARD_PATH, db)
+    asyncio.get_event_loop().run_in_executor(None, _run_yard_crossover)
     yield
 
 
