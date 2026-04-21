@@ -31,10 +31,10 @@ steps:
         JOB=arkham-migrate
         REGION=us-central1
 
-        if gcloud run jobs describe $JOB --region=$REGION --project=${PROJECT_ID} &>/dev/null; then
-          gcloud run jobs update $JOB \
-            --image="$IMAGE" \
-            --region=$REGION \
+        if gcloud run jobs describe $$JOB --region=$$REGION --project=${PROJECT_ID} &>/dev/null; then
+          gcloud run jobs update $$JOB \
+            --image="$$IMAGE" \
+            --region=$$REGION \
             --project=${PROJECT_ID} \
             --set-secrets=DATABASE_URL=fs-ai-database-url:latest \
             --set-env-vars=APP_ENV=production \
@@ -44,9 +44,9 @@ steps:
             --command=alembic \
             --args=upgrade,head
         else
-          gcloud run jobs create $JOB \
-            --image="$IMAGE" \
-            --region=$REGION \
+          gcloud run jobs create $$JOB \
+            --image="$$IMAGE" \
+            --region=$$REGION \
             --project=${PROJECT_ID} \
             --set-secrets=DATABASE_URL=fs-ai-database-url:latest \
             --set-env-vars=APP_ENV=production \
@@ -57,8 +57,8 @@ steps:
             --args=upgrade,head
         fi
 
-        gcloud run jobs execute $JOB \
-          --region=$REGION \
+        gcloud run jobs execute $$JOB \
+          --region=$$REGION \
           --project=${PROJECT_ID} \
           --wait
     id: migrate

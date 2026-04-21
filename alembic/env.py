@@ -26,6 +26,13 @@ from packages.models import (  # noqa: F401
     MemoryNoteRecord,
     UsageEventRecord,
     AutomationLogRecord,
+    SidecarPersona,
+    SidecarScorecard,
+    SidecarFingerprint,
+    SidecarParoleVerdict,
+    SidecarBloodsVault,
+    SidecarBenchmarkCache,
+    SidecarAuditLog,
 )
 
 config = context.config
@@ -33,10 +40,11 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Use DATABASE_URL env var if set; fall back to alembic.ini value
+# Use DATABASE_URL env var if set; fall back to alembic.ini value.
+# Escape % → %% so ConfigParser doesn't misinterpret URL-encoded chars (e.g. %2B).
 database_url = os.environ.get("DATABASE_URL")
 if database_url:
-    config.set_main_option("sqlalchemy.url", database_url)
+    config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
 
 target_metadata = Base.metadata
 
