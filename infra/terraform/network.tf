@@ -1,18 +1,18 @@
 # Robco Platform - Network Configuration
 # VPC with private services access for Cloud SQL and Memorystore
 
-resource "google_compute_network" "vpc" {
+resource "google_compute_network" "arkham" {
   name                            = var.vpc_name
   auto_create_subnetworks         = false
   routing_mode                    = "REGIONAL"
   project                         = var.project_id
 }
 
-resource "google_compute_subnetwork" "main" {
+resource "google_compute_subnetwork" "arkham" {
   name                     = "${var.vpc_name}-subnet"
   ip_cidr_range            = "10.0.0.0/20"
   region                   = var.region
-  network                  = google_compute_network.vpc.id
+  network                  = google_compute_network.arkham.id
   private_ip_google_access = true
   
   log_config {
@@ -28,14 +28,14 @@ resource "google_compute_global_address" "private_services" {
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 20
-  network       = google_compute_network.vpc.id
+  network       = google_compute_network.arkham.id
   ip_version    = "IPV4"
   
   labels = local.common_tags
 }
 
 resource "google_service_networking_connection" "private_vpc" {
-  network                 = google_compute_network.vpc.id
+  network                 = google_compute_network.arkham.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_services.name]
   
@@ -47,7 +47,7 @@ resource "google_service_networking_connection" "private_vpc" {
 # Firewall rules for internal service communication
 resource "google_compute_firewall" "allow_internal" {
   name    = "${var.vpc_name}-allow-internal"
-  network = google_compute_network.vpc.name
+  network = google_compute_network.arkham.name
   project = var.project_id
   
   allow {
@@ -67,7 +67,7 @@ resource "google_compute_firewall" "allow_internal" {
 # Firewall rule for Cloud SQL private IP access
 resource "google_compute_firewall" "allow_sql" {
   name    = "${var.vpc_name}-allow-sql"
-  network = google_compute_network.vpc.name
+  network = google_compute_network.arkham.name
   project = var.project_id
   
   allow {

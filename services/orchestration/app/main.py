@@ -13,7 +13,7 @@ from .settings import settings
 from .routers.workflows import router as workflows_router
 
 app = FastAPI(
-    title="Robco Orchestration",
+    title="Arkham Orchestration",
     version="0.1.0",
     description="Multi-step workflow coordination with checkpoint and retry support.",
 )

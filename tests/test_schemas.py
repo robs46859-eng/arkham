@@ -15,6 +15,7 @@ from packages.schemas import (
     BuildingElement,
     DocumentChunk,
     Issue,
+    WorkflowApprovalState,
     WorkflowRun,
     WorkflowStatus,
     Deliverable,
@@ -121,11 +122,13 @@ def test_workflow_run_contract():
         tenant_id="tenant_abc123",
         project_id="proj_abc123",
         status=WorkflowStatus.running,
+        approval_state=WorkflowApprovalState.pending,
         current_step="file_registration",
         created_at=now,
         updated_at=now,
     )
     assert run.status == WorkflowStatus.running
+    assert run.approval_state == WorkflowApprovalState.pending
     assert run.checkpoint == {}
 
 

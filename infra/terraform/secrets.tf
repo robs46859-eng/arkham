@@ -15,7 +15,7 @@ resource "google_secret_manager_secret" "database_url" {
 
 resource "google_secret_manager_secret_version" "database_url" {
   secret      = google_secret_manager_secret.database_url.id
-  secret_data = "postgresql://${var.database_user}:${var.database_password}@${google_sql_database_instance.main.private_ip_address}:5432/${var.database_name}?sslmode=require"
+  secret_data = "postgresql://${var.database_user}:${var.database_password}@${google_sql_database_instance.arkham.private_ip_address}:5432/${var.database_name}?sslmode=require"
   
   enabled = true
 }
@@ -35,7 +35,7 @@ resource "google_secret_manager_secret" "redis_url" {
 # Note: Redis auth token is generated separately or passed via variable
 resource "google_secret_manager_secret_version" "redis_url" {
   secret      = google_secret_manager_secret.redis_url.id
-  secret_data = "redis://:${local.redis_auth_token}@${google_redis_instance.main.host}:${google_redis_instance.main.port}"
+  secret_data = "redis://:${local.redis_auth_token}@${google_redis_instance.arkham.host}:${google_redis_instance.arkham.port}"
   
   enabled = true
 }

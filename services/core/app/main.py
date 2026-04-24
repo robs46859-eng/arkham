@@ -13,7 +13,7 @@ from .routers import events as events_router
 from .routers import config as config_router
 
 app = FastAPI(
-    title="Robco Core",
+    title="Arkham Core",
     version="0.1.0",
     description="Central orchestration hub with service registry, event bus, and config management.",
 )

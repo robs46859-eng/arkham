@@ -105,15 +105,15 @@ environment         = "production"  # or "staging"
 
 database_name       = "robco_db"
 database_user       = "robco"
-database_password   = "super-secure-password-min-16-chars"
+database_password   = "<SET_VIA_SECRET_MANAGER>"
 database_tier       = "db-custom-2-4096"
 enable_ha           = true
 
 redis_tier          = "STANDARD"
 redis_memory_size_gb = 2
 
-signing_key         = "your-jwt-signing-key-min-32-characters-long"
-privacy_service_token = "your-privacy-service-token"
+signing_key         = "<SET_VIA_SECRET_MANAGER>"
+privacy_service_token = "<SET_VIA_SECRET_MANAGER>"
 
 storage_bucket_name = "${PROJECT_ID}-bim-storage"
 enable_gcs          = true

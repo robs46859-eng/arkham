@@ -6,6 +6,10 @@ steps:
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/privacy:$COMMIT_SHA'
       - -t
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/privacy:latest'
+      - -t
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/privacy:$COMMIT_SHA'
+      - -t
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/privacy:latest'
       - -f
       - services/privacy/Dockerfile
       - .
@@ -16,7 +20,15 @@ steps:
       - push
       - --all-tags
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/privacy'
-    id: push
+    id: push-robco
+    waitFor: [build]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - push
+      - --all-tags
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/privacy'
+    id: push-arkham
     waitFor: [build]
 
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -25,13 +37,14 @@ steps:
       - run
       - deploy
       - robco-privacy
-      - --image=us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/privacy:$COMMIT_SHA
+      - --image=us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/privacy:$COMMIT_SHA
       - --region=us-central1
       - --project=${PROJECT_ID}
-      - --memory=1Gi
     id: deploy
-    waitFor: [push]
+    waitFor: [push-arkham]
 
 images:
   - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/privacy:$COMMIT_SHA'
   - 'us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/privacy:latest'
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/privacy:$COMMIT_SHA'
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/privacy:latest'

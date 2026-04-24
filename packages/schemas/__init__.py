@@ -13,8 +13,9 @@ from .domain import (
     Issue,
     ScheduleRow,
     MarkupRecord,
+    CodebaseAuditResult,
 )
-from .workflow import WorkflowRun, WorkflowStep, WorkflowStatus
+from .workflow import WorkflowApprovalState, WorkflowRun, WorkflowStep, WorkflowStatus
 from .deliverable import Deliverable
 from .memory import MemoryNote
 from .usage import UsageEvent
@@ -80,6 +81,16 @@ from .admin import (
     UsageRollup,
     WorkflowHealth,
 )
+from .worldgraph import (
+    WorldgraphAlias,
+    WorldgraphEntity,
+    WorldgraphEntityCreate,
+    WorldgraphIdentifier,
+    WorldgraphIngestJob,
+    WorldgraphIngestRequest,
+    WorldgraphProposal,
+    WorldgraphSearchResult,
+)
 
 __all__ = [
     "HealthResponse",
@@ -94,6 +105,7 @@ __all__ = [
     "MarkupRecord",
     "WorkflowRun",
     "WorkflowStep",
+    "WorkflowApprovalState",
     "WorkflowStatus",
     "Deliverable",
     "MemoryNote",
@@ -156,4 +168,12 @@ __all__ = [
     "TenantUpdate",
     "UsageRollup",
     "WorkflowHealth",
+    "WorldgraphAlias",
+    "WorldgraphEntity",
+    "WorldgraphEntityCreate",
+    "WorldgraphIdentifier",
+    "WorldgraphIngestJob",
+    "WorldgraphIngestRequest",
+    "WorldgraphProposal",
+    "WorldgraphSearchResult",
 ]

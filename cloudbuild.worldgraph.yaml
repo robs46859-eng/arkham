@@ -1,0 +1,57 @@
+steps:
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - build
+      - -t
+      - "us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/worldgraph:$COMMIT_SHA"
+      - -t
+      - "us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/worldgraph:latest"
+      - -t
+      - "us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/worldgraph:$COMMIT_SHA"
+      - -t
+      - "us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/worldgraph:latest"
+      - -f
+      - services/worldgraph/Dockerfile
+      - .
+    id: build
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - push
+      - --all-tags
+      - "us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/worldgraph"
+    id: push-robco
+    waitFor: [build]
+
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - push
+      - --all-tags
+      - "us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/worldgraph"
+    id: push-arkham
+    waitFor: [build]
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - arkham-worldgraph
+      - --image=us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/worldgraph:$COMMIT_SHA
+      - --region=us-central1
+      - --project=${PROJECT_ID}
+      - --set-env-vars=APP_ENV=production,CORE_SERVICE_URL=${_CORE_SERVICE_URL},RAW_BUCKET_NAME=${_RAW_BUCKET_NAME},REDIS_QUEUE_KEY=worldgraph:jobs
+      - --set-secrets=DATABASE_URL=staging-database-url:latest,REDIS_URL=staging-redis-url:latest
+      - --allow-unauthenticated
+    id: deploy
+    waitFor: [push-arkham]
+
+images:
+  - "us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/worldgraph:$COMMIT_SHA"
+  - "us-central1-docker.pkg.dev/${PROJECT_ID}/robco-containers/worldgraph:latest"
+  - "us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/worldgraph:$COMMIT_SHA"
+  - "us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/worldgraph:latest"
+
+substitutions:
+  _CORE_SERVICE_URL: "https://robco-core-zth4qhgsda-uc.a.run.app"
+  _RAW_BUCKET_NAME: "arkham-worldgraph-raw"

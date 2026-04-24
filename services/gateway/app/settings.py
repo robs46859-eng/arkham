@@ -31,6 +31,7 @@ class Settings(BaseServiceSettings):
     
     orchestration_url: str = "http://localhost:8002"
     core_service_url: str = "http://core:3000"
+    worldgraph_service_url: str = "http://worldgraph:8050"
     billing_service_url: str = "http://localhost:3020"
     email_provider: str | None = None
     email_from: str | None = None

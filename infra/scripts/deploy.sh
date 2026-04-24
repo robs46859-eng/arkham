@@ -41,7 +41,7 @@ fi
 SERVICES=("${CORE_SERVICES[@]}" "${VERTICAL_SERVICES[@]}")
 PROJECT_ID="${PROJECT_ID:-}"
 REGION=${REGION:-us-central1}
-REGISTRY_NAME=${REGISTRY_NAME:-robco-containers}
+REGISTRY_NAME=${REGISTRY_NAME:-arkham-containers}
 TAG=${TAG:-latest}
 if [[ "${TAG}" == "latest" ]]; then
     TAG="$(git -C "${REPO_ROOT}" rev-parse --short=12 HEAD)"

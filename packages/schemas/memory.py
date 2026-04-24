@@ -15,6 +15,8 @@ class MemoryNote(BaseModel):
     note_id: str  # format: mem_<ulid>
     tenant_id: str  # format: tenant_<ulid>
     project_id: str  # format: proj_<ulid>
+    note_type: str = "business"  # technical | business
     content: str
     tags: list[str] = Field(default_factory=list)
     links: list[str] = Field(default_factory=list)  # references to other note_ids or entity IDs
+    metadata: dict[str, Any] = Field(default_factory=dict)

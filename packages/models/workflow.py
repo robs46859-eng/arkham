@@ -21,7 +21,16 @@ class WorkflowRunRecord(Base):
     project_id: Mapped[str] = mapped_column(String, ForeignKey("projects.id"), nullable=False)
     type: Mapped[str] = mapped_column(String, nullable=False)
     status: Mapped[str] = mapped_column(String, nullable=False)  # running | complete | failed | paused
+    approval_state: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+        default="not_required",
+    )  # not_required | pending | approved | rejected
     current_step: Mapped[str] = mapped_column(String, nullable=False)
+    approval_requested_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    approval_resolved_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    approval_actor_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    approval_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     checkpoint: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)

@@ -4,7 +4,7 @@ services:
   postgres:
     # pgvector extension is available in pgvector/pgvector image
     # Used for: structured domain records (primary DB) + vector store for semantic cache / memory
-    image: pgvector/pgvector:pg15
+    image: postgis/postgis:15-3.4
     environment:
       POSTGRES_USER: robco
       POSTGRES_PASSWORD: password
@@ -171,7 +171,7 @@ services:
       DATABASE_URL: postgresql://robco:password@postgres:5432/robco_db
       REDIS_URL: redis://redis:6379/0
       APP_ENV: development
-      SERVICE_NAME: robco-core
+      SERVICE_NAME: arkham-core
     ports:
       - "3000:3000"
 

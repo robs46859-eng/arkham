@@ -75,3 +75,16 @@ class MarkupRecord(BaseModel):
     annotation_text: str
     annotation_type: str | None = None
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
+
+
+class CodebaseAuditResult(BaseModel):
+    """Structured results from a read-only codebase audit."""
+
+    audit_id: str  # format: audit_<ulid>
+    project_id: str  # format: proj_<ulid>
+    workflow_id: str  # format: wf_<ulid>
+    summary: str
+    findings: list[dict[str, Any]] = Field(default_factory=list)
+    evidence: dict[str, Any] = Field(default_factory=dict)
+    proposed_actions: list[dict[str, Any]] = Field(default_factory=list)
+    created_at: datetime

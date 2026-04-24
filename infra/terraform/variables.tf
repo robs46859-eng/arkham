@@ -202,7 +202,7 @@ variable "cloud_run_max_instances" {
 variable "artifact_registry_name" {
   description = "Artifact Registry repository name"
   type        = string
-  default     = "robco-containers"
+  default     = "arkham-containers"
 }
 
 # Networking

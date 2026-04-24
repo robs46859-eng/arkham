@@ -69,8 +69,8 @@ resource "google_cloud_run_v2_service" "privacy" {
 
     vpc_access {
       network_interfaces {
-        network    = google_compute_network.vpc.name
-        subnetwork = google_compute_subnetwork.main.name
+        network    = google_compute_network.arkham.name
+        subnetwork = google_compute_subnetwork.arkham.name
       }
       egress = "PRIVATE_RANGES_ONLY"
     }
@@ -184,8 +184,8 @@ resource "google_cloud_run_v2_service" "gateway" {
 
     vpc_access {
       network_interfaces {
-        network    = google_compute_network.vpc.name
-        subnetwork = google_compute_subnetwork.main.name
+        network    = google_compute_network.arkham.name
+        subnetwork = google_compute_subnetwork.arkham.name
       }
       egress = "PRIVATE_RANGES_ONLY"
     }
@@ -258,8 +258,8 @@ resource "google_cloud_run_v2_service" "core" {
 
     vpc_access {
       network_interfaces {
-        network    = google_compute_network.vpc.name
-        subnetwork = google_compute_subnetwork.main.name
+        network    = google_compute_network.arkham.name
+        subnetwork = google_compute_subnetwork.arkham.name
       }
       egress = "PRIVATE_RANGES_ONLY"
     }
@@ -383,8 +383,8 @@ resource "google_cloud_run_v2_service" "billing" {
 
     vpc_access {
       network_interfaces {
-        network    = google_compute_network.vpc.name
-        subnetwork = google_compute_subnetwork.main.name
+        network    = google_compute_network.arkham.name
+        subnetwork = google_compute_subnetwork.arkham.name
       }
       egress = "PRIVATE_RANGES_ONLY"
     }
@@ -492,8 +492,8 @@ resource "google_cloud_run_v2_service" "vertical" {
 
     vpc_access {
       network_interfaces {
-        network    = google_compute_network.vpc.name
-        subnetwork = google_compute_subnetwork.main.name
+        network    = google_compute_network.arkham.name
+        subnetwork = google_compute_subnetwork.arkham.name
       }
       egress = "PRIVATE_RANGES_ONLY"
     }

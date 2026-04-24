@@ -43,3 +43,30 @@ class IssueRecord(Base):
     severity: Mapped[str] = mapped_column(String, nullable=False)  # low | medium | high
     source_refs: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
     confidence: Mapped[float] = mapped_column(Float, nullable=False)
+
+
+class CodebaseAuditRecord(Base):
+    __tablename__ = "codebase_audits"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)  # format: audit_<ulid>
+    project_id: Mapped[str] = mapped_column(String, ForeignKey("projects.id"), nullable=False)
+    workflow_id: Mapped[str] = mapped_column(String, ForeignKey("workflow_runs.id"), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    findings: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    evidence: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    proposed_actions: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+
+
+class RemediationPlanRecord(Base):
+    __tablename__ = "remediation_plans"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)  # format: plan_<ulid>
+    audit_id: Mapped[str] = mapped_column(String, ForeignKey("codebase_audits.id"), nullable=False)
+    project_id: Mapped[str] = mapped_column(String, ForeignKey("projects.id"), nullable=False)
+    workflow_id: Mapped[str] = mapped_column(String, ForeignKey("workflow_runs.id"), nullable=False)
+    inventory: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    risk_tiers: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    dependency_chain: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    rollback_notes: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)

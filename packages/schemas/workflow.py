@@ -20,6 +20,13 @@ class WorkflowStatus(str, Enum):
     paused = "paused"
 
 
+class WorkflowApprovalState(str, Enum):
+    not_required = "not_required"
+    pending = "pending"
+    approved = "approved"
+    rejected = "rejected"
+
+
 class WorkflowStep(BaseModel):
     """Individual step record within a workflow run."""
 
@@ -39,7 +46,12 @@ class WorkflowRun(BaseModel):
     tenant_id: str  # format: tenant_<ulid>
     project_id: str  # format: proj_<ulid>
     status: WorkflowStatus
+    approval_state: WorkflowApprovalState = WorkflowApprovalState.not_required
     current_step: str
+    approval_requested_at: datetime | None = None
+    approval_resolved_at: datetime | None = None
+    approval_actor_id: str | None = None
+    approval_notes: str | None = None
     checkpoint: dict[str, Any] = Field(default_factory=dict)
     steps: list[WorkflowStep] = Field(default_factory=list)
     created_at: datetime

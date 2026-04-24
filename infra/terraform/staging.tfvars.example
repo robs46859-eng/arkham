@@ -7,17 +7,17 @@ vpc_name                 = "robco-staging-vpc"
 
 database_name            = "robco_db"
 database_user            = "robco"
-database_password        = "replace-with-strong-staging-db-password"
+database_password        = "<SET_VIA_SECRET_MANAGER>"
 database_tier            = "db-custom-2-4096"
 enable_ha                = false
 
 redis_tier               = "BASIC"
 redis_memory_size_gb     = 1
-redis_auth_token         = "replace-with-strong-staging-redis-token"
+redis_auth_token         = "<SET_VIA_SECRET_MANAGER>"
 
-signing_key              = "replace-with-32-plus-char-signing-key"
-admin_token              = "replace-with-32-plus-char-admin-token"
-privacy_service_token    = "replace-with-privacy-service-token"
+signing_key              = "<SET_VIA_SECRET_MANAGER>"
+admin_token              = "<SET_VIA_SECRET_MANAGER>"
+privacy_service_token    = "<SET_VIA_SECRET_MANAGER>"
 
 # Stripe (use test keys for staging)
 stripe_secret_key        = "sk_test_..."
