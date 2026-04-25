@@ -10,19 +10,43 @@ import logging
 from typing import Any
 
 import httpx
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from packages.db import get_db
+from packages.models import Tenant
+
+from ..middleware.auth import require_tenant
 from ..settings import settings
 
 logger = logging.getLogger("gateway.verticals")
 
 router = APIRouter(prefix="/v1/verticals", tags=["verticals"])
 
-# Core service URL for registry lookups
-CORE_SERVICE_URL = getattr(settings, "core_service_url", None) or "http://core:8000"
-
 # Cache resolved endpoints to avoid hitting Core on every request.
 # Cleared on gateway restart; TTL-based eviction could be added later.
 _endpoint_cache: dict[str, str] = {}
+
+
+def _tenant_has_vertical_access(db: Any, tenant_id: str, vertical_id: str) -> bool:
+    tenant = None
+    if hasattr(db, "get"):
+        tenant = db.get(Tenant, tenant_id)
+    if tenant is None and hasattr(db, "query"):
+        tenant = db.query(Tenant).filter_by(id=tenant_id).first()
+
+    if tenant is None or not isinstance(tenant, Tenant) or not tenant.is_active:
+        return False
+
+    entitlements = getattr(tenant, "entitlements", {}) or {}
+    verticals = entitlements.get("verticals", [])
+    return "*" in verticals or vertical_id in verticals
+
+
+def _require_vertical_access(db: Any, tenant_id: str, vertical_id: str) -> None:
+    if not _tenant_has_vertical_access(db, tenant_id, vertical_id):
+        raise HTTPException(
+            status_code=403,
+            detail=f"Tenant does not have access to vertical '{vertical_id}'",
+        )
 
 
 async def _resolve_endpoint(vertical_id: str) -> str:
@@ -33,7 +57,7 @@ async def _resolve_endpoint(vertical_id: str) -> str:
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
             resp = await client.get(
-                f"{CORE_SERVICE_URL}/registry/services/{vertical_id}"
+                f"{settings.core_service_url}/services/{vertical_id}"
             )
             if resp.status_code == 404:
                 raise HTTPException(
@@ -52,19 +76,32 @@ async def _resolve_endpoint(vertical_id: str) -> str:
             return endpoint
     except HTTPException:
         raise
-    except Exception:
-        logger.error("Failed to resolve vertical %s", vertical_id, exc_info=True)
+    except Exception as exc:
+        logger.exception("Failed to resolve vertical %s", vertical_id)
         raise HTTPException(
             status_code=502,
             detail="Unable to reach Core service registry",
-        )
+        ) from exc
 
 
 @router.api_route(
     "/{vertical_id}/{path:path}",
     methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
 )
-async def proxy_to_vertical(vertical_id: str, path: str, request: Request):
+async def proxy_to_vertical(
+    vertical_id: str,
+    path: str,
+    request: Request,
+    auth: tuple[str, str] = Depends(require_tenant),
+    db: object = Depends(get_db),
+):
+    """Proxy any authorized request to the resolved vertical endpoint."""
+    tenant_id, _ = auth
+    _require_vertical_access(db, tenant_id, vertical_id)
+    return await _proxy_to_vertical(vertical_id, path, request, tenant_id)
+
+
+async def _proxy_to_vertical(vertical_id: str, path: str, request: Request, tenant_id: str | None = None):
     """Proxy any request to the resolved vertical endpoint."""
     endpoint = await _resolve_endpoint(vertical_id)
     target_url = f"{endpoint}/{path}"
@@ -83,6 +120,10 @@ async def proxy_to_vertical(vertical_id: str, path: str, request: Request):
         if k.lower() not in ("host", "connection", "transfer-encoding")
     }
 
+    # Inject tenant context
+    if tenant_id:
+        forward_headers["X-Tenant-ID"] = tenant_id
+
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.request(
@@ -91,18 +132,18 @@ async def proxy_to_vertical(vertical_id: str, path: str, request: Request):
                 content=body if body else None,
                 headers=forward_headers,
             )
-    except httpx.ConnectError:
+    except httpx.ConnectError as exc:
         # Evict cached endpoint on connection failure
         _endpoint_cache.pop(vertical_id, None)
         raise HTTPException(
             status_code=502,
             detail=f"Vertical '{vertical_id}' is unreachable at {endpoint}",
-        )
-    except httpx.TimeoutException:
+        ) from exc
+    except httpx.TimeoutException as exc:
         raise HTTPException(
             status_code=504,
             detail=f"Vertical '{vertical_id}' timed out",
-        )
+        ) from exc
 
     # Return the vertical's response transparently
     return Response(
@@ -114,9 +155,16 @@ async def proxy_to_vertical(vertical_id: str, path: str, request: Request):
 
 
 @router.get("/{vertical_id}")
-async def vertical_root(vertical_id: str, request: Request):
+async def vertical_root(
+    vertical_id: str,
+    request: Request,
+    auth: tuple[str, str] = Depends(require_tenant),
+    db: object = Depends(get_db),
+):
     """Proxy root-level requests to a vertical."""
-    return await proxy_to_vertical(vertical_id, "", request)
+    tenant_id, _ = auth
+    _require_vertical_access(db, tenant_id, vertical_id)
+    return await _proxy_to_vertical(vertical_id, "", request, tenant_id)
 
 
 @router.post("/cache/clear")
