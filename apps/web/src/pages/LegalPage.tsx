@@ -1,7 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-type LegalVariant = 'privacy' | 'terms' | 'refund' | 'billing' | 'billing-success' | 'billing-cancel';
+type LegalVariant =
+  | 'privacy'
+  | 'terms'
+  | 'indemnification'
+  | 'refund'
+  | 'billing'
+  | 'billing-success'
+  | 'billing-cancel';
 
 interface LegalPageProps {
   variant: LegalVariant;
@@ -73,6 +80,28 @@ function renderBody(variant: LegalVariant) {
               The service is provided on an as-available basis. To the maximum extent permitted by
               law, liability is limited to fees actually paid for the service during the period
               giving rise to the claim.
+            </p>
+          </section>
+        </>
+      );
+    case 'indemnification':
+      return (
+        <>
+          <section className="legal-section">
+            <h2>Indemnification</h2>
+            <p>
+              You agree to defend, indemnify, and hold harmless the service operator, affiliates,
+              officers, employees, and contractors from claims, damages, liabilities, losses, and
+              expenses arising out of your misuse of the platform, your submitted content, your
+              violation of law, or your breach of these terms.
+            </p>
+          </section>
+          <section className="legal-section">
+            <h2>Scope</h2>
+            <p>
+              This obligation applies to third-party claims tied to your data, downstream use of
+              platform output, unlawful conduct, or representations you make to customers,
+              subcontractors, regulators, or counterparties using platform-generated materials.
             </p>
           </section>
         </>
@@ -176,6 +205,12 @@ const PAGE_COPY: Record<LegalVariant, { eyebrow: string; title: string; summary:
     title: 'Customer Billing',
     summary:
       'Account billing entry point for subscription management, payment updates, and support routing.',
+  },
+  indemnification: {
+    eyebrow: 'Indemnification',
+    title: 'Defense And Hold Harmless',
+    summary:
+      'Third-party claim allocation for misuse, submitted data, and downstream reliance on platform output.',
   },
   'billing-success': {
     eyebrow: 'Billing',

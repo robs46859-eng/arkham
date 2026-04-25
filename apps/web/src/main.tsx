@@ -24,7 +24,7 @@ function App() {
         <Route path="/billing" element={<LegalPage variant="billing" />} />
         <Route path="/billing/success" element={<LegalPage variant="billing-success" />} />
         <Route path="/billing/cancel" element={<LegalPage variant="billing-cancel" />} />
-        <Route path="/indemnification" element={<LegalPage variant="terms" />} />
+        <Route path="/indemnification" element={<LegalPage variant="indemnification" />} />
         <Route
           path="/app"
           element={
