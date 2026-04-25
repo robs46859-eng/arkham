@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const MARQUEE_ITEMS = [
   'BIM Ingestion', 'Scoped Memory', 'Cost-Aware AI', 'Semantic Caching',
@@ -135,6 +135,7 @@ export default function Home() {
           <li><a href="#verticals">Verticals</a></li>
           <li><a href="#how">How It Works</a></li>
           <li><a href="#contact">Contact</a></li>
+          <li><Link to="/terms">Terms</Link></li>
         </ul>
         <button className="nav-cta" onClick={() => navigate('/login')} style={{ cursor: 'pointer' }}>
           Get Access
@@ -317,13 +318,14 @@ export default function Home() {
       <footer>
         <div className="footer-logo">ROBCO<span>AI</span></div>
         <ul className="footer-links">
-          <li><a href="#">Docs</a></li>
-          <li><a href="#">API</a></li>
+          <li><Link to="/privacy">Privacy</Link></li>
+          <li><Link to="/terms">Terms</Link></li>
+          <li><Link to="/indemnification">Indemnification</Link></li>
+          <li><Link to="/refund-policy">Refunds</Link></li>
+          <li><Link to="/billing">Billing</Link></li>
           <li><a href="#verticals">Verticals</a></li>
-          <li><a href="#">Changelog</a></li>
-          <li><a href="#">Terms</a></li>
         </ul>
-        <div className="footer-copy">© 2026 Stelar · stelar.host</div>
+        <div className="footer-copy">© 2026 Robco AI · arkhamprison.com</div>
       </footer>
     </>
   );

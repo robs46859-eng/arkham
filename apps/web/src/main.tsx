@@ -6,6 +6,7 @@ import { getToken } from './api';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
+import LegalPage from './pages/LegalPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return getToken() ? <>{children}</> : <Navigate to="/login" replace />;
@@ -17,6 +18,13 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Auth />} />
+        <Route path="/privacy" element={<LegalPage variant="privacy" />} />
+        <Route path="/terms" element={<LegalPage variant="terms" />} />
+        <Route path="/refund-policy" element={<LegalPage variant="refund" />} />
+        <Route path="/billing" element={<LegalPage variant="billing" />} />
+        <Route path="/billing/success" element={<LegalPage variant="billing-success" />} />
+        <Route path="/billing/cancel" element={<LegalPage variant="billing-cancel" />} />
+        <Route path="/indemnification" element={<LegalPage variant="terms" />} />
         <Route
           path="/app"
           element={
