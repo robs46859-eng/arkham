@@ -27,6 +27,20 @@ stripe_success_url       = "https://your-frontend.example.com/billing/success"
 stripe_cancel_url        = "https://your-frontend.example.com/billing/cancel"
 stripe_portal_return_url = "https://your-frontend.example.com/billing"
 
+stripe_price_plan_map    = "price_your_pro_price=pro,price_your_enterprise_price=enterprise"
+stripe_price_entitlement_map = <<EOT
+{
+  "price_your_omniscale_price": {
+    "plan": "pro",
+    "verticals": ["omniscale", "papabase"],
+    "features": ["premium_escalation", "semantic_cache"],
+    "quotas": {
+      "max_requests_per_day": 10000
+    }
+  }
+}
+EOT
+
 enable_gcs               = true
 storage_bucket_name      = "your-staging-storage-bucket"
 

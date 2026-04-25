@@ -85,6 +85,14 @@ class VerticalBase:
         self.metadata = metadata or {}
 
         self._core_url = os.environ.get("CORE_SERVICE_URL", "http://core:8000")
+        self._service_endpoint = os.environ.get(
+            "SERVICE_ENDPOINT",
+            f"http://{self.service_id}:{self.port}",
+        ).rstrip("/")
+        self._event_callback_url = os.environ.get(
+            "EVENT_CALLBACK_URL",
+            f"{self._service_endpoint}/events/receive",
+        )
         self._event_handlers: dict[str, list[Callable]] = {}
 
         self.app = FastAPI(
@@ -115,7 +123,7 @@ class VerticalBase:
         payload = {
             "service_id": self.service_id,
             "service_type": self.service_type,
-            "endpoint": f"http://{self.service_id}:{self.port}",
+            "endpoint": self._service_endpoint,
             "port": self.port,
             "version": self.version,
             "capabilities": self.capabilities,
@@ -123,7 +131,7 @@ class VerticalBase:
         }
         try:
             resp = await self._client.post(
-                f"{self._core_url}/registry/register", json=payload
+                f"{self._core_url}/register", json=payload
             )
             resp.raise_for_status()
             logger.info("Registered with Core: %s", self.service_id)
@@ -137,7 +145,7 @@ class VerticalBase:
     async def _unregister(self) -> None:
         try:
             resp = await self._client.delete(
-                f"{self._core_url}/registry/services/{self.service_id}"
+                f"{self._core_url}/services/{self.service_id}"
             )
             resp.raise_for_status()
             logger.info("Unregistered from Core: %s", self.service_id)
@@ -146,15 +154,14 @@ class VerticalBase:
 
     async def _subscribe(self) -> None:
         """Subscribe to event types with a callback URL."""
-        callback_url = f"http://{self.service_id}:{self.port}/events/receive"
         payload = {
             "service_id": self.service_id,
             "event_types": self.event_subscriptions,
-            "callback_url": callback_url,
+            "callback_url": self._event_callback_url,
         }
         try:
             resp = await self._client.post(
-                f"{self._core_url}/events/subscribe", json=payload
+                f"{self._core_url}/subscribe", json=payload
             )
             resp.raise_for_status()
             logger.info(
@@ -168,7 +175,7 @@ class VerticalBase:
     async def _unsubscribe(self) -> None:
         try:
             resp = await self._client.delete(
-                f"{self._core_url}/events/unsubscribe/{self.service_id}"
+                f"{self._core_url}/unsubscribe/{self.service_id}"
             )
             resp.raise_for_status()
             logger.info("Unsubscribed from events: %s", self.service_id)
@@ -189,7 +196,7 @@ class VerticalBase:
         try:
             async with httpx.AsyncClient(timeout=5.0) as client:
                 resp = await client.post(
-                    f"{self._core_url}/events/publish", json=event
+                    f"{self._core_url}/publish", json=event
                 )
                 resp.raise_for_status()
                 return resp.json()
@@ -232,6 +239,14 @@ class VerticalBase:
         @self.app.get("/health")
         async def health_check():
             return {"status": "ok", "service": self.service_id}
+
+        @self.app.get("/healthz")
+        async def healthz():
+            return {"status": "ok", "service": self.service_id}
+
+        @self.app.get("/readyz")
+        async def readyz():
+            return {"status": "ready", "service": self.service_id}
 
         @self.app.post("/events/receive")
         async def receive_event(event: EventPayload):

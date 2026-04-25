@@ -104,6 +104,20 @@ run_migrations() {
     success "Migrations applied"
 }
 
+run_cloud_migration_job() {
+    validate_prerequisites
+    info "Running Cloud Run migration job..."
+
+    if gcloud run jobs execute robco-migrate \
+        --region "${REGION}" \
+        --project "${PROJECT_ID}" \
+        --wait; then
+        success "Cloud migration job completed"
+    else
+        error "Cloud migration job failed"
+    fi
+}
+
 run_smoke_tests() {
     info "Running smoke tests..."
     (
@@ -157,6 +171,22 @@ push_service() {
     fi
 }
 
+publish_migration_job_image() {
+    validate_prerequisites
+    auth_docker
+    local image
+    local previous_tag="${TAG}"
+    TAG="latest"
+    image=$(build_service "migrations")
+    push_service "${image}"
+    TAG="${previous_tag}"
+}
+
+is_vertical_service() {
+    local service="$1"
+    [[ -d "${REPO_ROOT}/services/verticals/${service}" ]]
+}
+
 # Deploy service to Cloud Run
 deploy_service() {
     local service="$1"
@@ -171,16 +201,26 @@ deploy_service() {
         --format='value(status.url)' 2>/dev/null || echo "")
     
     if [[ -z "${SERVICE_URL}" ]]; then
-        warning "Service robco-${service} not found. Skipping deployment."
+        warning "Service robco-${service} not found. Create it with Terraform before deploying an image update."
         return 1
     fi
     
     # Update service with new image
-    if gcloud run services update "robco-${service}" \
-        --image "${image_name}" \
-        --region "${REGION}" \
-        --project "${PROJECT_ID}" \
-        --quiet; then
+    update_args=(
+        run services update "robco-${service}"
+        --image "${image_name}"
+        --region "${REGION}"
+        --project "${PROJECT_ID}"
+        --quiet
+    )
+
+    if is_vertical_service "${service}"; then
+        update_args+=(
+            --update-env-vars "SERVICE_ENDPOINT=${SERVICE_URL},EVENT_CALLBACK_URL=${SERVICE_URL}/events/receive"
+        )
+    fi
+
+    if gcloud "${update_args[@]}"; then
         success "Deployed ${service}"
         info "URL: ${SERVICE_URL}"
         return 0
@@ -188,6 +228,28 @@ deploy_service() {
         error "Failed to deploy ${service}"
         return 1
     fi
+}
+
+deploy_services() {
+    local services=("$@")
+
+    echo ""
+    info "Deploying services..."
+    echo ""
+
+    local deployed=0
+    local failed=0
+
+    for service in "${services[@]}"; do
+        if deploy_service "${service}"; then
+            ((deployed++))
+        else
+            ((failed++))
+        fi
+    done
+
+    echo ""
+    success "Deployment complete: ${deployed} succeeded, ${failed} failed"
 }
 
 # Build all services
@@ -229,23 +291,7 @@ push_all() {
 
 # Deploy all services
 deploy_all() {
-    echo ""
-    info "Deploying all services..."
-    echo ""
-    
-    local deployed=0
-    local failed=0
-    
-    for service in "${SERVICES[@]}"; do
-        if deploy_service "${service}"; then
-            ((deployed++))
-        else
-            ((failed++))
-        fi
-    done
-    
-    echo ""
-    success "Deployment complete: ${deployed} succeeded, ${failed} failed"
+    deploy_services "${SERVICES[@]}"
 }
 
 # Main execution
@@ -271,10 +317,21 @@ main() {
             ;;
         deploy)
             validate_prerequisites
-            deploy_all
+            if [[ $# -gt 1 ]]; then
+                shift
+                deploy_services "$@"
+            else
+                deploy_all
+            fi
             ;;
         migrate)
             run_migrations
+            ;;
+        publish-migrations)
+            publish_migration_job_image
+            ;;
+        migrate-job)
+            run_cloud_migration_job
             ;;
         smoke)
             run_smoke_tests
@@ -289,15 +346,17 @@ main() {
             run_smoke_tests
             ;;
         *)
-            echo "Usage: $0 {build|push|deploy|migrate|smoke|all} [service...]"
+            echo "Usage: $0 {build|push|deploy|migrate|publish-migrations|migrate-job|smoke|all} [service...]"
             echo ""
             echo "Commands:"
             echo "  build   - Build Docker images for all services"
             echo "  push    - Build and push images to Artifact Registry"
             echo "  deploy  - Deploy services to Cloud Run"
             echo "  migrate - Run Alembic migrations against DATABASE_URL"
-            echo "  smoke   - Run pytest smoke tests"
-            echo "  all     - Build, push, and deploy (default)"
+            echo "  smoke       - Run pytest smoke tests"
+            echo "  publish-migrations - Build and push the migrations job image"
+            echo "  migrate-job - Run Alembic migrations through Cloud Run job robco-migrate"
+            echo "  all         - Build, push, and deploy (default)"
             echo ""
             echo "Environment variables:"
             echo "  PROJECT_ID     - GCP project ID (required)"
@@ -310,7 +369,10 @@ main() {
             echo "  $0 all                          # Full deployment"
             echo "  $0 build                        # Build only"
             echo "  $0 push gateway core privacy    # Push specific services"
-            echo "  $0 deploy                       # Deploy only"
+            echo "  $0 deploy                       # Deploy all existing services"
+            echo "  $0 deploy omniscale             # Deploy one service"
+            echo "  $0 publish-migrations           # Build and push migrations:latest"
+            echo "  $0 migrate-job                  # Run cloud-native migration job"
             exit 1
             ;;
     esac

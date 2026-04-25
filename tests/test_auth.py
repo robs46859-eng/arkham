@@ -35,7 +35,10 @@ Coverage:
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import importlib
+import json
 import sys
 import time
 from datetime import datetime
@@ -62,6 +65,21 @@ def _make_gw_app(monkeypatch, signing_key="test-secret-key"):
     monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
     monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
     monkeypatch.setenv("SIGNING_KEY", signing_key)
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_test")
+    monkeypatch.setenv("STRIPE_PRICE_PLAN_MAP", "price_pro=pro,price_enterprise=enterprise")
+    monkeypatch.setenv(
+        "STRIPE_PRICE_ENTITLEMENT_MAP",
+        json.dumps(
+            {
+                "price_omniscale": {
+                    "plan": "pro",
+                    "verticals": ["omniscale"],
+                    "features": ["premium_escalation", "semantic_cache"],
+                    "quotas": {"max_requests_per_day": 10000},
+                }
+            }
+        ),
+    )
 
     if str(GW_DIR) not in sys.path:
         sys.path.insert(0, str(GW_DIR))
@@ -86,6 +104,13 @@ def _seed_tenant_api_key(db: MockSession, tenant_id: str, *, name: str = "Test T
     issued = issue_api_key(tenant_id=tenant_id)
     db.add(issued.record)
     return issued.plaintext
+
+
+def _stripe_signature(payload: str, secret: str = "whsec_test") -> str:
+    timestamp = str(int(time.time()))
+    signed_payload = f"{timestamp}.{payload}".encode()
+    signature = hmac.new(secret.encode(), signed_payload, hashlib.sha256).hexdigest()
+    return f"t={timestamp},v1={signature}"
 
 
 @pytest.fixture
@@ -346,6 +371,132 @@ class TestGatewayBearerAuth:
         )
         assert r.status_code == 200
 
+    def test_allow_premium_is_gated_by_tenant_entitlement(self, gw, monkeypatch):
+        client, db = gw
+        api_key = _seed_tenant_api_key(db, "tenant_premium_gate")
+        tenant = db.get(Tenant, "tenant_premium_gate")
+        tenant.enable_premium_escalation = False
+
+        infer_module = importlib.import_module("app.routers.infer")
+
+        seen: dict[str, bool] = {}
+
+        def fake_select_tier(*, allow_premium: bool = False):
+            seen["allow_premium"] = allow_premium
+            return infer_module.ModelTier.local
+
+        async def fake_infer(*args, **kwargs):
+            return {
+                "model_tier": "local",
+                "model_name": "stub-model",
+                "result": "ok",
+                "cost_estimate": 0.0,
+            }
+
+        monkeypatch.setattr(infer_module.registry, "select_tier", fake_select_tier)
+        monkeypatch.setattr(infer_module.registry, "infer", fake_infer)
+
+        token = client.post("/v1/auth/token", json={
+            "tenant_id": "tenant_premium_gate",
+            "api_key": api_key,
+            "project_id": "proj_premium_gate",
+        }).json()["access_token"]
+
+        r = client.post(
+            "/v1/infer",
+            json={
+                "tenant_id": "tenant_premium_gate",
+                "project_id": "proj_premium_gate",
+                "task_type": "summary",
+                "input": {"text": "hello"},
+                "options": {"allow_premium": True},
+            },
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200
+        assert seen["allow_premium"] is False
+
+        tenant.enable_premium_escalation = True
+        seen.clear()
+
+        r = client.post(
+            "/v1/infer",
+            json={
+                "tenant_id": "tenant_premium_gate",
+                "project_id": "proj_premium_gate",
+                "task_type": "summary",
+                "input": {"text": "hello again"},
+                "options": {"allow_premium": True},
+            },
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200
+        assert seen["allow_premium"] is True
+
+    def test_semantic_cache_is_gated_by_tenant_entitlement(self, gw, monkeypatch):
+        client, db = gw
+        api_key = _seed_tenant_api_key(db, "tenant_cache_gate")
+        tenant = db.get(Tenant, "tenant_cache_gate")
+        tenant.enable_semantic_cache = False
+
+        infer_module = importlib.import_module("app.routers.infer")
+
+        seen: dict[str, list[bool]] = {"enabled": []}
+
+        async def fake_get(*args, **kwargs):
+            seen["enabled"].append(kwargs["enabled"])
+            return None
+
+        async def fake_set(*args, **kwargs):
+            seen["enabled"].append(kwargs["enabled"])
+
+        async def fake_infer(*args, **kwargs):
+            return {
+                "model_tier": "local",
+                "model_name": "stub-model",
+                "result": "ok",
+                "cost_estimate": 0.0,
+            }
+
+        monkeypatch.setattr(infer_module.semantic_cache, "get", fake_get)
+        monkeypatch.setattr(infer_module.semantic_cache, "set", fake_set)
+        monkeypatch.setattr(infer_module.registry, "infer", fake_infer)
+
+        token = client.post("/v1/auth/token", json={
+            "tenant_id": "tenant_cache_gate",
+            "api_key": api_key,
+            "project_id": "proj_cache_gate",
+        }).json()["access_token"]
+
+        r = client.post(
+            "/v1/infer",
+            json={
+                "tenant_id": "tenant_cache_gate",
+                "project_id": "proj_cache_gate",
+                "task_type": "summary",
+                "input": {"text": "hello"},
+            },
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200
+        assert seen["enabled"] == [False, False]
+
+        tenant.enable_semantic_cache = True
+        seen["enabled"].clear()
+
+        r = client.post(
+            "/v1/infer",
+            json={
+                "tenant_id": "tenant_cache_gate",
+                "project_id": "proj_cache_gate",
+                "task_type": "summary",
+                "input": {"text": "hello again"},
+            },
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert r.status_code == 200
+        assert seen["enabled"] == [True, True]
+
 
 # ── GET /v1/tenants list ──────────────────────────────────────────────────────
 
@@ -367,6 +518,19 @@ class TestTenantList:
         assert "Alpha" in names
         assert "Beta" in names
 
+    def test_created_tenant_has_inactive_billing_state(self, gw):
+        client, _ = gw
+        r = client.post("/v1/tenants", json={"name": "Billing Defaults"})
+        assert r.status_code == 200
+        body = r.json()
+        assert body["subscription_status"] == "inactive"
+        assert body["stripe_customer_id"] is None
+        assert body["stripe_subscription_id"] is None
+        assert body["stripe_price_id"] is None
+        assert body["entitlements"] == {}
+        assert body["subscription_current_period_end"] is None
+        assert body["subscription_cancel_at_period_end"] is False
+
     def test_active_only_filter(self, gw):
         client, _ = gw
         r1 = client.post("/v1/tenants", json={"name": "Active"})
@@ -378,6 +542,180 @@ class TestTenantList:
         names = [t["name"] for t in r.json()]
         assert "Active" in names
         assert "Inactive" not in names
+
+
+# ── POST /v1/billing/stripe/webhook ───────────────────────────────────────────
+
+class TestStripeWebhook:
+
+    def _post_event(self, client, event: dict, signature_secret: str = "whsec_test"):
+        payload = json.dumps(event, separators=(",", ":"))
+        return client.post(
+            "/v1/billing/stripe/webhook",
+            content=payload,
+            headers={
+                "Content-Type": "application/json",
+                "Stripe-Signature": _stripe_signature(payload, signature_secret),
+            },
+        )
+
+    def test_subscription_update_applies_plan_entitlements(self, gw):
+        client, _ = gw
+        tenant = client.post("/v1/tenants", json={"name": "Stripe Pro"}).json()
+
+        r = self._post_event(
+            client,
+            {
+                "id": "evt_subscription_updated",
+                "object": "event",
+                "type": "customer.subscription.updated",
+                "data": {
+                    "object": {
+                        "id": "sub_test123",
+                        "object": "subscription",
+                        "customer": "cus_test123",
+                        "status": "active",
+                        "current_period_end": 1777593600,
+                        "cancel_at_period_end": False,
+                        "metadata": {"tenant_id": tenant["tenant_id"]},
+                        "items": {"data": [{"price": {"id": "price_omniscale"}}]},
+                    }
+                },
+            },
+        )
+
+        assert r.status_code == 200
+        assert r.json()["handled"] is True
+
+        updated = client.get(f"/v1/tenants/{tenant['tenant_id']}").json()
+        assert updated["plan"] == "pro"
+        assert updated["enable_premium_escalation"] is True
+        assert updated["enable_semantic_cache"] is True
+        assert updated["stripe_customer_id"] == "cus_test123"
+        assert updated["stripe_subscription_id"] == "sub_test123"
+        assert updated["stripe_price_id"] == "price_omniscale"
+        assert updated["entitlements"]["verticals"] == ["omniscale"]
+        assert updated["entitlements"]["features"] == ["premium_escalation", "semantic_cache"]
+        assert updated["entitlements"]["quotas"]["max_requests_per_day"] == 10000
+        assert updated["subscription_status"] == "active"
+        assert updated["subscription_current_period_end"] == "2026-05-01T00:00:00Z"
+        assert updated["subscription_cancel_at_period_end"] is False
+
+    def test_subscription_deleted_downgrades_to_free(self, gw):
+        client, _ = gw
+        tenant = client.post("/v1/tenants", json={"name": "Cancel Me", "plan": "pro"}).json()
+
+        r = self._post_event(
+            client,
+            {
+                "id": "evt_subscription_deleted",
+                "object": "event",
+                "type": "customer.subscription.deleted",
+                "data": {
+                    "object": {
+                        "id": "sub_cancel",
+                        "object": "subscription",
+                        "customer": "cus_cancel",
+                        "status": "canceled",
+                        "metadata": {"tenant_id": tenant["tenant_id"]},
+                        "items": {"data": [{"price": {"id": "price_pro"}}]},
+                    }
+                },
+            },
+        )
+
+        assert r.status_code == 200
+        updated = client.get(f"/v1/tenants/{tenant['tenant_id']}").json()
+        assert updated["plan"] == "free"
+        assert updated["enable_premium_escalation"] is False
+        assert updated["enable_semantic_cache"] is False
+        assert updated["subscription_status"] == "canceled"
+
+    def test_checkout_completed_links_customer_and_subscription(self, gw):
+        client, _ = gw
+        tenant = client.post("/v1/tenants", json={"name": "Checkout Tenant"}).json()
+
+        r = self._post_event(
+            client,
+            {
+                "id": "evt_checkout_completed",
+                "object": "event",
+                "type": "checkout.session.completed",
+                "data": {
+                    "object": {
+                        "id": "cs_test123",
+                        "object": "checkout.session",
+                        "customer": "cus_checkout",
+                        "subscription": "sub_checkout",
+                        "metadata": {
+                            "tenant_id": tenant["tenant_id"],
+                            "plan": "enterprise",
+                        },
+                    }
+                },
+            },
+        )
+
+        assert r.status_code == 200
+        updated = client.get(f"/v1/tenants/{tenant['tenant_id']}").json()
+        assert updated["plan"] == "enterprise"
+        assert updated["enable_premium_escalation"] is True
+        assert updated["enable_semantic_cache"] is True
+        assert updated["stripe_customer_id"] == "cus_checkout"
+        assert updated["stripe_subscription_id"] == "sub_checkout"
+
+    def test_invalid_stripe_signature_rejected(self, gw):
+        client, _ = gw
+        payload = json.dumps({"id": "evt_bad", "object": "event", "type": "customer.subscription.updated"})
+        r = client.post(
+            "/v1/billing/stripe/webhook",
+            content=payload,
+            headers={
+                "Content-Type": "application/json",
+                "Stripe-Signature": _stripe_signature(payload, "wrong_secret"),
+            },
+        )
+
+        assert r.status_code == 400
+
+
+class TestVerticalEntitlements:
+
+    def test_tenant_with_vertical_entitlement_has_access(self, monkeypatch):
+        monkeypatch.setenv("APP_ENV", "test")
+        monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+        monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+        from services.gateway.app.routers.verticals import _tenant_has_vertical_access
+
+        db = MockSession()
+        tenant = Tenant(
+            id="tenant_vertical",
+            name="Vertical Tenant",
+            is_active=True,
+            created_at=datetime.utcnow(),
+        )
+        tenant.entitlements = {"verticals": ["omniscale"]}
+        db.add(tenant)
+
+        assert _tenant_has_vertical_access(db, "tenant_vertical", "omniscale") is True
+
+    def test_tenant_without_vertical_entitlement_is_denied(self, monkeypatch):
+        monkeypatch.setenv("APP_ENV", "test")
+        monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+        monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
+        from services.gateway.app.routers.verticals import _tenant_has_vertical_access
+
+        db = MockSession()
+        tenant = Tenant(
+            id="tenant_vertical",
+            name="Vertical Tenant",
+            is_active=True,
+            created_at=datetime.utcnow(),
+        )
+        tenant.entitlements = {"verticals": ["other_vertical"]}
+        db.add(tenant)
+
+        assert _tenant_has_vertical_access(db, "tenant_vertical", "omniscale") is False
 
 
 # ── GET /v1/ingestion/jobs list ───────────────────────────────────────────────

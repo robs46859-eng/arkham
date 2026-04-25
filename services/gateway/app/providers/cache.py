@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import re
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 from pydantic import BaseModel
@@ -93,9 +93,12 @@ class SemanticCache:
         task_type: str,
         input_text: str,
         threshold: float | None = None,
-    ) -> dict[str, Any] | None:
+        *,
+        enabled: bool | None = None,
+    ) -> Optional[dict[str, Any]]:
         """Return a cached result when cosine similarity exceeds threshold, else None."""
-        if not settings.enable_semantic_cache or lancedb is None:
+        cache_enabled = settings.enable_semantic_cache if enabled is None else enabled
+        if not cache_enabled or lancedb is None:
             return None
 
         table = self._get_table()
@@ -143,9 +146,12 @@ class SemanticCache:
         task_type: str,
         input_text: str,
         output: dict[str, Any],
+        *,
+        enabled: bool | None = None,
     ) -> None:
         """Persist an inference result for future semantic lookups."""
-        if not settings.enable_semantic_cache or lancedb is None:
+        cache_enabled = settings.enable_semantic_cache if enabled is None else enabled
+        if not cache_enabled or lancedb is None:
             return
 
         try:

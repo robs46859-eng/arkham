@@ -37,7 +37,7 @@ variable "database_password" {
   description = "Cloud SQL PostgreSQL master password"
   type        = string
   sensitive   = true
-  
+
   validation {
     condition     = length(var.database_password) >= 16
     error_message = "Database password must be at least 16 characters for security."
@@ -48,7 +48,7 @@ variable "database_tier" {
   description = "Cloud SQL machine tier"
   type        = string
   default     = "db-custom-2-4096" # 2 vCPU, 4GB RAM
-  
+
   validation {
     condition     = can(regex("^db-", var.database_tier))
     error_message = "Database tier must start with 'db-'."
@@ -66,7 +66,7 @@ variable "redis_tier" {
   description = "Memorystore Redis tier (BASIC, STANDARD)"
   type        = string
   default     = "BASIC"
-  
+
   validation {
     condition     = contains(["BASIC", "STANDARD"], var.redis_tier)
     error_message = "Redis tier must be BASIC or STANDARD."
@@ -77,7 +77,7 @@ variable "redis_memory_size_gb" {
   description = "Memorystore Redis memory size in GB"
   type        = number
   default     = 1
-  
+
   validation {
     condition     = var.redis_memory_size_gb >= 1 && var.redis_memory_size_gb <= 50
     error_message = "Redis memory size must be between 1 and 50 GB."
@@ -89,7 +89,7 @@ variable "signing_key" {
   description = "JWT signing key for gateway authentication"
   type        = string
   sensitive   = true
-  
+
   validation {
     condition     = length(var.signing_key) >= 32
     error_message = "Signing key must be at least 32 characters."
@@ -157,6 +157,45 @@ variable "redis_auth_token" {
   description = "Auth token for Memorystore Redis"
   type        = string
   sensitive   = true
+  default     = ""
+}
+
+variable "stripe_webhook_secret" {
+  description = "Stripe webhook signing secret for the Gateway billing webhook"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "stripe_secret_key" {
+  description = "Stripe secret key for the billing service"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "stripe_price_id" {
+  description = "Stripe Price ID used by the billing service for checkout sessions"
+  type        = string
+  default     = ""
+}
+
+variable "anthropic_api_key" {
+  description = "Anthropic API key for vertical services"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "stripe_price_plan_map" {
+  description = "Comma-separated Stripe price to internal plan map, e.g. price_123=pro,price_456=enterprise"
+  type        = string
+  default     = ""
+}
+
+variable "stripe_price_entitlement_map" {
+  description = "JSON map from Stripe price IDs to entitlement bundles for verticals, features, plans, and quotas"
+  type        = string
   default     = ""
 }
 

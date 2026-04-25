@@ -17,6 +17,7 @@ SERVICE_MODULES = {
     "core": "services.core.app.main",
     "orchestration": "services.orchestration.app.main",
     "bim-ingestion": "services.bim_ingestion.app.main",
+    "omniscale": "services.verticals.omniscale.app.main",
 }
 
 

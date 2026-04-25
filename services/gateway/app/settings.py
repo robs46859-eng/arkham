@@ -30,9 +30,11 @@ class Settings(BaseServiceSettings):
     admin_token: str | None = None
     
     orchestration_url: str = "http://localhost:8002"
-    core_service_url: str = "http://core:3000"
+    core_service_url: str = "http://core:8000"
     worldgraph_service_url: str = "http://worldgraph:8050"
     billing_service_url: str = "http://localhost:3020"
+    
+    # Email settings
     email_provider: str | None = None
     email_from: str | None = None
     email_reply_to: str | None = None
@@ -51,6 +53,11 @@ class Settings(BaseServiceSettings):
     privacy_service_url: str = "http://localhost:3010"
     privacy_service_token: str | None = None
     privacy_default_tier: str = "dev"
+    
+    # Stripe
+    stripe_webhook_secret: str | None = None
+    stripe_price_plan_map: str = ""
+    stripe_price_entitlement_map: str = ""
 
     # Local Model Runtime (Ollama)
     ollama_host: str = "http://localhost:11434"
@@ -58,6 +65,7 @@ class Settings(BaseServiceSettings):
     local_classifier_model: str = "qwen2.5:3b"
     local_summary_model: str = "qwen2.5:7b"
     local_extraction_model: str = "qwen2.5:7b"
+    prefer_local_models: bool = True
 
     # External Model Providers
     openai_api_key: str | None = None

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -34,6 +35,13 @@ class TenantResponse(BaseModel):
     enable_semantic_cache: bool = False
     cache_similarity_threshold: float = 0.92
     max_requests_per_day: int | None
+    entitlements: dict[str, Any] = Field(default_factory=dict)
+    stripe_customer_id: str | None = None
+    stripe_subscription_id: str | None = None
+    stripe_price_id: str | None = None
+    subscription_status: str = "inactive"
+    subscription_current_period_end: datetime | None = None
+    subscription_cancel_at_period_end: bool = False
     created_at: datetime
     updated_at: datetime | None = None
 

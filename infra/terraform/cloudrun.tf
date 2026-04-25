@@ -10,6 +10,7 @@ locals {
     orchestration = "${google_artifact_registry_repository.containers.location}-docker.pkg.dev/${var.project_id}/${var.artifact_registry_name}/orchestration:latest"
     bim_ingestion = "${google_artifact_registry_repository.containers.location}-docker.pkg.dev/${var.project_id}/${var.artifact_registry_name}/bim_ingestion:latest"
     billing       = "${google_artifact_registry_repository.containers.location}-docker.pkg.dev/${var.project_id}/${var.artifact_registry_name}/billing:latest"
+    migrations    = "${google_artifact_registry_repository.containers.location}-docker.pkg.dev/${var.project_id}/${var.artifact_registry_name}/migrations:latest"
   }
 }
 
@@ -40,10 +41,40 @@ resource "google_cloud_run_v2_service" "privacy" {
       }
 
       env {
+        name  = "APP_ENV"
+        value = "production"
+      }
+
+      env {
+        name  = "PREFER_LOCAL_MODELS"
+        value = "false"
+      }
+
+      env {
+        name  = "EMBEDDING_PROVIDER"
+        value = "openai"
+      }
+
+      env {
+        name  = "EMBEDDING_MODEL"
+        value = "text-embedding-3-small"
+      }
+
+      env {
         name = "SERVICE_TOKEN"
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.privacy_service_token.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "DATABASE_URL"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.database_url.secret_id
             version = "latest"
           }
         }
@@ -62,7 +93,7 @@ resource "google_cloud_run_v2_service" "privacy" {
       resources {
         limits = {
           cpu    = "1000m"
-          memory = "256Mi"
+          memory = "512Mi"
         }
       }
     }
@@ -74,6 +105,16 @@ resource "google_cloud_run_v2_service" "privacy" {
       }
       egress = "PRIVATE_RANGES_ONLY"
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      client,
+      client_version,
+      template[0].containers[0].resources[0].cpu_idle,
+      template[0].containers[0].resources[0].startup_cpu_boost,
+      template[0].scaling[0].max_instance_count,
+    ]
   }
 
   depends_on = [
@@ -107,6 +148,11 @@ resource "google_cloud_run_v2_service" "gateway" {
 
       ports {
         container_port = 8000
+      }
+
+      env {
+        name  = "APP_ENV"
+        value = "production"
       }
 
       env {
@@ -174,6 +220,39 @@ resource "google_cloud_run_v2_service" "gateway" {
         }
       }
 
+      env {
+        name = "OPENAI_API_KEY"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.openai_api_key.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      dynamic "env" {
+        for_each = var.stripe_webhook_secret != "" ? [1] : []
+        content {
+          name = "STRIPE_WEBHOOK_SECRET"
+          value_source {
+            secret_key_ref {
+              secret  = google_secret_manager_secret.stripe_webhook_secret.secret_id
+              version = "latest"
+            }
+          }
+        }
+      }
+
+      env {
+        name  = "STRIPE_PRICE_PLAN_MAP"
+        value = var.stripe_price_plan_map
+      }
+
+      env {
+        name  = "STRIPE_PRICE_ENTITLEMENT_MAP"
+        value = var.stripe_price_entitlement_map
+      }
+
       resources {
         limits = {
           cpu    = "1000m"
@@ -187,8 +266,18 @@ resource "google_cloud_run_v2_service" "gateway" {
         network    = google_compute_network.arkham.name
         subnetwork = google_compute_subnetwork.arkham.name
       }
-      egress = "PRIVATE_RANGES_ONLY"
+      egress = "ALL_TRAFFIC"
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      client,
+      client_version,
+      template[0].containers[0].resources[0].cpu_idle,
+      template[0].containers[0].resources[0].startup_cpu_boost,
+      template[0].scaling[0].max_instance_count,
+    ]
   }
 
   depends_on = [
@@ -199,6 +288,7 @@ resource "google_cloud_run_v2_service" "gateway" {
     google_secret_manager_secret_version.admin_token,
     google_secret_manager_secret_version.privacy_service_token,
     google_cloud_run_v2_service.billing,
+    google_secret_manager_secret_version.stripe_webhook_secret,
   ]
 }
 
@@ -265,6 +355,15 @@ resource "google_cloud_run_v2_service" "core" {
     }
   }
 
+  lifecycle {
+    ignore_changes = [
+      client,
+      client_version,
+      template[0].containers[0].resources[0].cpu_idle,
+      template[0].containers[0].resources[0].startup_cpu_boost,
+    ]
+  }
+
   depends_on = [
     google_project_service.required_apis,
     google_secret_manager_secret_version.database_url,
@@ -283,7 +382,7 @@ resource "google_cloud_run_v2_service" "billing" {
 
   template {
     service_account                  = google_service_account.runtime.email
-    timeout                          = "60s"
+    timeout                          = "300s"
     max_instance_request_concurrency = 80
 
     scaling {
@@ -376,7 +475,7 @@ resource "google_cloud_run_v2_service" "billing" {
       resources {
         limits = {
           cpu    = "1000m"
-          memory = "256Mi"
+          memory = "512Mi"
         }
       }
     }
@@ -390,13 +489,23 @@ resource "google_cloud_run_v2_service" "billing" {
     }
   }
 
+  lifecycle {
+    ignore_changes = [
+      client,
+      client_version,
+      template[0].containers[0].resources[0].cpu_idle,
+      template[0].containers[0].resources[0].startup_cpu_boost,
+      template[0].scaling[0].max_instance_count,
+    ]
+  }
+
   depends_on = [
     google_project_service.required_apis,
     google_secret_manager_secret_version.database_url,
     google_secret_manager_secret_version.redis_url,
     google_secret_manager_secret_version.signing_key,
-    google_secret_manager_secret_version.stripe_secret_key,
     google_secret_manager_secret_version.stripe_webhook_secret,
+    google_secret_manager_secret_version.stripe_secret_key,
   ]
 }
 
@@ -420,6 +529,66 @@ output "privacy_url" {
   value       = var.enable_cloud_run ? google_cloud_run_v2_service.privacy[0].uri : null
 }
 
+# Database migration job. Runs inside the VPC so it can reach private Cloud SQL.
+resource "google_cloud_run_v2_job" "migrate" {
+  count    = var.enable_cloud_run ? 1 : 0
+  name     = "robco-migrate"
+  location = var.cloud_run_region
+  project  = var.project_id
+  labels   = local.common_tags
+
+  template {
+    template {
+      service_account = google_service_account.runtime.email
+      timeout         = "600s"
+      max_retries     = 0
+
+      containers {
+        image = local.service_images.migrations
+
+        command = ["python", "-m", "alembic", "upgrade", "head"]
+
+        env {
+          name = "DATABASE_URL"
+          value_source {
+            secret_key_ref {
+              secret  = google_secret_manager_secret.database_url.secret_id
+              version = "latest"
+            }
+          }
+        }
+
+        resources {
+          limits = {
+            cpu    = "1000m"
+            memory = "512Mi"
+          }
+        }
+      }
+
+      vpc_access {
+        network_interfaces {
+          network    = google_compute_network.arkham.name
+          subnetwork = google_compute_subnetwork.arkham.name
+        }
+        egress = "PRIVATE_RANGES_ONLY"
+      }
+    }
+  }
+
+  depends_on = [
+    google_project_service.required_apis,
+    google_secret_manager_secret_version.database_url,
+    google_project_iam_member.runtime_secret_accessor,
+    google_project_iam_member.runtime_cloudsql_client,
+  ]
+}
+
+output "migration_job_name" {
+  description = "Cloud Run job used to run Alembic migrations"
+  value       = var.enable_cloud_run ? google_cloud_run_v2_job.migrate[0].name : null
+}
+
 # ── Vertical Services (hub-and-spoke spokes) ─────────────────────────────────
 
 variable "verticals" {
@@ -427,9 +596,19 @@ variable "verticals" {
   type = map(object({
     container_port = optional(number, 8000)
     cpu            = optional(string, "1000m")
-    memory         = optional(string, "256Mi")
+    memory         = optional(string, "512Mi")
     min_instances  = optional(number, 0)
-    max_instances  = optional(number, 5)
+    max_instances  = optional(number, 3)
+    vpc_egress     = optional(string, "ALL_TRAFFIC")
+    redis_enabled  = optional(bool, false)
+    service_endpoint = optional(
+      string,
+      "https://robco-omniscale-zth4qhgsda-uc.a.run.app",
+    )
+    event_callback_url = optional(
+      string,
+      "https://robco-omniscale-zth4qhgsda-uc.a.run.app/events/receive",
+    )
   }))
   default = {
     omniscale = {}
@@ -472,11 +651,40 @@ resource "google_cloud_run_v2_service" "vertical" {
         value = var.environment
       }
 
+      dynamic "env" {
+        for_each = each.value.service_endpoint != null ? [each.value.service_endpoint] : []
+        content {
+          name  = "SERVICE_ENDPOINT"
+          value = env.value
+        }
+      }
+
+      dynamic "env" {
+        for_each = each.value.event_callback_url != null ? [each.value.event_callback_url] : []
+        content {
+          name  = "EVENT_CALLBACK_URL"
+          value = env.value
+        }
+      }
+
+      dynamic "env" {
+        for_each = each.value.redis_enabled ? [1] : []
+        content {
+          name = "REDIS_URL"
+          value_source {
+            secret_key_ref {
+              secret  = google_secret_manager_secret.redis_url.secret_id
+              version = "latest"
+            }
+          }
+        }
+      }
+
       env {
-        name = "REDIS_URL"
+        name = "ANTHROPIC_API_KEY"
         value_source {
           secret_key_ref {
-            secret  = google_secret_manager_secret.redis_url.secret_id
+            secret  = google_secret_manager_secret.anthropic_api_key.secret_id
             version = "latest"
           }
         }
@@ -495,14 +703,24 @@ resource "google_cloud_run_v2_service" "vertical" {
         network    = google_compute_network.arkham.name
         subnetwork = google_compute_subnetwork.arkham.name
       }
-      egress = "PRIVATE_RANGES_ONLY"
+      egress = each.value.vpc_egress
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      client,
+      client_version,
+      template[0].containers[0].resources[0].cpu_idle,
+      template[0].containers[0].resources[0].startup_cpu_boost,
+    ]
   }
 
   depends_on = [
     google_project_service.required_apis,
     google_cloud_run_v2_service.core,
     google_secret_manager_secret_version.redis_url,
+    google_secret_manager_secret_version.anthropic_api_key,
   ]
 }
 

@@ -37,6 +37,13 @@ def _tenant_to_response(tenant: Tenant) -> TenantResponse:
         enable_semantic_cache=getattr(tenant, "enable_semantic_cache", False),
         cache_similarity_threshold=getattr(tenant, "cache_similarity_threshold", 0.92),
         max_requests_per_day=getattr(tenant, "max_requests_per_day", None),
+        entitlements=getattr(tenant, "entitlements", {}) or {},
+        stripe_customer_id=getattr(tenant, "stripe_customer_id", None),
+        stripe_subscription_id=getattr(tenant, "stripe_subscription_id", None),
+        stripe_price_id=getattr(tenant, "stripe_price_id", None),
+        subscription_status=getattr(tenant, "subscription_status", "inactive"),
+        subscription_current_period_end=getattr(tenant, "subscription_current_period_end", None),
+        subscription_cancel_at_period_end=getattr(tenant, "subscription_cancel_at_period_end", False),
         created_at=tenant.created_at,
         updated_at=getattr(tenant, "updated_at", tenant.created_at),
     )
@@ -72,6 +79,9 @@ def create_tenant_record(request: TenantCreate, db: object) -> TenantResponse:
     tenant.enable_semantic_cache = getattr(request, "enable_semantic_cache", False)
     tenant.cache_similarity_threshold = 0.92
     tenant.max_requests_per_day = None
+    tenant.entitlements = {}
+    tenant.subscription_status = "inactive"
+    tenant.subscription_cancel_at_period_end = False
     db.add(tenant)
     if hasattr(db, "commit"):
         db.commit()

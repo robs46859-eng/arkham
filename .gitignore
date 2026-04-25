@@ -29,12 +29,15 @@ pip-log.txt
 pip-delete-this-directory.txt
 .tox/
 .nox/
+.venv/
 .mypy_cache/
 
 # Terraform
 .terraform/
 terraform.tfstate*
 *.tfplan
+*.tfvars
+!*.tfvars.example
 
 # IDE
 .vscode/

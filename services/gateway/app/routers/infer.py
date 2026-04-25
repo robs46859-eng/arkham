@@ -12,6 +12,8 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 
+from packages.db import get_db
+from packages.models import Tenant
 from packages.schemas import InferenceRequest, InferenceResponse
 from packages.schemas.gateway import ModelTier, ValidationResult
 from ..clients import privacy as privacy_client
@@ -21,6 +23,18 @@ from ..providers.registry import registry
 from ..providers.cache import semantic_cache
 
 router = APIRouter(prefix="/v1", tags=["inference"])
+
+
+def _load_tenant(db: object, tenant_id: str) -> Tenant | None:
+    if hasattr(db, "get"):
+        tenant = db.get(Tenant, tenant_id)
+        if isinstance(tenant, Tenant):
+            return tenant
+    if hasattr(db, "query"):
+        tenant = db.query(Tenant).filter_by(id=tenant_id).first()
+        if isinstance(tenant, Tenant):
+            return tenant
+    return None
 
 
 def _resolve_privacy_tier(request: InferenceRequest) -> str:
@@ -90,6 +104,7 @@ async def infer(
     request: InferenceRequest,
     response: Response,
     _auth: tuple[str, str] = Depends(require_tenant),
+    db: object = Depends(get_db),
 ) -> InferenceResponse:
     """
     Normalized inference endpoint.
@@ -99,9 +114,14 @@ async def infer(
     start = time.monotonic()
     request_id = f"req_{uuid.uuid4().hex}"
     sanitized_text, privacy_request_id = await _maybe_sanitize(request, request_id)
+    tenant = _load_tenant(db, request.tenant_id)
+    tenant_allows_premium = bool(getattr(tenant, "enable_premium_escalation", False))
+    tenant_allows_cache = bool(getattr(tenant, "enable_semantic_cache", False))
 
     # 1. Select cheapest valid tier per routing policy
-    tier = registry.select_tier(allow_premium=request.options.allow_premium)
+    tier = registry.select_tier(
+        allow_premium=request.options.allow_premium and tenant_allows_premium,
+    )
 
     # 2. Semantic cache lookup
     cache_hit = False
@@ -109,6 +129,7 @@ async def infer(
         tenant_id=request.tenant_id,
         task_type=request.task_type.value,
         input_text=sanitized_text,
+        enabled=tenant_allows_cache,
     )
 
     if cached_output:
@@ -130,6 +151,7 @@ async def infer(
                 task_type=request.task_type.value,
                 input_text=sanitized_text,
                 output=provider_result,
+                enabled=tenant_allows_cache,
             )
 
     if isinstance(provider_result.get("result"), str):

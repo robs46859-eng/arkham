@@ -9,6 +9,13 @@ export interface Tenant {
   enable_semantic_cache: boolean;
   cache_similarity_threshold: number;
   max_requests_per_day: number | null;
+  entitlements: Record<string, unknown>;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  stripe_price_id: string | null;
+  subscription_status: string;
+  subscription_current_period_end: string | null;
+  subscription_cancel_at_period_end: boolean;
   created_at: string;
   updated_at: string;
 }

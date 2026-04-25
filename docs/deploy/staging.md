@@ -103,6 +103,7 @@ Check each service:
 gcloud run services describe robco-gateway --region us-central1 --project <your-gcp-project-id>
 gcloud run services describe robco-core --region us-central1 --project <your-gcp-project-id>
 gcloud run services describe robco-privacy --region us-central1 --project <your-gcp-project-id>
+gcloud run services describe robco-omniscale --region us-central1 --project <your-gcp-project-id>
 ```
 
 Confirm:
@@ -110,16 +111,46 @@ Confirm:
 - the image references include a git SHA tag
 - env secrets are wired through Secret Manager refs
 - service URLs are populated
+- `robco-gateway` ingress is `all`
+- `robco-core`, `robco-privacy`, and `robco-omniscale` ingress are `internal`
 
 ## 8. Verify runtime behavior
 
-Hit the health endpoints:
+Hit the public gateway health endpoints:
 
-- `/health`
-- `/healthz`
-- `/readyz`
+```bash
+curl -fsS https://robco-gateway-<hash>-uc.a.run.app/health
+curl -fsS https://robco-gateway-<hash>-uc.a.run.app/healthz
+curl -fsS https://robco-gateway-<hash>-uc.a.run.app/readyz
+```
 
 `/readyz` should report `ready` and show successful DB and Redis dependency checks.
+
+Do not treat direct unauthenticated requests to `robco-core`, `robco-privacy`, or `robco-omniscale`
+as staging health checks. Those services are internal-only in staging, so public `run.app` requests
+can return Google Frontend `404 Not Found` even when the services are healthy and serving
+service-to-service traffic.
+
+For internal services, verify readiness via Cloud Run service state and logs:
+
+```bash
+gcloud run services describe robco-core --region us-central1 --project <your-gcp-project-id>
+gcloud run services describe robco-privacy --region us-central1 --project <your-gcp-project-id>
+gcloud run services describe robco-omniscale --region us-central1 --project <your-gcp-project-id>
+
+gcloud logging read \
+  'resource.type="cloud_run_revision" AND resource.labels.service_name="robco-core"' \
+  --project <your-gcp-project-id> \
+  --limit 20 \
+  --format json
+```
+
+Success criteria for internal services:
+
+- latest revision is `Ready`
+- traffic is routed to the latest ready revision
+- startup probe passes
+- logs show successful internal requests when exercised through the gateway
 
 ## 9. Verify gateway auth
 
@@ -172,3 +203,11 @@ If `/readyz` returns `not_ready`:
 - confirm the DB secret and Redis secret values are correct
 - confirm Cloud Run VPC connector access is present
 - confirm Cloud SQL and Memorystore are both live
+
+If `robco-core`, `robco-privacy`, or `robco-omniscale` return a Google Frontend `404` from the
+public `run.app` URL:
+
+- check the service ingress setting first
+- if ingress is `internal`, treat that `404` as expected for external probes
+- validate the service through `gcloud run services describe` and Cloud Run logs instead
+- verify the public path through `robco-gateway`, which is the intended external entrypoint

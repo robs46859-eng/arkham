@@ -193,18 +193,20 @@ class ProviderRegistry:
             self.mid = GeminiProvider(api_key=settings.gemini_api_key, base_url=settings.gemini_base_url)
             self.premium = GeminiProvider(api_key=settings.gemini_api_key, base_url=settings.gemini_base_url)
 
+    @staticmethod
+    def _provider_failed(result: dict[str, Any]) -> bool:
+        message = result.get("result")
+        return isinstance(message, str) and message.startswith("Error calling ")
+
     def select_tier(self, allow_premium: bool = False) -> ModelTier:
         """
         Select the cheapest valid execution tier.
         """
-        if allow_premium and self.premium and settings.enable_premium_escalation:
+        if allow_premium and self.premium:
             return ModelTier.premium
 
-        # If we have a mid tier and premium not allowed or not enabled
-        if self.mid:
-            # Some tasks might prefer mid tier over local even if local exists
-            # For now, default to local if available, as it's cheapest.
-            return ModelTier.local
+        if self.mid and not settings.prefer_local_models:
+            return ModelTier.mid
 
         return ModelTier.local
 
@@ -226,8 +228,11 @@ class ProviderRegistry:
             model_name = settings.openai_mid_tier_model if settings.openai_api_key else settings.gemini_mid_tier_model
             return await self.mid.infer(task_type, input_text, context, model_name=model_name)
 
-        # Default fallback to local
-        return await self.local.infer(task_type, input_text, context)
+        local_result = await self.local.infer(task_type, input_text, context)
+        if self._provider_failed(local_result) and self.mid:
+            model_name = settings.openai_mid_tier_model if settings.openai_api_key else settings.gemini_mid_tier_model
+            return await self.mid.infer(task_type, input_text, context, model_name=model_name)
+        return local_result
 
 
 registry = ProviderRegistry()

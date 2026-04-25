@@ -1,6 +1,7 @@
 """
-AI Consistency Lab Vertical
-Implements: Model testing, validation, consistency analysis, and cross-document coordination checking.
+AI Consistency — Cross-Document Coordination and Model Validation Vertical.
+Analyzes multiple document sections to identify contradictions and compliance gaps,
+and provides model consistency testing across different LLM tiers.
 """
 
 from __future__ import annotations
@@ -9,31 +10,29 @@ import json
 import os
 import uuid
 import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import httpx
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
 
 from packages.vertical_base import VerticalBase
-from packages.schemas.gateway import InferenceRequest, InferenceResponse, TaskType, InferenceInput, ModelTier
-from .settings import get_settings
+from packages.schemas.gateway import ModelTier
 
-settings = get_settings()
-
-# ── Vertical Setup ───────────────────────────────────────────────────────────
+# ── Initialization ───────────────────────────────────────────────────────────
 
 vertical = VerticalBase(
-    service_id="ai_consistency",
-    title="AI Consistency Lab",
+    service_id="ai-consistency",
+    title="AI Consistency — Document Coordination & Validation",
     port=8000,
     capabilities=[
-        "model-validation", 
-        "consistency-analysis", 
         "consistency_check", 
         "coordination_review", 
-        "compliance_gap"
+        "compliance_gap",
+        "model-validation",
+        "consistency-analysis"
     ],
+    event_subscriptions=[],
 )
 
 app = vertical.app
@@ -173,25 +172,20 @@ async def run_consistency_test(request: ConsistencyTestRequest):
     """
     test_id = f"test_{uuid.uuid4().hex[:8]}"
     
-    # In a real implementation, we would call the gateway here.
-    # For now, we simulate the gateway calls to keep the build ladder intact.
-    
-    # Mock Gateway Call A
+    # Mock Gateway Calls for simulation
     mock_response_a = {
         "model_used": request.model_a_tier,
         "output": {"text": f"Response from {request.model_a_tier} for: {request.prompt}"},
         "latency_ms": 150
     }
     
-    # Mock Gateway Call B
     mock_response_b = {
         "model_used": request.model_b_tier,
         "output": {"text": f"Response from {request.model_b_tier} for: {request.prompt}"},
         "latency_ms": 450
     }
     
-    # Logic to compare responses (Deterministic fallback)
-    # If text is identical, score is 1.0. Otherwise 0.5 (placeholder).
+    # Logic to compare responses
     score = 1.0 if mock_response_a["output"]["text"] == mock_response_b["output"]["text"] else 0.5
     
     result = ConsistencyTestResult(
@@ -293,7 +287,7 @@ async def get_check(check_id: str):
 @app.get("/")
 async def root():
     return {
-        "service": "ai_consistency",
+        "service": "ai-consistency",
         "status": "operational",
         "capabilities": vertical.capabilities,
         "metrics": {
