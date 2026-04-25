@@ -20,5 +20,7 @@ with engine.begin() as c:
     else:
         print('alembic_version already set to:', row[0])
 "
-alembic upgrade head
-exec uvicorn services.arkham.app.main:app --host 0.0.0.0 --port 8080
+if ! alembic upgrade head; then
+    echo "Arkham startup warning: alembic upgrade head failed; continuing with existing schema." >&2
+fi
+exec uvicorn services.arkham.app.main:app --host 0.0.0.0 --port "${PORT:-8080}"

@@ -10,31 +10,18 @@ steps:
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:$COMMIT_SHA'
       - -t
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:latest'
-      - -t
-      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/arkham:$COMMIT_SHA'
-      - -t
-      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/arkham:latest'
       - -f
       - services/arkham/Dockerfile
       - .
     id: build
 
-  # Push image to legacy
+  # Push image to the working Artifact Registry repository.
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - push
       - --all-tags
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham'
-    id: push-legacy
-    waitFor: [build]
-
-  # Push image to new containers repo
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - push
-      - --all-tags
-      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/arkham'
-    id: push-arkham
+    id: push
     waitFor: [build]
 
   # Deploy to Cloud Run — migration runs inside start.sh before uvicorn
@@ -44,7 +31,7 @@ steps:
       - run
       - deploy
       - arkham
-      - --image=us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/arkham:$COMMIT_SHA
+      - --image=us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:$COMMIT_SHA
       - --region=us-central1
       - --project=${PROJECT_ID}
       - --no-allow-unauthenticated
@@ -58,10 +45,8 @@ steps:
       - --set-secrets=DATABASE_URL=fs-ai-database-url:latest,BLOODS_VAULT_KEY=arkham-vault-key:latest,SIDECAR_SERVICE_TOKEN=arkham-sidecar-api-token:latest
       - --set-env-vars=APP_ENV=production,SIDECAR_SHADOW_MODE=true,BLOODS_ENABLED=true
     id: deploy
-    waitFor: [push-arkham]
+    waitFor: [push]
 
 images:
   - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:$COMMIT_SHA'
   - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham/arkham:latest'
-  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/arkham:$COMMIT_SHA'
-  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/arkham-containers/arkham:latest'
