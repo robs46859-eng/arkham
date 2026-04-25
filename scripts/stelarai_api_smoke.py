@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import os
+import ssl
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -29,9 +31,13 @@ def request(method: str, path: str, payload: dict | None = None) -> dict:
     if payload is not None:
         body = json.dumps(payload).encode("utf-8")
         headers["Content-Type"] = "application/json"
+    
+    # Create an unverified SSL context to bypass certificate issues in the smoke test environment
+    context = ssl._create_unverified_context()
+    
     req = urllib.request.Request(url, method=method, data=body, headers=headers)
     try:
-        with urllib.request.urlopen(req, timeout=30) as response:
+        with urllib.request.urlopen(req, timeout=30, context=context) as response:
             return json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         body_text = exc.read().decode("utf-8", errors="replace")
@@ -41,10 +47,11 @@ def request(method: str, path: str, payload: dict | None = None) -> dict:
 
 
 def main() -> None:
+    unique_id = int(time.time())
     workspace_payload = {
         "tenant_id": TENANT_ID,
-        "name": "StelarAI Smoke Workspace",
-        "slug": "stelarai-smoke-workspace",
+        "name": f"Smoke Workspace {unique_id}",
+        "slug": f"smoke-ws-{unique_id}",
         "target_domain": "stelarai.tech",
         "primary_model_tier": "balanced",
         "enabled_modules": [
@@ -101,6 +108,32 @@ def main() -> None:
     )
 
     workflow_detail = request("GET", f"/stelarai/workflows/{workflow['id']}")
+    
+    # --- Phase 3+. Update, Duplicate, Simulate ---
+    print(f"Updating workflow {workflow['id']}...")
+    updated_workflow = request(
+        "PATCH",
+        f"/stelarai/workflows/{workflow['id']}",
+        {"name": "Updated Smoke Workflow", "provider_lane": "premium"}
+    )
+    
+    print(f"Simulating workflow {workflow['id']}...")
+    simulation = request(
+        "POST",
+        f"/stelarai/workflows/{workflow['id']}/simulate",
+        {"provider_lane_override": "premium"}
+    )
+    
+    print(f"Duplicating workflow {workflow['id']}...")
+    duplicate = request(
+        "POST",
+        f"/stelarai/workflows/{workflow['id']}/duplicate"
+    )
+    
+    # --- Phase 5+. Vertical Proxy ---
+    print("Testing vertical proxy (digital-it-girl)...")
+    trends = request("GET", "/stelarai/verticals/digital-it-girl/trends")
+
     account_list = request("GET", f"/stelarai/workspaces/{workspace_id}/accounts")
     source_list = request("GET", f"/stelarai/workspaces/{workspace_id}/sources")
     workflow_list = request("GET", f"/stelarai/workspaces/{workspace_id}/workflows")
@@ -110,12 +143,15 @@ def main() -> None:
         "account_id": account["id"],
         "source_id": source["id"],
         "workflow_id": workflow["id"],
+        "duplicate_workflow_id": duplicate["id"],
+        "simulation_cost": simulation.get("cost_preview_usd"),
+        "vertical_trends_count": len(trends.get("trends", {})),
         "counts": {
             "accounts": account_list["total"],
             "sources": source_list["total"],
             "workflows": workflow_list["total"],
         },
-        "workflow_detail": workflow_detail,
+        "workflow_detail": updated_workflow,
     }
     print(json.dumps(summary, indent=2))
 

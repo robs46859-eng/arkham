@@ -13,9 +13,10 @@ class Settings(BaseServiceSettings):
     # CORS — comma-separated list of allowed origins.
     # Defaults cover local dev + stelar.host production domains.
     allowed_origins: list[str] = [
-        "https://stelar.host",
-        "https://www.stelar.host",
-        "https://stelar-saas.vercel.app",
+        "https://arkhamprison.com",
+        "https://www.arkhamprison.com",
+        "https://app.arkhamprison.com",
+        "https://fullstack.arkhamprison.com",
         "http://localhost:5173",
         "http://localhost:3000",
         "http://localhost:8080",

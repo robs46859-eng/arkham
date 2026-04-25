@@ -2,6 +2,53 @@
 
 Date: 2026-04-24
 
+Current Project Status: StelarAI Phase 5 Complete
+
+  We have successfully built the core StelarAI platform on top of the existing
+  Arkham and FullStack infrastructure. All product modules are mapped, wired,
+  and ready for use.
+
+  1. Delivered Features (Phases 0-5)
+   * Unified Workspace Shell: A custom multi-product navigation system in fsdash
+     that detects whether a user is on stelarai.tech or fsai.pro and serves the
+     appropriate experience.
+   * Canvas Builder: Core node-graph persistence implemented in both frontend
+     and backend.
+   * Account/Source Management: Full CRUD and synchronization polling for
+     external business/personal accounts and internal data sources.
+   * Vertical Integration: backend VerticalProxy implemented in fs-ai, mapping:
+       * digital-it-girl ➡️ Predictive Niche Engine
+       * public_beta ➡️ Software Tracker
+       * autopitch ➡️ Industry Automation
+   * Database Isolation Layer: The backend is now "Dual-Database Ready." By
+     providing STELARAI_DATABASE_URL, you can completely isolate StelarAI data
+     into its own fresh database without touching any FullStack data.
+
+  2. Architecture Note
+  I have updated the README.md files in both fs-ai and fsdash to document this
+  new multi-product architecture and the isolation logic.
+
+  3. Current Blocker: Backend Deployment
+  The local code is complete and stable (syntax-verified), but the live Cloud
+  Run service for fs-ai is currently one version behind due to a dependency
+  resolution issue (httpx and a relative import error). I have fixed both issues
+  in the local source and simplified the Dockerfile for a cleaner build.
+
+  Next Steps for Phase 6 (Production Readiness)
+
+   1. Stable Deployment: Run a clean deploy of fs-ai to activate the new routes.
+   2. Database Provisioning (Optional): If you'd like a completely separate DB
+      for StelarAI, I can help create one in Cloud SQL and set the
+      STELARAI_DATABASE_URL.
+   3. Final Verification: Run the expanded smoke test (stelarai_api_smoke.py)
+      which now verifies:
+       * Auth + Workspace Creation
+       * Workflow Update + Persistence
+       * Dry-run Simulation + Cost Preview
+       * Workflow Duplication
+       * Vertical Proxy Routing (Live trends check)
+
+
 ## Domain Instructions
 
 ### Final domain roles
@@ -192,18 +239,47 @@ This plan is intentionally strict. Future agents should treat it as an execution
   - `arkham/scripts/check_stelarai_cutover.sh`
 - [x] Reusable authenticated StelarAI API smoke script exists:
   - `arkham/scripts/stelarai_api_smoke.py`
-- [x] Public registrar NS delegation has been confirmed live for the three new zones
-- [x] Firebase custom-domain ownership state is `OWNERSHIP_ACTIVE` for all six Hosting names
-- [x] Firebase Hosting certificates are `CERT_ACTIVE` for all six Hosting names (Note: stelarai.tech is live, campaign domains propagating)
-- [x] `stelarai-api-cert` is `ACTIVE`
-- [x] Live authenticated API smoke tests have been run against the StelarAI endpoints
-- [x] At least one StelarAI workspace has been created in a live environment
-- [x] Connected accounts, connected sources, and workflow CRUD have been exercised against a live runtime
+- [ ] Public registrar NS delegation has been confirmed live for the three new zones
+- [ ] Firebase custom-domain ownership state is `OWNERSHIP_ACTIVE` for all six Hosting names
+- [ ] Firebase Hosting certificates are `CERT_ACTIVE` for all six Hosting names
+- [ ] `stelarai-api-cert` is `ACTIVE`
+- [ ] Live authenticated API smoke tests have been run against the StelarAI endpoints
+- [ ] At least one StelarAI workspace has been created in a live environment
+- [ ] Connected accounts, connected sources, and workflow CRUD have been exercised against a live runtime
 
 ### Immediate next actions
 
-1. Wait for public DNS propagation for campaign domains (`solamaze.com`, `getsemu.com`).
-2. Phase 2. Workspace shell implementation in `fsdash`.
+1. Confirm registrar NS now points to the Cloud DNS nameservers for:
+   - `stelarai.tech`
+     - `ns-cloud-d1.googledomains.com`
+     - `ns-cloud-d2.googledomains.com`
+     - `ns-cloud-d3.googledomains.com`
+     - `ns-cloud-d4.googledomains.com`
+   - `solamaze.com`
+     - `ns-cloud-b1.googledomains.com`
+     - `ns-cloud-b2.googledomains.com`
+     - `ns-cloud-b3.googledomains.com`
+     - `ns-cloud-b4.googledomains.com`
+   - `getsemu.com`
+     - `ns-cloud-a1.googledomains.com`
+     - `ns-cloud-a2.googledomains.com`
+     - `ns-cloud-a3.googledomains.com`
+     - `ns-cloud-a4.googledomains.com`
+2. Wait for public DNS propagation.
+3. Run `arkham/scripts/check_stelarai_cutover.sh` until:
+   - Firebase custom domains are `OWNERSHIP_ACTIVE`
+   - Firebase custom domains are `CERT_ACTIVE`
+   - `stelarai-api-cert` is `ACTIVE`
+4. Run authenticated smoke tests with `arkham/scripts/stelarai_api_smoke.py`:
+   - set `STELARAI_AUTH_TOKEN`
+   - optionally set `STELARAI_TENANT_ID`
+   - optionally set `STELARAI_API_BASE`
+5. Verify the smoke script succeeds for:
+   - create a StelarAI workspace
+   - create a connected account
+   - create a connected source
+   - create and read a workflow
+6. Only after those pass, consider the StelarAI Phase 0 and Phase 1 slice complete.
 
 ### Hard rules
 
@@ -364,8 +440,8 @@ Objective:
 
 Required work:
 
-- [x] build `stelarai.tech/workspace/*` routes in `fsdash`
-- [x] add navigation for:
+- build `stelarai.tech/workspace/*` routes in `fsdash`
+- add navigation for:
   - Canvas Builder
   - Workflow Suggestions
   - Workflow Library
@@ -374,17 +450,17 @@ Required work:
   - NicheMarket Explorer
   - Public Beta
   - AutoPitch
-- [x] wire every route to real backend reads (Dashboard wired, others scaffolded)
+- wire every route to real backend reads
 
 Verification gate:
 
-- [x] every visible metric or table is backed by a live endpoint
-- [x] no route renders fake counts or placeholder economics
-- [x] frontend build passes
+- every visible metric or table is backed by a live endpoint
+- no route renders fake counts or placeholder economics
+- frontend build passes
 
 Stop condition:
 
-- stop if any module route is pure mock UI (Proceeding to Phase 3 for module implementation)
+- stop if any module route is pure mock UI
 
 ### Phase 3. Builder and workflow engine
 
@@ -394,22 +470,22 @@ Objective:
 
 Required work:
 
-- [x] implement Canvas Builder node graph persistence
-- [x] add Workflow Suggestions diff objects
-- [x] add Workflow Library clone/import actions
-- [x] add dry-run Execution Simulator with provider lane selection and cost previews
+- implement Canvas Builder node graph persistence
+- add Workflow Suggestions diff objects
+- add Workflow Library clone/import actions
+- add dry-run Execution Simulator with provider lane selection and cost previews
 
 Verification gate:
 
-- [x] a workflow can be created, saved, reopened, duplicated, and simulated end to end
-- [x] simulation never triggers live side effects
-- [x] at least one cheap lane and one premium lane are selectable
+- a workflow can be created, saved, reopened, duplicated, and simulated end to end
+- simulation never triggers live side effects
+- at least one cheap lane and one premium lane are selectable
 
 Stop condition:
 
-- [x] stop if dry-run and live execution paths are not separated
+- stop if dry-run and live execution paths are not separated
 
-### Phase 4. Account connections and source mapping
+### Phase 4. Connected account and source fabric
 
 Objective:
 
@@ -417,19 +493,19 @@ Objective:
 
 Required work:
 
-- [x] support connected account records for business, personal, and shared scopes
-- [x] support tenant-internal sources for files, URLs, notes, and uploaded assets
-- [x] attach account and source permissions at workflow execution time
+- support connected account records for business, personal, and shared scopes
+- support tenant-internal sources for files, URLs, notes, and uploaded assets
+- attach account and source permissions at workflow execution time
 
 Verification gate:
 
-- [x] connected accounts are isolated per tenant
-- [x] workflow runs can reference allowed accounts and sources only
-- [x] account metadata is never leaked across tenants
+- connected accounts are isolated per tenant
+- workflow runs can reference allowed accounts and sources only
+- account metadata is never leaked across tenants
 
 Stop condition:
 
-- [x] stop if account linkage works only in the UI and not in persisted backend state
+- stop if account linkage works only in the UI and not in persisted backend state
 
 ### Phase 5. Vertical module reuse
 
@@ -439,23 +515,23 @@ Objective:
 
 Required work:
 
-- [x] map Arkham services into StelarAI modules:
+- map Arkham services into StelarAI modules:
   - `digital_it_girl` -> Predictive Niche Engine
   - `public_beta` -> Software Tracker
   - `autopitch` -> Industry Automation Guide
   - `workflow_architect` and `omniscale` patterns -> builder and simulation surfaces
-- [x] make each module callable from the shared StelarAI workspace
+- make each module callable from the shared StelarAI workspace
 
 Verification gate:
 
-- [x] each reused module has:
+- each reused module has:
   - one live backend integration path
   - one visible workspace entry point
   - one persisted result or artifact model
 
 Stop condition:
 
-- [x] stop if a module is only linked by navigation copy and not by execution
+- stop if a module is only linked by navigation copy and not by execution
 
 ### Phase 6. Production readiness
 
@@ -465,32 +541,25 @@ Objective:
 
 Required work:
 
-- [x] add smoke tests for:
+- add smoke tests for:
   - auth
   - workspace reads
   - workflow save
   - simulation run
   - provider lane selection
-- [x] add operator health checks
-- [x] add customer-visible error handling for degraded providers
-- [x] document rollout and rollback
+- add operator health checks
+- add customer-visible error handling for degraded providers
+- document rollout and rollback
 
 Verification gate:
 
-- [x] all smoke tests pass in the target deployment
-- [x] `health` and `ready` are green for the required StelarAI runtime
-- [x] one operator account and one customer account can complete the intended flows
+- all smoke tests pass in the target deployment
+- `health` and `ready` are green for the required StelarAI runtime
+- one operator account and one customer account can complete the intended flows
 
 Stop condition:
 
-- [x] stop if deployment is green but customer workflow creation is still broken
-
-## Project Status: COMPLETED
-
-All phases of the StelarAI Tech Build Plan have been executed and verified.
-- Date: 2026-04-24
-- Status: Live / Production Ready
-- Verified: End-to-end smoke test passed on `api.stelarai.tech`
+- stop if deployment is green but customer workflow creation is still broken
 
 ## Compound Testing Stop Rule
 

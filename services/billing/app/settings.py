@@ -22,9 +22,9 @@ class Settings(BaseServiceSettings):
 
     # URLs embedded in Stripe checkout / portal sessions.
     # These should point to the frontend app.
-    stripe_success_url: str = "https://your-app.example.com/billing/success"
-    stripe_cancel_url: str = "https://your-app.example.com/billing/cancel"
-    stripe_portal_return_url: str = "https://your-app.example.com/billing"
+    stripe_success_url: str = "https://app.arkhamprison.com/billing/success"
+    stripe_cancel_url: str = "https://app.arkhamprison.com/billing/cancel"
+    stripe_portal_return_url: str = "https://app.arkhamprison.com/billing"
 
     def require_runtime_config(self) -> None:
         if self.is_test:

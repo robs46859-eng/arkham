@@ -36,6 +36,10 @@ def _tenant_has_vertical_access(db: Any, tenant_id: str, vertical_id: str) -> bo
     if tenant is None or not isinstance(tenant, Tenant) or not tenant.is_active:
         return False
 
+    # 'pro' plan grants access to all verticals for now
+    if getattr(tenant, "plan", "free") == "pro":
+        return True
+
     entitlements = getattr(tenant, "entitlements", {}) or {}
     verticals = entitlements.get("verticals", [])
     return "*" in verticals or vertical_id in verticals
