@@ -69,8 +69,8 @@ class Settings(BaseServiceSettings):
     prefer_local_models: bool = True
 
     # External Model Providers
-    openai_api_key: str | None = None
-    openai_base_url: str | None = None
+    openai_api_key: str | None = "dummy"
+    openai_base_url: str | None = "http://localhost:8081/v1"
     openai_mid_tier_model: str = "gpt-4o-mini"
     openai_premium_model: str = "gpt-4o"
     gemini_api_key: str | None = None

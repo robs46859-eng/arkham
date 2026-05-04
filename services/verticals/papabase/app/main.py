@@ -138,7 +138,7 @@ class UserAccount(BaseModel):
     permissions: List[str] = ["ask_lead"] # Default: Sub-accounts must ask lead
     created_at: str
 
-# ── Business Manager (Chief AI) Models ───────────────────────────────────────
+# ── Business Manager (Executive AI) Models ───────────────────────────────────
 
 class BusinessInsight(BaseModel):
     title: str
@@ -146,7 +146,7 @@ class BusinessInsight(BaseModel):
     action_item: str
     impact_level: str # low | medium | high
 
-class ChiefAIMemory(BaseModel):
+class ExecutiveAIMemory(BaseModel):
     business_name: str = "My Family Business"
     revenue_metrics: str = "$0.00 this month"
     lead_velocity: float = 0.0
@@ -154,7 +154,7 @@ class ChiefAIMemory(BaseModel):
     business_insights: List[BusinessInsight] = Field(default_factory=list)
     imported_branding_id: Optional[str] = None
 
-# ── Chief AI Expansion ──────────────────────────────────────────────────────
+# ── Executive AI Expansion ──────────────────────────────────────────────────
 
 @app.post("/api/business/customize-name")
 async def update_business_name(data: dict, x_tenant_id: str = Header(...)):
@@ -178,7 +178,7 @@ async def import_web_data(data: dict, x_tenant_id: str = Header(...)):
     if not web_project:
         raise HTTPException(status_code=404, detail="No web project found for this lead.")
 
-    # 2. Sync to Chief AI Memory
+    # 2. Sync to Executive AI memory
     ref = get_tenant_collection(x_tenant_id, "chief_ai_state").document("memory")
     ref.update({
         "imported_branding_id": web_project["id"],
@@ -432,8 +432,8 @@ async def trigger_vertical(
         }
         get_tenant_collection(x_tenant_id, "dad_ai_state").document("memory").set(memory)
         return memory
-    elif vertical_id == "chief-ai":
-        # Initialize Chief AI (Business Manager)
+    elif vertical_id in {"chief-ai", "executive-ai"}:
+        # Initialize Executive AI (Business Manager)
         memory = {
             "revenue_metrics": "$12,400 projected",
             "lead_velocity": 4.2,
@@ -447,10 +447,11 @@ async def trigger_vertical(
     else:
         raise HTTPException(status_code=400, detail=f"Unsupported vertical: {vertical_id}")
 
-# ── Chief AI (Business Manager) Routes ────────────────────────────────────────
+# ── Executive AI (Business Manager) Routes ───────────────────────────────────
 
+@app.post("/api/executive-ai/command")
 @app.post("/api/chief-ai/command")
-async def chief_ai_command(command: dict, x_tenant_id: str = Header(...)):
+async def executive_ai_command(command: dict, x_tenant_id: str = Header(...)):
     """
     Business Manager AI handles revenue, leads, and strategy.
     """
@@ -475,8 +476,9 @@ async def chief_ai_command(command: dict, x_tenant_id: str = Header(...)):
 
     return {"response": response, "state": state}
 
+@app.get("/api/executive-ai/state")
 @app.get("/api/chief-ai/state")
-async def get_chief_ai_state(x_tenant_id: str = Header(...)):
+async def get_executive_ai_state(x_tenant_id: str = Header(...)):
     doc = get_tenant_collection(x_tenant_id, "chief_ai_state").document("memory").get()
     if not doc.exists:
         return {"revenue_metrics": "$0", "strategy_status": "Idle"}
